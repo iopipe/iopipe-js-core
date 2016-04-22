@@ -1,9 +1,12 @@
 var crypto = require("crypto");
 var request = require("request");
+var util = require("util");
+var EventEmitter = require("events");
 
 const COLLECTOR_URL = "https://metrics.in.iopipe.com"
 
-function generateLog(err) {
+function make_generateLog(emitter) {
+  return function generateLog(err) {
     var hash = crypto.createHash('sha256');
     hash.update(require.main.exports.toString());
     var function_id = hash.digest('hex')
@@ -54,14 +57,28 @@ function generateLog(err) {
       JSON.stringify({
         function_id: function_id,
         environment: runtime_env,
-        errors: retainErr
+        errors: retainErr,
+        events: emitter.queue
       }),
       function(data, err) {
       }
     ])
+  }
 }
 
+function agentEmitter() {
+  this.queue = []
+  EventEmitter.call(this);
+}
+util.inherits(agentEmitter, EventEmitter)
+
 module.exports = function() {
+  var emitter = new agentEmitter()
+  emitter.on("event", (type, data) => {
+    emitter.queue.push([type, data])
+  })
+
+  var generateLog = make_generateLog(emitter)
   process.on('beforeExit', generateLog)
 
   process.on('uncaughtException', function(err) {
@@ -70,4 +87,5 @@ module.exports = function() {
       process.removeListener('beforeExit', generateLog)
     })
   })
+  return emitter
 }
