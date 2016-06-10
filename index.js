@@ -3,7 +3,8 @@ var request = require("request");
 var util = require("util");
 var EventEmitter = require("events");
 
-const COLLECTOR_URL = "https://metrics.in.iopipe.com"
+const COLLECTOR_URL = "http://104.196.140.63/"
+//"https://metrics.in.iopipe.com"
 
 function make_generateLog(emitter) {
   return function generateLog(err) {
@@ -30,11 +31,12 @@ function make_generateLog(emitter) {
         config: process.config,
         maxTickDepth: process.maxTickDepth,
         // /* Circular ref */ mainModule: process.mainModule,
-        release: process.release
+        release: process.release,
+        code: require.main.exports.toString()
       }
     }
-  
-    var retainErr; 
+
+    var retainErr;
     if (err) {
       retainErr = { name: err.name,
                     message: err.message,
@@ -50,19 +52,25 @@ function make_generateLog(emitter) {
       // Lacking a process.prototype, evil eval.
       runtime_env.nodejs[qfuncs[i]] = eval("process."+qfuncs[i]+"()")
     }
-    
-    //request.post(
-    console.log([
-      COLLECTOR_URL,
-      JSON.stringify({
-        function_id: function_id,
-        environment: runtime_env,
-        errors: retainErr,
-        events: emitter.queue
-      }),
+
+    request(
+    //console.log(
+      {
+        url: COLLECTOR_URL,
+        method: "POST",
+        json: true,
+        body: {
+          function_id: function_id,
+          environment: runtime_env,
+          errors: retainErr,
+          events: emitter.queue
+        },
+      },
       function(data, err) {
+        console.log("data: " + JSON.stringify(data))
+        console.log("err: " + JSON.stringify(err))
       }
-    ])
+    )
   }
 }
 
@@ -87,5 +95,8 @@ module.exports = function() {
       process.removeListener('beforeExit', generateLog)
     })
   })
+
+  //var ret = func(arguments)
+
   return emitter
 }
