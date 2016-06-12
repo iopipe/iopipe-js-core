@@ -3,8 +3,7 @@ var request = require("request");
 var util = require("util");
 var EventEmitter = require("events");
 
-const COLLECTOR_URL = "http://104.196.140.63/"
-//"https://metrics.in.iopipe.com"
+const COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function make_generateLog(emitter, func, start_time) {
   return function generateLog(err) {
