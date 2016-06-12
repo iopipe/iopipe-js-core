@@ -1,7 +1,7 @@
 {
   "name": "iopipe-agent",
-  "version": "0.0.1",
-  "description": "IOpipe Serverless Agent",
+  "version": "0.0.2",
+  "description": "IOpipe Serverless Metrics & Tracing Agent",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
