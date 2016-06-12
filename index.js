@@ -3,12 +3,13 @@ var request = require("request");
 var util = require("util");
 var EventEmitter = require("events");
 
-const COLLECTOR_URL = "https://metrics.in.iopipe.com"
+const COLLECTOR_URL = "http://104.196.140.63/"
+//"https://metrics.in.iopipe.com"
 
-function make_generateLog(emitter) {
+function make_generateLog(emitter, func, start_time) {
   return function generateLog(err) {
     var hash = crypto.createHash('sha256');
-    hash.update(require.main.exports.toString());
+    hash.update(func.toString());
     var function_id = hash.digest('hex')
 
     var runtime_env = {
@@ -30,11 +31,12 @@ function make_generateLog(emitter) {
         config: process.config,
         maxTickDepth: process.maxTickDepth,
         // /* Circular ref */ mainModule: process.mainModule,
-        release: process.release
+        release: process.release,
+        code: func.toString()
       }
     }
-  
-    var retainErr; 
+
+    var retainErr;
     if (err) {
       retainErr = { name: err.name,
                     message: err.message,
@@ -50,19 +52,31 @@ function make_generateLog(emitter) {
       // Lacking a process.prototype, evil eval.
       runtime_env.nodejs[qfuncs[i]] = eval("process."+qfuncs[i]+"()")
     }
-    
-    //request.post(
-    console.log([
-      COLLECTOR_URL,
-      JSON.stringify({
-        function_id: function_id,
-        environment: runtime_env,
-        errors: retainErr,
-        events: emitter.queue
-      }),
+
+    var time_sec_nanosec = process.hrtime(start_time)
+    var time_secs = time_sec_nanosec[0]
+    var time_nanosecs = time_sec_nanosec[1]
+
+    request(
+      {
+        url: COLLECTOR_URL,
+        method: "POST",
+        json: true,
+        body: {
+          function_id: function_id,
+          environment: runtime_env,
+          errors: retainErr,
+          events: emitter.queue,
+          time_sec_nanosec: time_sec_nanosec,
+          time_sec: time_sec_nanosec[0],
+          time_nanosec: time_sec_nanosec[1],
+        },
+      },
       function(data, err) {
+        console.log("data: " + JSON.stringify(data))
+        console.log("err: " + JSON.stringify(err))
       }
-    ])
+    )
   }
 }
 
@@ -72,20 +86,25 @@ function agentEmitter() {
 }
 util.inherits(agentEmitter, EventEmitter)
 
-module.exports = function() {
-  var emitter = new agentEmitter()
-  emitter.on("event", (type, data) => {
-    emitter.queue.push([type, data])
-  })
-
-  var generateLog = make_generateLog(emitter)
-  process.on('beforeExit', generateLog)
-
-  process.on('uncaughtException', function(err) {
-    generateLog(err)
-    process.nextTick(function() {
-      process.removeListener('beforeExit', generateLog)
+module.exports = function(func) {
+  return function() {
+    var emitter = new agentEmitter()
+    emitter.on("iopipe_event", (type, data) => {
+      emitter.queue.push([type, data])
     })
-  })
-  return emitter
+
+    var start_time = process.hrtime()
+    var generateLog = make_generateLog(emitter, func, start_time)
+    var args = [].slice.call(arguments)
+    try {
+      var ret = func.apply(emitter, args)
+    }
+    catch (err) {
+      generateLog(err)
+      throw err
+    }
+
+    generateLog()
+    return ret
+  }
 }
