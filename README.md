@@ -13,7 +13,13 @@ other "serverless" environment.
 Example:
 
 ```javascript
-require("iopipe-agent-node")()
+var ioipe_metrics = require("iopipe-agent-node")
+
+module.exports = iopipe_metrics(
+  function(event, context){
+    context.succeed("This is my serverless function!")
+  }
+)
 ```
 
 # License
