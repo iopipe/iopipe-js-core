@@ -1,5 +1,6 @@
 IOpipe Analytics Agent
 ----------------------
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/iopipe/iopipe)
 
 This package provides analytics for event-driven, "serverless" applications.
 
