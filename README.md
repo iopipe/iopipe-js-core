@@ -23,6 +23,20 @@ module.exports = iopipe_metrics(
 )
 ```
 
+# Data reported
+
+The following is provided to the collector service,
+either the IOpipe Telemetry Service or the [open serverless
+collector](https://github.com/iopipe/iopipe-collector).
+
+ - function_id
+ - environment  (restricted view of Node's process var)
+ - errors
+ - events       (custom events sent via `.emit('event', [data])`
+ - time_sec_nanosec  (execution time: [secs, nanosecs])
+ - time_sec          (execution time: secs)
+ - time_nanosec      (execution time: nanosecs)
+
 # License
 
 Apache 2.0
