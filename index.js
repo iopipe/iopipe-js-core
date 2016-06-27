@@ -71,9 +71,10 @@ function make_generateLog(emitter, func, start_time) {
           time_nanosec: time_sec_nanosec[1],
         },
       },
-      function(data, err) {
-        console.log("data: " + JSON.stringify(data))
-        console.log("err: " + JSON.stringify(err))
+      function(err, res, body) {
+        console.log("error: " + JSON.stringify(err))
+        console.log("response: " + JSON.stringify(res))
+        console.log("body: " + JSON.stringify(body))
       }
     )
   }
