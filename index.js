@@ -5,7 +5,14 @@ var EventEmitter = require("events");
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-function make_generateLog(emitter, func, start_time, url) {
+var agent = {}
+agent.settings = {}
+
+agent.setUserId = function set(id) {
+  agent.settings.userId = id
+}
+
+function _make_generateLog(emitter, func, start_time, url) {
   return function generateLog(err) {
     var hash = crypto.createHash('sha256');
     hash.update(func.toString());
@@ -69,6 +76,7 @@ function make_generateLog(emitter, func, start_time, url) {
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
+          user_id: agent.settings.userId
         },
       },
       function(err, res, body) {
@@ -80,13 +88,13 @@ function make_generateLog(emitter, func, start_time, url) {
   }
 }
 
-function agentEmitter() {
+function _agentEmitter() {
   this.queue = []
   EventEmitter.call(this);
 }
-util.inherits(agentEmitter, EventEmitter)
+util.inherits(_agentEmitter, EventEmitter)
 
-module.exports = function(url) {
+agent.main = function(url) {
   return function(func) {
     return function() {
       url = url || DEFAULT_COLLECTOR_URL
@@ -112,3 +120,6 @@ module.exports = function(url) {
     }
   }
 }
+
+exports = module.exports = agent.main
+exports.setUserId = agent.setUserId
