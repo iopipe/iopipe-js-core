@@ -1,15 +1,16 @@
-var crypto = require("crypto");
-var request = require("request");
-var util = require("util");
-var EventEmitter = require("events");
+"use strict"
+
+var crypto = require("crypto")
+var request = require("request")
+var EventEmitter = require("events")
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 var agent = {}
 agent.settings = {}
 
-agent.setUserId = function set(id) {
-  agent.settings.userId = id
+agent.setClientId = function set(id) {
+  agent.settings.clientId = id
 }
 
 function _make_generateLog(emitter, func, start_time, url) {
@@ -76,7 +77,7 @@ function _make_generateLog(emitter, func, start_time, url) {
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
-          user_id: agent.settings.userId
+          client_id: agent.settings.clientId
         },
       },
       function(err, res, body) {
@@ -88,18 +89,19 @@ function _make_generateLog(emitter, func, start_time, url) {
   }
 }
 
-function _agentEmitter() {
-  this.queue = []
-  EventEmitter.call(this);
+class _agentEmitter extends EventEmitter {
+  constructor() {
+    this.queue = [];
+    EventEmitter.call(this)
+  }
 }
-util.inherits(_agentEmitter, EventEmitter)
 
-agent.main = function(url) {
+agent.main = function(config) {
+  if(!agent.settings.clientId) throw new Error("Make sure your client id is set")
   return function(func) {
     return function() {
       url = url || DEFAULT_COLLECTOR_URL
-
-      var emitter = new agentEmitter()
+      var emitter = new _agentEmitter()
       emitter.on("iopipe_event", (type, data) => {
         emitter.queue.push([type, data])
       })
@@ -121,5 +123,9 @@ agent.main = function(url) {
   }
 }
 
+// Public API
 exports = module.exports = agent.main
-exports.setUserId = agent.setUserId
+exports.setClientId = agent.setClientId
+
+// Export agent object for testing
+exports.agent = agent
