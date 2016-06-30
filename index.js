@@ -3,9 +3,9 @@ var request = require("request");
 var util = require("util");
 var EventEmitter = require("events");
 
-const COLLECTOR_URL = "https://metrics-api.iopipe.com"
+const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-function make_generateLog(emitter, func, start_time) {
+function make_generateLog(emitter, func, start_time, url) {
   return function generateLog(err) {
     var hash = crypto.createHash('sha256');
     hash.update(func.toString());
@@ -58,7 +58,7 @@ function make_generateLog(emitter, func, start_time) {
 
     request(
       {
-        url: COLLECTOR_URL,
+        url: url,
         method: "POST",
         json: true,
         body: {
@@ -86,25 +86,29 @@ function agentEmitter() {
 }
 util.inherits(agentEmitter, EventEmitter)
 
-module.exports = function(func) {
-  return function() {
-    var emitter = new agentEmitter()
-    emitter.on("iopipe_event", (type, data) => {
-      emitter.queue.push([type, data])
-    })
+module.exports = function(url) {
+  return function(func) {
+    return function() {
+      url = url || DEFAULT_COLLECTOR_URL
 
-    var start_time = process.hrtime()
-    var generateLog = make_generateLog(emitter, func, start_time)
-    var args = [].slice.call(arguments)
-    try {
-      var ret = func.apply(emitter, args)
-    }
-    catch (err) {
-      generateLog(err)
-      throw err
-    }
+      var emitter = new agentEmitter()
+      emitter.on("iopipe_event", (type, data) => {
+        emitter.queue.push([type, data])
+      })
 
-    generateLog()
-    return ret
+      var start_time = process.hrtime()
+      var generateLog = make_generateLog(emitter, func, start_time, url)
+      var args = [].slice.call(arguments)
+      try {
+        var ret = func.apply(emitter, args)
+      }
+      catch (err) {
+        generateLog(err)
+        throw err
+      }
+
+      generateLog()
+      return ret
+    }
   }
 }

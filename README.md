@@ -15,11 +15,31 @@ other "serverless" environment.
 Example:
 
 ```javascript
-var ioipe_metrics = require("iopipe-agent-node")
+var iopipe_metrics = require("iopipe-agent")()
 
-module.exports = iopipe_metrics(
-  function(event, context){
+exports.handle = iopipe_metrics(
+  function (event, context) {
     context.succeed("This is my serverless function!")
+  }
+)
+```
+
+# Configuration
+
+The default exported function takes a single parameter, a URL
+for the collector service. If this not provided, by default,
+telemetry will be reported to the [IOpipe Telemetry Service](https://www.iopipe.com/).
+
+To _override_ the collector service, specify a URL ("127.0.0.1")
+running the [IOpipe Collector](https://github.com/iopipe/iopipe-collector)
+as follows:
+
+```
+var iopipe_metrics = require("iopipe-agent")("https://127.0.0.1")
+
+exports.handle = iopipe_metrics(
+  function (event, context) {
+    context.succeed("Reporting these metrics to my own collector!")
   }
 )
 ```
