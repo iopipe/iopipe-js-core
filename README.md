@@ -41,5 +41,3 @@ collector](https://github.com/iopipe/iopipe-collector).
 # License
 
 Apache 2.0
-
-Copyright 2016 IOpipe, Inc.
