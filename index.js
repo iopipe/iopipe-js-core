@@ -3,17 +3,11 @@
 var crypto = require("crypto")
 var request = require("request")
 var EventEmitter = require("events")
+var util = require("util")
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-var agent = {}
-agent.settings = {}
-
-agent.setClientId = function set(id) {
-  agent.settings.clientId = id
-}
-
-function _make_generateLog(emitter, func, start_time, url) {
+function _make_generateLog(emitter, func, start_time, config) {
   return function generateLog(err) {
     var hash = crypto.createHash('sha256');
     hash.update(func.toString());
@@ -66,7 +60,7 @@ function _make_generateLog(emitter, func, start_time, url) {
 
     request(
       {
-        url: url,
+        url: config.url,
         method: "POST",
         json: true,
         body: {
@@ -77,7 +71,7 @@ function _make_generateLog(emitter, func, start_time, url) {
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
-          client_id: agent.settings.clientId
+          client_id: config.clientId
         },
       },
       function(err, res, body) {
@@ -89,25 +83,27 @@ function _make_generateLog(emitter, func, start_time, url) {
   }
 }
 
-class _agentEmitter extends EventEmitter {
-  constructor() {
-    this.queue = [];
-    EventEmitter.call(this)
-  }
+function _agentEmitter() {
+  this.queue = []
+  EventEmitter.call(this);
 }
+util.inherits(_agentEmitter, EventEmitter)
 
-agent.main = function(config) {
-  if(!agent.settings.clientId) throw new Error("Make sure your client id is set")
+module.exports = function(configObject) {
   return function(func) {
     return function() {
-      url = url || DEFAULT_COLLECTOR_URL
+      var config = {
+        url: configObject.url || DEFAULT_COLLECTOR_URL,
+        clientId: configObject.clientId || ""
+      }
+
       var emitter = new _agentEmitter()
       emitter.on("iopipe_event", (type, data) => {
         emitter.queue.push([type, data])
       })
 
       var start_time = process.hrtime()
-      var generateLog = make_generateLog(emitter, func, start_time, url)
+      var generateLog = _make_generateLog(emitter, func, start_time, config)
       var args = [].slice.call(arguments)
       try {
         var ret = func.apply(emitter, args)
@@ -122,10 +118,3 @@ agent.main = function(config) {
     }
   }
 }
-
-// Public API
-exports = module.exports = agent.main
-exports.setClientId = agent.setClientId
-
-// Export agent object for testing
-exports.agent = agent
