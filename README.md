@@ -43,7 +43,7 @@ To _override_ the collector service, specify a URL (ex. "127.0.0.1")
 running the [IOpipe Collector](https://github.com/iopipe/iopipe-collector)
 as follows:
 
-```
+```javascript
 var iopipe_metrics = require("iopipe-agent")({ url: "https://127.0.0.1", clientId: "YOUR_ID" })
 
 exports.handle = iopipe_metrics(
