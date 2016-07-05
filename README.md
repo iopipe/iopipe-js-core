@@ -8,7 +8,7 @@ event-driven, "serverless" applications.
 # Installation & usage
 
 Installation is simple. Just require this module with your client id
-([sign up at IOpipe](https://www.iopipe.com/)) and it will
+([contact us to get set up](mailto:support@iopipe.com)) and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda, Google Cloud Functions, Azure, or any
 other "serverless" environment.
