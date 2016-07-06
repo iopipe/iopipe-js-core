@@ -4,6 +4,8 @@ var crypto = require("crypto")
 var request = require("request")
 var EventEmitter = require("events")
 var util = require("util")
+var url = require("url")
+var path = require("path")
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
@@ -92,8 +94,13 @@ util.inherits(_agentEmitter, EventEmitter)
 module.exports = function(configObject) {
   return function(func) {
     return function() {
+      var baseurl = (configObject && configObject.url) ? configObject.url : DEFAULT_COLLECTOR_URL
+      var eventURL = url.parse(baseurl)
+      eventURL.pathname = path.join(eventURL.pathname, 'event')
+      eventURL.path = eventURL.pathname + eventURL.search
+
       var config = {
-        url: configObject.url || DEFAULT_COLLECTOR_URL,
+        url: eventURL,
         clientId: configObject.clientId || ""
       }
 
