@@ -7,7 +7,8 @@ event-driven, "serverless" applications.
 
 # Installation & usage
 
-Installation is simple. Just require this module and it will
+Installation is simple. Just require this module with your client id
+([contact us to get set up](mailto:support@iopipe.com)) and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda, Google Cloud Functions, Azure, or any
 other "serverless" environment.
@@ -15,7 +16,7 @@ other "serverless" environment.
 Example:
 
 ```javascript
-var iopipe_metrics = require("iopipe-agent")()
+var iopipe_metrics = require("iopipe-agent")({ clientId: "YOUR_ID"})
 
 exports.handle = iopipe_metrics(
   function (event, context) {
@@ -26,16 +27,24 @@ exports.handle = iopipe_metrics(
 
 # Configuration
 
-The default exported function takes a single parameter, a URL
-for the collector service. If this not provided, by default,
+When requiring the metrics agent, it accepts a config object where
+you define the URL for the collector service and a client id. By default,
 telemetry will be reported to the [IOpipe Telemetry Service](https://www.iopipe.com/).
 
-To _override_ the collector service, specify a URL ("127.0.0.1")
+```javascript
+var config = {
+    url: "https://metrics-api.iopipe.com", // This is the default value
+    clientId: "YOUR_ID"
+}
+var iopipe_metrics = require("iopipe-agent")(config)
+```
+
+To _override_ the collector service, specify a URL (ex. "127.0.0.1")
 running the [IOpipe Collector](https://github.com/iopipe/iopipe-collector)
 as follows:
 
-```
-var iopipe_metrics = require("iopipe-agent")("https://127.0.0.1")
+```javascript
+var iopipe_metrics = require("iopipe-agent")({ url: "https://127.0.0.1", clientId: "YOUR_ID" })
 
 exports.handle = iopipe_metrics(
   function (event, context) {
@@ -50,7 +59,8 @@ The following is provided to the collector service,
 either the IOpipe Telemetry Service or the [open serverless
 collector](https://github.com/iopipe/iopipe-collector).
 
- - function_id
+ - function_id (a hashed identifier of the function)
+ - client_id (your client id, common among all your functions)
  - environment  (restricted view of Node's process var)
  - errors
  - events       (custom events sent via `.emit('event', [data])`
