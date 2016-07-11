@@ -96,8 +96,8 @@ module.exports = function(configObject) {
     return function() {
       var baseurl = (configObject && configObject.url) ? configObject.url : DEFAULT_COLLECTOR_URL
       var eventURL = url.parse(baseurl)
-      eventURL.pathname = path.join(eventURL.pathname, 'event')
-      eventURL.path = eventURL.pathname + eventURL.search
+      eventURL.pathname = path.join(eventURL.pathname, 'v0/event')
+      eventURL.path = eventURL.search ? eventURL.pathname + eventURL.search : eventURL.pathname
 
       var config = {
         url: eventURL,
