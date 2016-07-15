@@ -1,27 +1,30 @@
 {
   "name": "iopipe-agent",
-  "version": "0.0.6",
-  "description": "IOpipe Serverless Metrics & Tracing Agent",
+  "version": "0.0.10",
+  "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "index.js",
   "scripts": {
     "test": "istanbul cover jasmine"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iopipe/iopipe-agent.git"
+    "url": "git+https://github.com/iopipe/iopipe.git"
   },
   "keywords": [
     "serverless",
     "agent",
     "analytics",
-    "metrics"
+    "metrics",
+    "telemetry",
+    "tracing",
+    "distributed tracing"
   ],
   "author": "Eric Windisch <eric@iopipe.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/iopipe/iopipe-agent/issues"
+    "url": "https://github.com/iopipe/iopipe/issues"
   },
-  "homepage": "https://github.com/iopipe/iopipe-agent#readme",
+  "homepage": "https://github.com/iopipe/iopipe#readme",
   "dependencies": {
     "crypto": "0.0.3",
     "request": "^2.72.0"
