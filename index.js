@@ -76,10 +76,6 @@ function _make_generateLog(emitter, func, start_time, config) {
         },
       },
       function(reqErr, res, body) {
-        console.log("error: " + JSON.stringify(reqErr))
-        console.log("response: " + JSON.stringify(res))
-        console.log("body: " + JSON.stringify(body))
-
         // Throw uncaught errors from the wrapped function.
 		if (err) {
 		  throw err
