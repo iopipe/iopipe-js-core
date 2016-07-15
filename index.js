@@ -38,7 +38,7 @@ function _make_generateLog(emitter, func, start_time, config) {
       }
     }
 
-    var retainErr;
+    var retainErr = {};
     if (err) {
       retainErr = { name: err.name,
                     message: err.message,
@@ -75,10 +75,11 @@ function _make_generateLog(emitter, func, start_time, config) {
           client_id: config.clientId
         },
       },
-      function(err, res, body) {
-        console.log("error: " + JSON.stringify(err))
-        console.log("response: " + JSON.stringify(res))
-        console.log("body: " + JSON.stringify(body))
+      function(reqErr, res, body) {
+        // Throw uncaught errors from the wrapped function.
+		if (err) {
+		  throw err
+        }
       }
     )
   }
@@ -116,7 +117,6 @@ module.exports = function(configObject) {
       }
       catch (err) {
         generateLog(err)
-        throw err
       }
 
       generateLog()
