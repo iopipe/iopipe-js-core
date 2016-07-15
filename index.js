@@ -25,7 +25,6 @@ function _make_generateLog(emitter, func, start_time, config) {
         platform: process.platform,
         argv: process.argv,
         execArgv: process.execArgv,
-        env: process.env,
         pid: process.pid,
         features: process.features,
         execPath: process.execPath,
