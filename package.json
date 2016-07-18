@@ -1,5 +1,5 @@
 {
-  "name": "iopipe-agent",
+  "name": "iopipe",
   "version": "0.0.10",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "index.js",
