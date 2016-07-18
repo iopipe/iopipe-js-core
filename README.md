@@ -8,7 +8,7 @@ event-driven applications running on AWS Lambda.
 # Installation & usage
 
 Installation is simple. Just require this module with your client id
-([contact us to get set up](mailto:support@iopipe.com)) and it will
+([register for access](https://www.iopipe.com)) and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda.
 
