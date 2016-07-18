@@ -24,34 +24,6 @@ exports.handle = iopipe(
 )
 ```
 
-# Configuration
-
-When requiring the metrics agent, it accepts a config object where
-you define the URL for the collector service and a client id. By default,
-telemetry will be reported to the [IOpipe Telemetry Service](https://www.iopipe.com/).
-
-```javascript
-var config = {
-    url: "https://metrics-api.iopipe.com", // This is the default value
-    clientId: "YOUR_ID"
-}
-var iopipe = require("iopipe")(config)
-```
-
-To _override_ the collector service, specify a URL (ex. "127.0.0.1")
-running the [IOpipe Collector](https://github.com/iopipe/iopipe-collector)
-as follows:
-
-```javascript
-var iopipe = require("iopipe")({ url: "https://127.0.0.1", clientId: "YOUR_ID" })
-
-exports.handle = iopipe_metrics(
-  function (event, context) {
-    context.succeed("Reporting these metrics to my own collector!")
-  }
-)
-```
-
 # Data reported
 
 The following is provided to IOpipe:
