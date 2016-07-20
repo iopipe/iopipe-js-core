@@ -6,11 +6,13 @@ var EventEmitter = require("events")
 var util = require("util")
 var url = require("url")
 var path = require("path")
+var turtle = require("@iopipe/turtle")
+var deepcopy = require('deepcopy')
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config) {
-  return function generateLog(err) {
+  return function generateLog(err, callback) {
     var hash = crypto.createHash('sha256');
     hash.update(func.toString());
     var function_id = hash.digest('hex')
@@ -34,19 +36,21 @@ function _make_generateLog(emitter, func, start_time, config) {
         maxTickDepth: process.maxTickDepth,
         // /* Circular ref */ mainModule: process.mainModule,
         release: process.release,
-        code: func.toString()
       }
     }
 
     var retainErr = {};
     if (err) {
-      retainErr = { name: err.name,
-                    message: err.message,
-                    stack: err.stack,
-                    lineNumber: err.lineNumber,
-                    columnNumber: err.columnNumber,
-                    fileName: err.fileName
-                  }
+      retainErr = ((err) => {
+                    return {
+                      name: err.name,
+                      message: err.message,
+                      stack: err.stack,
+                      lineNumber: err.lineNumber,
+                      columnNumber: err.columnNumber,
+                      fileName: err.fileName
+                    }
+                  })((typeof(err) !== "string") ? new Error(err) : err)
     }
 
     var qfuncs = ["uptime", "getuid", "getgid", "geteuid", "getegid", "memoryUsage"]
@@ -77,9 +81,13 @@ function _make_generateLog(emitter, func, start_time, config) {
       },
       function(reqErr, res, body) {
         // Throw uncaught errors from the wrapped function.
-		if (err) {
-		  throw err
+        if (err) {
+          context.fail(err)
         }
+        /*if (reqErr) {
+          console.log("WOLF:IOpipeLoggingError: ", reqErr)
+        }*/
+        callback()
       }
     )
   }
@@ -111,16 +119,70 @@ module.exports = function(configObject) {
 
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(emitter, func, start_time, config)
-      var args = [].slice.call(arguments)
-      try {
-        var ret = func.apply(emitter, args)
+      var new_context = (old_context) => {
+        var context = deepcopy(old_context)
+        context.succeed = function(data) {
+          //console.log("WOLF:CalledContextSucceed.")
+          generateLog(null, () => {
+            old_context.succeed(data)
+          })
+        }
+        context.fail = function(err) {
+          //console.log("WOLF:CalledContextFail.")
+          generateLog(err, () => {
+            old_context.fail(err)
+          })
+        }
+        context.done = function(err, data) {
+          //console.log("WOLF:CalledContextDone.")
+          generateLog(err, () => {
+            old_context.done(err, data)
+          })
+        }
+        context.iopipe_log = function(level, data) {
+          emitter.queue.push([level, data])
+        }
+
+        return context
       }
-      catch (err) {
-        generateLog(err)
+      var new_callback = (callback) => {
+        if (typeof(callback) !== 'function') {
+          return undefined
+        }
+        return (err) => {
+          //console.log("WOLF:CalledLambdaCallback.")
+          var nargs = [].slice.call(arguments)
+          generateLog(err, () => {
+            callback.apply(callback, nargs)
+          })
+        }
       }
 
-      generateLog()
-      return ret
+      /* Mangle arguments, wrapping callbacks. */
+      var args = [].slice.call(arguments)
+      args[1] = new_context(args[1])
+      args[2] = new_callback(args[2])
+
+      var safetyHandler = (err) => {
+        //console.log("WOLF:CalledSafetyHandler");
+        generateLog(err, () => {})
+      }
+      process.on('beforeExit', safetyHandler)
+      process.on('uncaughtException', function(err) {
+        //console.log("WOLF:UncaughtException")
+        safetyHandler(err)
+        process.nextTick(function() {
+          process.removeListener('beforeExit', safetyHandler)
+        })
+      })
+
+      try {
+        return func.apply(emitter, args)
+      }
+      catch (err) {
+        generateLog(err, () => {})
+        return undefined
+      }
     }
   }
 }
