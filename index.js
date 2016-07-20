@@ -50,7 +50,7 @@ function _make_generateLog(emitter, func, start_time, config) {
                       columnNumber: err.columnNumber,
                       fileName: err.fileName
                     }
-                  })((typeof(err) !== "string") ? new Error(err) : err)
+                  })((typeof(err) === "string") ? new Error(err) : err)
     }
 
     var qfuncs = ["uptime", "getuid", "getgid", "geteuid", "getegid", "memoryUsage"]
