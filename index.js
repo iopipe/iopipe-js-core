@@ -6,7 +6,6 @@ var EventEmitter = require("events")
 var util = require("util")
 var url = require("url")
 var path = require("path")
-var turtle = require("@iopipe/turtle")
 var deepcopy = require('deepcopy')
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
@@ -63,12 +62,7 @@ function _make_generateLog(emitter, func, start_time, config) {
     var time_secs = time_sec_nanosec[0]
     var time_nanosecs = time_sec_nanosec[1]
 
-    request(
-      {
-        url: config.url,
-        method: "POST",
-        json: true,
-        body: {
+    var response_body = {
           function_id: function_id,
           environment: runtime_env,
           errors: retainErr,
@@ -77,7 +71,24 @@ function _make_generateLog(emitter, func, start_time, config) {
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
           client_id: config.clientId
-        },
+        }
+
+    if (config.debug) {
+      console.log("IOPIPE-DEBUG: ", response.body)
+      callback()
+      return
+    }
+    if (!config.clientId) {
+      callback()
+      return
+    }
+
+    request(
+      {
+        url: config.url,
+        method: "POST",
+        json: true,
+        body: response_body
       },
       function(reqErr, res, body) {
         // Throw uncaught errors from the wrapped function.
