@@ -10,7 +10,7 @@ var deepcopy = require('deepcopy')
 
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-function _make_generateLog(emitter, func, start_time, config) {
+function _make_generateLog(emitter, func, start_time, config, context) {
   return function generateLog(err, callback) {
     var hash = crypto.createHash('sha256');
     hash.update(func.toString());
@@ -65,6 +65,16 @@ function _make_generateLog(emitter, func, start_time, config) {
     var response_body = {
           function_id: function_id,
           environment: runtime_env,
+          aws: {
+            functionName: context.functionName,
+            functionVersion: context.functionVersion,
+            invokedFunctionArn: context.invokedFunctionArn,
+            memoryLimitInMB: context.memoryLimitInMB,
+            awsRequestId: context.awsRequestId,
+            logGroupName: context.logGroupName,
+            logStreamName: context.logStreamName,
+            getRemainingTimeInMillis: context.getRemainingTimeInMillis()
+          },
           errors: retainErr,
           events: emitter.queue,
           time_sec_nanosec: time_sec_nanosec,
@@ -128,8 +138,10 @@ module.exports = function(configObject) {
         emitter.queue.push([type, data])
       })
 
+      var args = [].slice.call(arguments)
+
       var start_time = process.hrtime()
-      var generateLog = _make_generateLog(emitter, func, start_time, config)
+      var generateLog = _make_generateLog(emitter, func, start_time, config, args[1])
       var new_context = (old_context) => {
         var context = deepcopy(old_context)
         context.succeed = function(data) {
@@ -170,7 +182,6 @@ module.exports = function(configObject) {
       }
 
       /* Mangle arguments, wrapping callbacks. */
-      var args = [].slice.call(arguments)
       args[1] = new_context(args[1])
       args[2] = new_callback(args[2])
 
