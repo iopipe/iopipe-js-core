@@ -185,19 +185,6 @@ module.exports = function(configObject) {
       args[1] = new_context(args[1])
       args[2] = new_callback(args[2])
 
-      var safetyHandler = (err) => {
-        //console.log("WOLF:CalledSafetyHandler");
-        generateLog(err, () => {})
-      }
-      process.on('beforeExit', safetyHandler)
-      process.on('uncaughtException', function(err) {
-        //console.log("WOLF:UncaughtException")
-        safetyHandler(err)
-        process.nextTick(function() {
-          process.removeListener('beforeExit', safetyHandler)
-        })
-      })
-
       try {
         return func.apply(emitter, args)
       }
