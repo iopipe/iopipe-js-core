@@ -172,11 +172,10 @@ module.exports = function(configObject) {
         if (typeof(callback) !== 'function') {
           return undefined
         }
-        return (err) => {
+        return (err, data) => {
           //console.log("WOLF:CalledLambdaCallback.")
-          var nargs = [].slice.call(arguments)
           generateLog(err, () => {
-            callback.apply(callback, nargs)
+            callback.apply(callback, [err, data])
           })
         }
       }
