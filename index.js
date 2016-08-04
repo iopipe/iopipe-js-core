@@ -6,7 +6,9 @@ var EventEmitter = require("events")
 var util = require("util")
 var url = require("url")
 var path = require("path")
+var os = require("os")
 
+const VERSION = "0.0.15"
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
@@ -16,6 +18,18 @@ function _make_generateLog(emitter, func, start_time, config, context) {
     var function_id = hash.digest('hex')
 
     var runtime_env = {
+      agent: {
+        runtime: "nodejs",
+        version: VERSION
+      },
+      os: {
+        hostname: os.hostname(),
+        totalmem: os.totalmem(),
+        uptime: os.uptime(),
+        freemem: os.freemem(),
+        cpus: os.cpus(),
+        arch: os.arch()
+      },
       nodejs: {
         title: process.title,
         version: process.version,
