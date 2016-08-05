@@ -7,8 +7,9 @@ var util = require("util")
 var url = require("url")
 var path = require("path")
 var os = require("os")
+var deepcopy = require('deepcopy')
 
-const VERSION = "0.0.15"
+const VERSION = "0.0.16"
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
@@ -156,35 +157,28 @@ module.exports = function(configObject) {
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(emitter, func, start_time, config, args[1])
       var new_context = (old_context) => {
-        var context = Object.assign({
-          set callbackWaitsForEmptyEventLoop(value) {
-            old_context.callbackWaitsForEmptyEventLoop = value
-          },
-          get callbackWaitsForEmptyEventLoop() {
-            return old_context.callbackWaitsForEmptyEventLoop
-          },
-          succeed: function(data) {
-            //console.log("WOLF:CalledContextSucceed.")
-            generateLog(null, () => {
-              old_context.succeed(data)
-            })
-          },
-          fail: function(err) {
-            //console.log("WOLF:CalledContextFail.")
-            generateLog(err, () => {
-              old_context.fail(err)
-            })
-          },
-          done: function(err, data) {
-            //console.log("WOLF:CalledContextDone.")
-            generateLog(err, () => {
-              old_context.done(err, data)
-            })
-          },
-          iopipe_log: function(level, data) {
-            emitter.queue.push([level, data])
-          }
-        }, old_context)
+        var context = deepcopy(old_context)
+        context.succeed = function(data) {
+          //console.log("WOLF:CalledContextSucceed.")
+          generateLog(null, () => {
+            old_context.succeed(data)
+          })
+        }
+        context.fail = function(err) {
+          //console.log("WOLF:CalledContextFail.")
+          generateLog(err, () => {
+            old_context.fail(err)
+          })
+        }
+        context.done = function(err, data) {
+          //console.log("WOLF:CalledContextDone.")
+          generateLog(err, () => {
+            old_context.done(err, data)
+          })
+        }
+        context.iopipe_log = function(level, data) {
+          emitter.queue.push([level, data])
+        }
 
         return context
       }
