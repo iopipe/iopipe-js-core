@@ -1,6 +1,6 @@
 {
   "name": "iopipe",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "index.js",
   "scripts": {
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/iopipe/iopipe#readme",
   "dependencies": {
     "crypto": "0.0.3",
+    "deepcopy": "^0.6.3",
     "request": "^2.72.0"
   },
   "devDependencies": {
