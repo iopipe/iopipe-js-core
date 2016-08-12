@@ -9,7 +9,7 @@ var path = require("path")
 var os = require("os")
 var deepcopy = require('deepcopy')
 
-const VERSION = "0.0.16"
+const VERSION = "0.0.17"
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
@@ -179,6 +179,11 @@ module.exports = function(configObject) {
         context.iopipe_log = function(level, data) {
           emitter.queue.push([level, data])
         }
+        /* Map getters/setters */
+        context.__defineGetter__('callbackWaitsForEmptyEventLoop',
+                                 () => { return old_context.callbackWaitsForEmptyEventLoop })
+        context.__defineSetter__('callbackWaitsForEmptyEventLoop',
+                                 (value) => { old_context.callbackWaitsForEmptyEventLoop = value })
 
         return context
       }
