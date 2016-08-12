@@ -179,6 +179,11 @@ module.exports = function(configObject) {
         context.iopipe_log = function(level, data) {
           emitter.queue.push([level, data])
         }
+        /* Map getters/setters */
+        context.__defineGetter__('callbackWaitsForEmptyEventLoop',
+                                 () => { return old_context.callbackWaitsForEmptyEventLoop })
+        context.__defineSetter__('callbackWaitsForEmptyEventLoop',
+                                 (value) => { old_context.callbackWaitsForEmptyEventLoop = value })
 
         return context
       }
