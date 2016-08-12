@@ -1,7 +1,8 @@
 "use strict"
 
+var AWS = require("aws-sdk")
+
 var crypto = require("crypto")
-var request = require("request")
 var EventEmitter = require("events")
 var util = require("util")
 var url = require("url")
@@ -79,6 +80,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
     var time_secs = time_sec_nanosec[0]
     var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
 
+    var aws_region = context.invokedFunctionArn.split(":", 4)[3]
     var response_body = {
           function_id: function_id,
           environment: runtime_env,
@@ -89,7 +91,8 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             memoryLimitInMB: context.memoryLimitInMB,
             awsRequestId: context.awsRequestId,
             logGroupName: context.logGroupName,
-            logStreamName: context.logStreamName
+            logStreamName: context.logStreamName,
+            region: aws_region
           },
           errors: retainErr,
           events: emitter.queue,
@@ -113,24 +116,33 @@ function _make_generateLog(emitter, func, start_time, config, context) {
       return
     }
 
-    request(
-      {
-        url: config.url,
-        method: "POST",
-        json: true,
-        body: response_body
-      },
-      function(reqErr, res, body) {
-        // Throw uncaught errors from the wrapped function.
-        if (err) {
-          context.fail(err)
-        }
-        /*if (reqErr) {
-          console.log("WOLF:IOpipeLoggingError: ", reqErr)
-        }*/
-        callback()
+    var lambda = new AWS.Lambda();
+    lambda.invoke({
+      FunctionName: 'arn:aws:lambda:' + aws_region + ':554407330061:function:iopipe-org-collector_iopipe-event-store',
+      InvocationType: "Event",
+      Payload: JSON.stringify({ payload: response_body })
+    }, (err, data) => {
+      if (err || data.StatusCode != 202) {
+        console.log("IOpipe cross-lambda error. Fallback to RESTful API.", err)
+
+        request(
+          {
+            url: config.url,
+            method: "POST",
+            json: true,
+            body: response_body
+          },
+          function(reqErr, res, body) {
+            // Throw uncaught errors from the wrapped function.
+            if (err) {
+              context.fail(err)
+            }
+            callback()
+          }
+        )
       }
-    )
+      callback()
+    })
   }
 }
 
