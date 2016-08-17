@@ -86,8 +86,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             memoryLimitInMB: context.memoryLimitInMB,
             awsRequestId: context.awsRequestId,
             logGroupName: context.logGroupName,
-            logStreamName: context.logStreamName,
-            getRemainingTimeInMillis: context.getRemainingTimeInMillis()
+            logStreamName: context.logStreamName
           },
           errors: retainErr,
           events: emitter.queue,
@@ -96,6 +95,10 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           time_nanosec: time_sec_nanosec[1],
           client_id: config.clientId
         }
+
+    if (context.indexOf('getRemainingTimeInMillis') != -1) {
+      response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
+    }
 
     if (config.debug) {
       console.log("IOPIPE-DEBUG: ", response_body)
