@@ -9,7 +9,7 @@ var path = require("path")
 var os = require("os")
 var deepcopy = require('deepcopy')
 
-const VERSION = "0.0.18"
+const VERSION = "0.0.19"
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
