@@ -74,7 +74,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
 
     var time_sec_nanosec = process.hrtime(start_time)
     var time_secs = time_sec_nanosec[0]
-    var time_nanosecs = time_sec_nanosec[1]
+    var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
 
     var response_body = {
           function_id: function_id,
