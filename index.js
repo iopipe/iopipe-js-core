@@ -96,7 +96,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           client_id: config.clientId
         }
 
-    if (context.indexOf('getRemainingTimeInMillis') != -1) {
+    if (context.getRemainingTimeInMillis) {
       response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
     }
 
