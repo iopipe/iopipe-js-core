@@ -31,6 +31,7 @@
     "request": "^2.72.0"
   },
   "devDependencies": {
+    "aws-lambda-mock-context": "^3.0.0",
     "istanbul": "^0.4.4",
     "jasmine": "^2.4.1"
   }
