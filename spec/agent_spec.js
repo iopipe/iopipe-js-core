@@ -66,4 +66,54 @@ describe('smoke test', () => {
       done()
     })
   })
+
+  describe('functions using callbacks', () => { 
+    it('will run when installed on a sucessfull function', (done) => {
+      const ctx = context()
+      function cb(err, success) {
+        if(err)
+          ctx.fail(err)
+        else
+          ctx.succeed(success)
+      }
+      var iopipe = agent({ clientId: 'testSuite'})
+      var wrappedFunction = iopipe(function(event, context, callback) {
+        callback(null, "Success callback!")
+      })
+      wrappedFunction({}, ctx, cb)
+      ctx.Promise
+        .then(resp => {
+          expect(resp).toEqual("Success callback!")
+          done()
+        })  
+        .catch(err => {
+          expect(err).toBe(null)
+          done()
+        })
+    })
+
+    it('will run when installed on a sucessfull function', (done) => {
+      const ctx = context()
+      function cb(err, success) {
+        if(err)
+          ctx.fail(err)
+        else
+          ctx.succeed(success)
+      }
+      var iopipe = agent({ clientId: 'testSuite'})
+      var wrappedFunction = iopipe(function(event, context, callback) {
+        callback("Error callback!")
+      })
+      wrappedFunction({}, ctx, cb)
+      ctx.Promise
+        .then(resp => {
+          expect(resp).toBe(null)
+          done()
+        })  
+        .catch(err => {
+          expect(err.message).toEqual("Error callback!")
+          done()
+        })
+    })
+  })
 })
