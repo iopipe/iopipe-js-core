@@ -6,6 +6,21 @@ describe('metrics agent', () => {
     var wrapper = agent()
     expect(typeof wrapper).toEqual('function')
   })
+
+  it('should successfully getRemainingTimeInMillis from aws context', (done) => {
+    var wrapper = agent({ clientId: 'testSuite' })
+    var mock_context = {}
+    mock_context.getRemainingTimeInMillis = () => {
+      return 9001
+    }
+
+    wrapper(
+      (event, context) => {
+        expect(context.getRemainingTimeInMillis()).toEqual(9001)
+        done()
+      }
+    )({}, mock_context)
+  })
 })
 
 describe('smoke test', () => {

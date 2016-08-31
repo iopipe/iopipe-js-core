@@ -182,6 +182,7 @@ module.exports = function(configObject) {
         context.iopipe_log = function(level, data) {
           emitter.queue.push([level, data])
         }
+        context.getRemainingTimeInMillis = old_context.getRemainingTimeInMillis
         /* Map getters/setters */
         context.__defineGetter__('callbackWaitsForEmptyEventLoop',
                                  () => { return old_context.callbackWaitsForEmptyEventLoop })
