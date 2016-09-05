@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "aws-lambda-mock-context": "^3.0.0",
+    "coveralls": "^2.11.12",
     "istanbul": "^0.4.4",
     "jasmine": "^2.4.1"
   }

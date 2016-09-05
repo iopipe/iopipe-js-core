@@ -1,6 +1,6 @@
 IOpipe Analytics & Distributed Tracing Agent
 --------------------------------------------
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?maxAge=2592000)](https://gitter.im/iopipe/iopipe)
+[![Coverage Status](https://coveralls.io/repos/github/iopipe/iopipe/badge.svg?branch=coveralls)](https://coveralls.io/github/iopipe/iopipe?branch=coveralls)
 
 This package provides analytics and distributed tracing for
 event-driven applications running on AWS Lambda.
