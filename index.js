@@ -66,10 +66,13 @@ function _make_generateLog(emitter, func, start_time, config, context) {
                   })((typeof(err) === "string") ? new Error(err) : err)
     }
 
-    var qfuncs = ["uptime", "getuid", "getgid", "geteuid", "getegid", "memoryUsage"]
-    for (var i = 0; i < qfuncs.length; i++) {
-      // Lacking a process.prototype, evil eval.
-      runtime_env.nodejs[qfuncs[i]] = eval("process."+qfuncs[i]+"()")
+    runtime_env.nodejs = {
+      uptime: process.uptime(),
+      getuid: process.getuid(),
+      getgid: process.getgid(),
+      geteuid: process.geteuid(),
+      getegid: process.getegid(),
+      memoryUsage: process.memoryUsage()
     }
 
     var time_sec_nanosec = process.hrtime(start_time)
