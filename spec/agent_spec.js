@@ -124,7 +124,31 @@ describe('smoke test', () => {
         .then(resp => {
           expect(resp).toBe(null)
           done()
-        })  
+        })
+        .catch(err => {
+          expect(err.message).toEqual("Error callback!")
+          done()
+        })
+    })
+
+    it('will run in debug mode when installed on a sucessfull function', (done) => {
+      const ctx = context()
+      function cb(err, success) {
+        if(err)
+          ctx.fail(err)
+        else
+          ctx.succeed(success)
+      }
+      var iopipe = agent({ clientId: 'testSuite', debug: true })
+      var wrappedFunction = iopipe(function(event, context, callback) {
+        callback("Error callback!")
+      })
+      wrappedFunction({}, ctx, cb)
+      ctx.Promise
+        .then(resp => {
+          expect(resp).toBe(null)
+          done()
+        })
         .catch(err => {
           expect(err.message).toEqual("Error callback!")
           done()
