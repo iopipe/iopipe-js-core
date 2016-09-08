@@ -14,10 +14,6 @@ const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
   return function generateLog(err, callback) {
-    var hash = crypto.createHash('sha256');
-    hash.update(func.toString());
-    var function_id = hash.digest('hex')
-
     var runtime_env = {
       agent: {
         runtime: "nodejs",
@@ -80,7 +76,6 @@ function _make_generateLog(emitter, func, start_time, config, context) {
     var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
 
     var response_body = {
-          function_id: function_id,
           environment: runtime_env,
           aws: {
             functionName: context.functionName,
