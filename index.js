@@ -17,10 +17,34 @@ const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 function _make_generateLog(emitter, func, start_time, config, context) {
   return function generateLog(err, callback) {
     Promise.join(
-      fs.readFileAsync('/proc/sys/kernel/random/boot_id')
+      fs.readFileAsync('/proc/sys/kernel/random/boot_id'),
+      fs.readFileAsync('/proc/self/stat'),
+      fs.readFileAsync('/proc/self/status')
     ).spread((
-      boot_id
+      boot_id,
+      proc_self_stat_file,
+      proc_self_status_file
     ) => {
+      var proc_self_stat_fields = proc_self_stat_file.split(" ")
+      var proc_self_stat = {
+        utime: proc_self_stat_fields[13],
+        stime: proc_self_stat_fields[14],
+        cutime: proc_self_stat_fields[15],
+        cstime: proc_self_stat_fields[16],
+        rss: proc_self_stat_fields[23]
+      }
+
+      var proc_self_status_fields = proc_self_status_file.split(" ")
+      var proc_self_status = {
+        FDSize: ,
+        Threads: ,
+        VmRSS: ,
+        VmData: ,
+        VmStk: ,
+        VmExe:,
+        VmSwap
+      }
+
       var runtime_env = {
         agent: {
           runtime: "nodejs",
@@ -36,7 +60,15 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           freemem: os.freemem(),
           usedmem: os.totalmem() - os.freemem(),
           cpus: os.cpus(),
-          arch: os.arch()
+          arch: os.arch(),
+          linux: {
+            pid: {
+              1: {
+                stat: proc_self_stat,
+                status: proc_self_status
+              }
+            }
+          }
         },
         nodejs: {
           title: process.title,
@@ -211,19 +243,3 @@ module.exports = function(configObject) {
             callback.apply(callback, [err, data])
           })
         }
-      }
-
-      /* Mangle arguments, wrapping callbacks. */
-      args[1] = new_context(args[1])
-      args[2] = new_callback(args[2])
-
-      try {
-        return func.apply(emitter, args)
-      }
-      catch (err) {
-        generateLog(err, () => {})
-        return undefined
-      }
-    }
-  }
-}
