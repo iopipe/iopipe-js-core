@@ -10,11 +10,18 @@ var url = require("url")
 var path = require("path")
 var os = require("os")
 var deepcopy = require('deepcopy')
+var interceptStdout = require('intercept-stdout')
 
-const VERSION = "0.0.20"
+const VERSION = "0.0.21-dev"
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
+  process.stdout.cork()
+  var capturedStdout = ""
+  var unhookStdout = interceptStdout(function(txt) {
+    capturedStdout += txt;
+  });
+
   return function generateLog(err, callback) {
     Promise.join(
       fs.readFileAsync('/proc/sys/kernel/random/boot_id')
@@ -97,6 +104,9 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           logGroupName: context.logGroupName,
           logStreamName: context.logStreamName
         },
+        fd: {
+          stdout: capturedStdout
+        },
         errors: retainErr,
         events: emitter.queue,
         time_sec_nanosec: time_sec_nanosec,
@@ -108,6 +118,11 @@ function _make_generateLog(emitter, func, start_time, config, context) {
       if (context.getRemainingTimeInMillis) {
         response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
       }
+
+      process.nextTick(() => {
+        process.stdout.uncork()
+        unhookStdout()
+      })
 
       if (config.debug) {
         console.log("IOPIPE-DEBUG: ", response_body)
