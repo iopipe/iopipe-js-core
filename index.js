@@ -13,6 +13,7 @@ var system = (process.platform === 'linux') ? require('./src/system.js') : requi
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
+
 function _make_generateLog(emitter, func, start_time, config, context) {
   var pre_stat_promise = system.readstat('self')
 
@@ -112,6 +113,9 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             awsRequestId: context.awsRequestId,
             logGroupName: context.logGroupName,
             logStreamName: context.logStreamName
+          },
+          fd: {
+            stdout: capturedStdout
           },
           errors: retainErr,
           custom_metrics: emitter.queue,
