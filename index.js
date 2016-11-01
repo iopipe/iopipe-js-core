@@ -130,6 +130,10 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
         }
 
+        process.nextTick(() => {
+          unhookStdout()
+        })
+
         if (config.debug) {
           console.log("IOPIPE-DEBUG: ", response_body)
         }
@@ -262,6 +266,14 @@ module.exports = function(configObject) {
       args[2] = new_callback(generateLog, args[2])
 
       try {
+        vm.runInContext()
+        var tmpprocess = deepcopy(process)
+        tmpprocess.stdout.write = (data) => {
+          process.stdout.write(data)
+        }
+        
+        script.runInContext(tmpprocess)
+
         return func.apply(emitter, args)
       }
       catch (err) {
