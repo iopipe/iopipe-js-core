@@ -1,6 +1,6 @@
 {
   "name": "iopipe",
-  "version": "0.0.20",
+  "version": "0.0.21-dev",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "index.js",
   "scripts": {
@@ -29,6 +29,7 @@
     "bluebird": "^3.4.6",
     "crypto": "0.0.3",
     "deepcopy": "^0.6.3",
+    "intercept-stdout": "^0.1.2",
     "request": "^2.65.0"
   },
   "devDependencies": {
