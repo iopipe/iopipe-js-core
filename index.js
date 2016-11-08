@@ -15,12 +15,12 @@ const VERSION = "0.0.20"
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
-  Promise.join(
+  return Promise.join(
     fs.readFileAsync('/proc/self/stat')
   ).spread((
     pre_proc_self_stat_file
   ) => {
-    var pre_proc_self_stat_fields = pre_proc_self_stat_file.split(" ")
+    var pre_proc_self_stat_fields = pre_proc_self_stat_file.toString().split(" ")
     var pre_proc_self_stat = {
       utime: pre_proc_self_stat_fields[13],
       stime: pre_proc_self_stat_fields[14],
@@ -39,7 +39,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         proc_self_stat_file,
         proc_self_status_file
       ) => {
-        var proc_self_stat_fields = proc_self_stat_file.split(" ")
+        var proc_self_stat_fields = proc_self_stat_file.toString().split(" ")
         var proc_self_stat = {
           utime: proc_self_stat_fields[13],
           stime: proc_self_stat_fields[14],
@@ -230,21 +230,33 @@ module.exports = function(configObject) {
         var context = deepcopy(old_context)
         context.succeed = function(data) {
           //console.log("WOLF:CalledContextSucceed.")
-          generateLog(null, () => {
-            old_context.succeed(data)
-          })
+          generateLog.then(
+            (x) => {
+              x(null, () => {
+                old_context.succeed(data)
+              })
+            }
+          )
         }
         context.fail = function(err) {
           //console.log("WOLF:CalledContextFail.")
-          generateLog(err, () => {
-            old_context.fail(err)
-          })
+          generateLog.then(
+            (x) => {
+              x(err, () => {
+                old_context.fail(err)
+              })
+            }
+          ) 
         }
         context.done = function(err, data) {
           //console.log("WOLF:CalledContextDone.")
-          generateLog(err, () => {
-            old_context.done(err, data)
-          })
+          generateLog.then(
+            (x) => {
+              x(err, () => {
+                old_context.done(err, data)
+              })
+            }
+          )
         }
         context.iopipe_log = function(level, data) {
           emitter.queue.push([level, data])
@@ -264,9 +276,13 @@ module.exports = function(configObject) {
         }
         return (err, data) => {
           //console.log("WOLF:CalledLambdaCallback.")
-          generateLog(err, () => {
-            callback.apply(callback, [err, data])
-          })
+          generateLog.then(
+            (x) => {
+              x(err, () => {
+                callback.apply(callback, [err, data])
+              })
+            }
+          )
         }
       }
 
@@ -278,7 +294,11 @@ module.exports = function(configObject) {
         return func.apply(emitter, args)
       }
       catch (err) {
-        generateLog(err, () => {})
+        generateLog.then(
+          (x) => {
+            x(err, () => {})
+          }
+        )
         return undefined
       }
     }
