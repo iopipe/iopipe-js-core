@@ -14,188 +14,199 @@ var deepcopy = require('deepcopy')
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-function _make_generateLog(emitter, func, start_time, config, context) {
-  var pfunc = Promise.join(
-    fs.readFileAsync('/proc/self/stat')
+function readstat (pid) {
+  return Promise.join(
+    fs.readFileAsync(`/proc/${pid}/stat`)
   ).spread((
     pre_proc_self_stat_file
   ) => {
     var pre_proc_self_stat_fields = pre_proc_self_stat_file.toString().split(" ")
-    var pre_proc_self_stat = {
+    return {
       utime: pre_proc_self_stat_fields[13],
       stime: pre_proc_self_stat_fields[14],
       cutime: pre_proc_self_stat_fields[15],
       cstime: pre_proc_self_stat_fields[16],
       rss: pre_proc_self_stat_fields[23]
     }
+  })
+}
 
-    return function generateLog(err, callback) {
-      Promise.join(
-        fs.readFileAsync('/proc/sys/kernel/random/boot_id'),
-        fs.readFileAsync('/proc/self/stat'),
-        fs.readFileAsync('/proc/self/status')
-      ).spread((
-        boot_id,
-        proc_self_stat_file,
-        proc_self_status_file
-      ) => {
-        var proc_self_stat_fields = proc_self_stat_file.toString().split(" ")
-        var proc_self_stat = {
-          utime: proc_self_stat_fields[13],
-          stime: proc_self_stat_fields[14],
-          cutime: proc_self_stat_fields[15],
-          cstime: proc_self_stat_fields[16],
-          rss: proc_self_stat_fields[23]
-        }
+function readstatus (pid) {
+  return Promise.join(
+    fs.readFileAsync(`/proc/${pid}/status`)
+  ).spread((
+    proc_self_status_file
+  ) => {
+    var proc_self_status_fields = {};
+    // Parse status file and apply to the proc_self_status_fields dict.
+    proc_self_status_file.toString().split("\n").map(
+      (x) => {
+        return (x) ? x.split("\t") : [ null, null ]
+      }
+    ).forEach(
+      (x) => { proc_self_status_fields[x[0]] = x[1] }
+    )
 
-        var proc_self_status_fields = {};
-        // Parse status file and apply to the proc_self_status_fields dict.
-        proc_self_status_file.toString().split("\n").map(
-          (x) => {
-            return (x) ? x.split("\t") : [ null, null ]
-          }
-        ).forEach(
-          (x) => { proc_self_status_fields[x[0]] = x[1] }
-        )
-
-        var proc_self_status = {
-          FDSize: proc_self_status_fields['FDSize'],
-          Threads: proc_self_status_fields['Threads'],
-          VmRSS: proc_self_status_fields['VmRSS'],
-          VmData: proc_self_status_fields['VmData'],
-          VmStk: proc_self_status_fields['VmStk'],
-          VmExe: proc_self_status_fields['VmExe'],
-          VmSwap: proc_self_status_fields['VmSwap']
-        }
-
-        var runtime_env = {
-          agent: {
-            runtime: "nodejs",
-            version: VERSION
-          },
-          host: {
-            vm_id: boot_id
-          },
-          os: {
-            hostname: os.hostname(),
-            uptime: os.uptime(),
-            totalmem: os.totalmem(),
-            freemem: os.freemem(),
-            usedmem: os.totalmem() - os.freemem(),
-            cpus: os.cpus(),
-            arch: os.arch(),
-            linux: {
-              pid: {
-                1: {
-                  stat_start: pre_proc_self_stat,
-                  stat: proc_self_stat,
-                  status: proc_self_status
-                }
-              }
-            }
-          },
-          nodejs: {
-            title: process.title,
-            version: process.version,
-            modulesloadList: process.modulesloadList,
-            versions: process.versions,
-            arch: process.arch,
-            platform: process.platform,
-            argv: process.argv,
-            execArgv: process.execArgv,
-            pid: process.pid,
-            features: process.features,
-            execPath: process.execPath,
-            debugPort: process.debugPort,
-            _maxListeners: process._maxListeners,
-            config: process.config,
-            maxTickDepth: process.maxTickDepth,
-            // /* Circular ref */ mainModule: process.mainModule,
-            release: process.release,
-          }
-        }
-
-        var retainErr = {};
-        if (err) {
-          retainErr = ((err) => {
-                        return {
-                          name: err.name,
-                          message: err.message,
-                          stack: err.stack,
-                          lineNumber: err.lineNumber,
-                          columnNumber: err.columnNumber,
-                          fileName: err.fileName
-                        }
-                      })((typeof(err) === "string") ? new Error(err) : err)
-        }
-
-        runtime_env.nodejs = {
-          uptime: process.uptime(),
-          getuid: process.getuid(),
-          getgid: process.getgid(),
-          geteuid: process.geteuid(),
-          getegid: process.getegid(),
-          memoryUsage: process.memoryUsage()
-        }
-
-        var time_sec_nanosec = process.hrtime(start_time)
-        var time_secs = time_sec_nanosec[0]
-        var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
-
-        var response_body = {
-          environment: runtime_env,
-          aws: {
-            functionName: context.functionName,
-            functionVersion: context.functionVersion,
-            invokedFunctionArn: context.invokedFunctionArn,
-            memoryLimitInMB: context.memoryLimitInMB,
-            awsRequestId: context.awsRequestId,
-            logGroupName: context.logGroupName,
-            logStreamName: context.logStreamName
-          },
-          errors: retainErr,
-          events: emitter.queue,
-          time_sec_nanosec: time_sec_nanosec,
-          time_sec: time_sec_nanosec[0],
-          time_nanosec: time_sec_nanosec[1],
-          client_id: config.clientId
-        }
-
-        if (context.getRemainingTimeInMillis) {
-          response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
-        }
-
-        if (config.debug) {
-          console.log("IOPIPE-DEBUG: ", response_body)
-          callback()
-          return
-        }
-        if (!config.clientId) {
-          callback()
-          return
-        }
-
-        request(
-          {
-            url: config.url,
-            method: "POST",
-            json: true,
-            body: response_body
-          },
-          function(reqErr, res, body) {
-            // Throw uncaught errors from the wrapped function.
-            if (err) {
-              context.fail(err)
-            }
-            /*if (reqErr) {
-              console.log("WOLF:IOpipeLoggingError: ", reqErr)
-            }*/
-            callback()
-          }
-        )
-      })
+    return {
+      FDSize: proc_self_status_fields['FDSize'],
+      Threads: proc_self_status_fields['Threads'],
+      VmRSS: proc_self_status_fields['VmRSS'],
+      VmData: proc_self_status_fields['VmData'],
+      VmStk: proc_self_status_fields['VmStk'],
+      VmExe: proc_self_status_fields['VmExe'],
+      VmSwap: proc_self_status_fields['VmSwap']
     }
   })
+}
+
+function readbootid () {
+  return fs.readFileAsync('/proc/sys/kernel/random/boot_id')
+}
+
+function _make_generateLog(emitter, func, start_time, config, context) {
+  var pre_stat_promise = readstat('self')
+
+  var pfunc = Promise.promisify(function generateLog(err, callback) {
+    Promise.join(
+      pre_stat_promise,
+      readstat('self'),
+      readstatus('self'),
+      readbootid()
+    ).spread((
+      pre_proc_self_stat,
+      proc_self_stat,
+      proc_self_status,
+      boot_id
+    ) => {
+
+      var runtime_env = {
+        agent: {
+          runtime: "nodejs",
+          version: VERSION
+        },
+        host: {
+          vm_id: boot_id
+        },
+        os: {
+          hostname: os.hostname(),
+          uptime: os.uptime(),
+          totalmem: os.totalmem(),
+          freemem: os.freemem(),
+          usedmem: os.totalmem() - os.freemem(),
+          cpus: os.cpus(),
+          arch: os.arch(),
+          linux: {
+            pid: {
+              1: {
+                stat_start: pre_proc_self_stat,
+                stat: proc_self_stat,
+                status: proc_self_status
+              }
+            }
+          }
+        },
+        nodejs: {
+          title: process.title,
+          version: process.version,
+          modulesloadList: process.modulesloadList,
+          versions: process.versions,
+          arch: process.arch,
+          platform: process.platform,
+          argv: process.argv,
+          execArgv: process.execArgv,
+          pid: process.pid,
+          features: process.features,
+          execPath: process.execPath,
+          debugPort: process.debugPort,
+          _maxListeners: process._maxListeners,
+          config: process.config,
+          maxTickDepth: process.maxTickDepth,
+          // /* Circular ref */ mainModule: process.mainModule,
+          release: process.release,
+        }
+      }
+
+      var retainErr = {};
+      if (err) {
+        retainErr = ((err) => {
+                      return {
+                        name: err.name,
+                        message: err.message,
+                        stack: err.stack,
+                        lineNumber: err.lineNumber,
+                        columnNumber: err.columnNumber,
+                        fileName: err.fileName
+                      }
+                    })((typeof(err) === "string") ? new Error(err) : err)
+      }
+
+      runtime_env.nodejs = {
+        uptime: process.uptime(),
+        getuid: process.getuid(),
+        getgid: process.getgid(),
+        geteuid: process.geteuid(),
+        getegid: process.getegid(),
+        memoryUsage: process.memoryUsage()
+      }
+
+      var time_sec_nanosec = process.hrtime(start_time)
+      var time_secs = time_sec_nanosec[0]
+      var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
+
+      var response_body = {
+        environment: runtime_env,
+        aws: {
+          functionName: context.functionName,
+          functionVersion: context.functionVersion,
+          invokedFunctionArn: context.invokedFunctionArn,
+          memoryLimitInMB: context.memoryLimitInMB,
+          awsRequestId: context.awsRequestId,
+          logGroupName: context.logGroupName,
+          logStreamName: context.logStreamName
+        },
+        errors: retainErr,
+        events: emitter.queue,
+        time_sec_nanosec: time_sec_nanosec,
+        time_sec: time_sec_nanosec[0],
+        time_nanosec: time_sec_nanosec[1],
+        client_id: config.clientId
+      }
+
+      if (context.getRemainingTimeInMillis) {
+        response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
+      }
+
+      if (config.debug) {
+        console.log("IOPIPE-DEBUG: ", response_body)
+        callback()
+        return
+      }
+      if (!config.clientId) {
+        callback()
+        return
+      }
+
+      request(
+        {
+          url: config.url,
+          method: "POST",
+          json: true,
+          body: response_body
+        },
+        function(reqErr, res, body) {
+          // Throw uncaught errors from the wrapped function.
+          if (err) {
+            context.fail(err)
+          }
+          /*if (reqErr) {
+            console.log("WOLF:IOpipeLoggingError: ", reqErr)
+          }*/
+          callback()
+        }
+      )
+    })
+  })
+
   return function () {
     pfunc.then((func) => {
       func.apply(null, Array.prototype.slice.call(arguments, 0))
