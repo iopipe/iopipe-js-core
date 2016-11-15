@@ -283,11 +283,7 @@ module.exports = function(configObject) {
         return func.apply(emitter, args)
       }
       catch (err) {
-        generateLog.then(
-          (x) => {
-            x(err, () => {})
-          }
-        )
+        generateLog(err, () => {})
         return undefined
       }
     }
