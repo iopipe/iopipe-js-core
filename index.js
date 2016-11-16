@@ -14,60 +14,70 @@ var deepcopy = require('deepcopy')
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-function _make_generateLog(emitter, func, start_time, config, context) {
-  var pfunc = Promise.join(
-    fs.readFileAsync('/proc/self/stat')
+function readstat (pid) {
+  return Promise.join(
+    fs.readFileAsync(`/proc/${pid}/stat`)
   ).spread((
     pre_proc_self_stat_file
   ) => {
     var pre_proc_self_stat_fields = pre_proc_self_stat_file.toString().split(" ")
-    var pre_proc_self_stat = {
+    return {
       utime: pre_proc_self_stat_fields[13],
       stime: pre_proc_self_stat_fields[14],
       cutime: pre_proc_self_stat_fields[15],
       cstime: pre_proc_self_stat_fields[16],
       rss: pre_proc_self_stat_fields[23]
     }
+  })
+}
 
-    return function generateLog(err, callback) {
+function readstatus (pid) {
+  return Promise.join(
+    fs.readFileAsync(`/proc/${pid}/status`)
+  ).spread((
+    proc_self_status_file
+  ) => {
+    var proc_self_status_fields = {};
+    // Parse status file and apply to the proc_self_status_fields dict.
+    proc_self_status_file.toString().split("\n").map(
+      (x) => {
+        return (x) ? x.split("\t") : [ null, null ]
+      }
+    ).forEach(
+      (x) => { proc_self_status_fields[x[0]] = x[1] }
+    )
+
+    return {
+      FDSize: proc_self_status_fields['FDSize'],
+      Threads: proc_self_status_fields['Threads'],
+      VmRSS: proc_self_status_fields['VmRSS'],
+      VmData: proc_self_status_fields['VmData'],
+      VmStk: proc_self_status_fields['VmStk'],
+      VmExe: proc_self_status_fields['VmExe'],
+      VmSwap: proc_self_status_fields['VmSwap']
+    }
+  })
+}
+
+function readbootid () {
+  return fs.readFileAsync('/proc/sys/kernel/random/boot_id')
+}
+
+function _make_generateLog(emitter, func, start_time, config, context) {
+  var pre_stat_promise = readstat('self')
+
+  return function generateLog(err, callback) {
       Promise.join(
-        fs.readFileAsync('/proc/sys/kernel/random/boot_id'),
-        fs.readFileAsync('/proc/self/stat'),
-        fs.readFileAsync('/proc/self/status')
+        pre_stat_promise,
+        readstat('self'),
+        readstatus('self'),
+        readbootid()
       ).spread((
-        boot_id,
-        proc_self_stat_file,
-        proc_self_status_file
+        pre_proc_self_stat,
+        proc_self_stat,
+        proc_self_status,
+        boot_id
       ) => {
-        var proc_self_stat_fields = proc_self_stat_file.toString().split(" ")
-        var proc_self_stat = {
-          utime: proc_self_stat_fields[13],
-          stime: proc_self_stat_fields[14],
-          cutime: proc_self_stat_fields[15],
-          cstime: proc_self_stat_fields[16],
-          rss: proc_self_stat_fields[23]
-        }
-
-        var proc_self_status_fields = {};
-        // Parse status file and apply to the proc_self_status_fields dict.
-        proc_self_status_file.toString().split("\n").map(
-          (x) => {
-            return (x) ? x.split("\t") : [ null, null ]
-          }
-        ).forEach(
-          (x) => { proc_self_status_fields[x[0]] = x[1] }
-        )
-
-        var proc_self_status = {
-          FDSize: proc_self_status_fields['FDSize'],
-          Threads: proc_self_status_fields['Threads'],
-          VmRSS: proc_self_status_fields['VmRSS'],
-          VmData: proc_self_status_fields['VmData'],
-          VmStk: proc_self_status_fields['VmStk'],
-          VmExe: proc_self_status_fields['VmExe'],
-          VmSwap: proc_self_status_fields['VmSwap']
-        }
-
         var runtime_env = {
           agent: {
             runtime: "nodejs",
@@ -174,7 +184,6 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           callback()
           return
         }
-
         request(
           {
             url: config.url,
@@ -193,13 +202,8 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             callback()
           }
         )
-      })
-    }
-  })
-  return function () {
-    pfunc.then((func) => {
-      func.apply(null, Array.prototype.slice.call(arguments, 0))
-    })
+      }
+    )
   }
 }
 
@@ -283,11 +287,7 @@ module.exports = function(configObject) {
         return func.apply(emitter, args)
       }
       catch (err) {
-        generateLog.then(
-          (x) => {
-            x(err, () => {})
-          }
-        )
+        generateLog(err, () => {})
         return undefined
       }
     }
