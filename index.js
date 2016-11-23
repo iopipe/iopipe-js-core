@@ -168,6 +168,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
+          duration: time_nanosecs,
           client_id: config.clientId
         }
 
