@@ -229,7 +229,8 @@ module.exports = function(configObject) {
 
       var config = {
         url: eventURL,
-        clientId: configObject.clientId || ""
+        clientId: configObject.clientId || process.env.IOPIPE_CLIENTID || "",
+        debug: configObject.debug || process.env.IOPIPE_DEBUG || false
       }
 
       var emitter = new _agentEmitter()
