@@ -24,13 +24,14 @@ exports.handle = iopipe(
 )
 ```
 
-# Testing & non-production use
+# Environment-based config
 
-By not specifying the clientId in the configuration object,
-or by setting it to a `false` value (such as `undefined`),
-data will not be sent to the IOpipe service. This is a
-good way to integrate and test this library without making
-remote calls.
+This library will look for an environment variable,
+`IOPIPE_CLIENTID` and will use this if one is not
+explicitly passed to the configuration object.
+
+This is an easy way to separate configuration from
+code.
 
 ```javascript
 exports.handle = require("iopipe")()(
@@ -40,11 +41,14 @@ exports.handle = require("iopipe")()(
 )
 ```
 
-Debugging is also possible by seeing the `debug` key to `true`
+# Debugging & non-reporting integration
+
+Debugging and local testing is possible by seeing the `debug` key to `true`
 in the configuration as such, which will log all data that would
 otherwise be sent to IOpipse servers to STDOUT. This is also
 a good way to evaluate the sort of data that IOpipe is receiving
-from your application.
+from your application. Alternatively, set the environment variable,
+`IOPIPE_DEBUG` to a true value.
 
 ```javascript
 exports.handle = require("iopipe")({ debug: true })(
