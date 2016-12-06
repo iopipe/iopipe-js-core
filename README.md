@@ -41,14 +41,15 @@ exports.handle = require("iopipe")()(
 )
 ```
 
-# Debugging & non-reporting integration
+# Debugging integration
 
-Debugging and local testing is possible by seeing the `debug` key to `true`
-in the configuration as such, which will log all data that would
-otherwise be sent to IOpipse servers to STDOUT. This is also
-a good way to evaluate the sort of data that IOpipe is receiving
-from your application. Alternatively, set the environment variable,
-`IOPIPE_DEBUG` to a true value.
+Debugging is possible by seeing the `debug` key to `true`
+in the configuration as such, which will log all data sent to
+IOpipe servers to STDOUT. This is also a good way to evaluate
+the sort of data that IOpipe is receiving from your application.
+
+Debugging is also enabled if the the environment variable,
+`IOPIPE_DEBUG` is set to a truthful value.
 
 ```javascript
 exports.handle = require("iopipe")({ debug: true })(
