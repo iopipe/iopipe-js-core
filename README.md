@@ -58,18 +58,6 @@ exports.handle = require("iopipe")({ debug: true })(
 )
 ```
 
-# Data reported
-
-The following is provided to IOpipe:
-
- - function_id (a hashed identifier of the function)
- - client_id (your client id, common among all your functions)
- - errors
- - events       (custom events sent via `.emit('event', [data])`
- - time_sec_nanosec  (execution time: [secs, nanosecs])
- - time_sec          (execution time: secs)
- - time_nanosec      (execution time: nanosecs)
-
 # License
 
 Apache 2.0
