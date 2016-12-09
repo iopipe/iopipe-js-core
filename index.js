@@ -122,6 +122,12 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             maxTickDepth: process.maxTickDepth,
             // /* Circular ref */ mainModule: process.mainModule,
             release: process.release,
+            uptime: process.uptime(),
+            getuid: process.getuid(),
+            getgid: process.getgid(),
+            geteuid: process.geteuid(),
+            getegid: process.getegid(),
+            memoryUsage: process.memoryUsage(),
           }
         }
 
@@ -137,15 +143,6 @@ function _make_generateLog(emitter, func, start_time, config, context) {
                           fileName: err.fileName
                         }
                       })((typeof(err) === "string") ? new Error(err) : err)
-        }
-
-        runtime_env.nodejs = {
-          uptime: process.uptime(),
-          getuid: process.getuid(),
-          getgid: process.getgid(),
-          geteuid: process.geteuid(),
-          getegid: process.getegid(),
-          memoryUsage: process.memoryUsage()
         }
 
         var time_sec_nanosec = process.hrtime(start_time)
