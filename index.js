@@ -132,7 +132,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
                           name: err.name,
                           message: err.message,
                           stack: err.stack,
-                          stackHash: crypto.createHash('md5').update(err.stack).digest('hex'),
+                          stackHash: crypto.createHash('sha256').update(err.stack).digest('hex'),
                           lineNumber: err.lineNumber,
                           columnNumber: err.columnNumber,
                           fileName: err.fileName
