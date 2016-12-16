@@ -9,7 +9,6 @@ var util = require("util")
 var url = require("url")
 var path = require("path")
 var os = require("os")
-var deepcopy = require('deepcopy')
 
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
@@ -216,6 +215,58 @@ function _agentEmitter() {
 }
 util.inherits(_agentEmitter, EventEmitter)
 
+function new_context (generateLog, old_context) {
+  var context = {
+    awsRequestId: old_context.awsRequestId,
+    invokeid: old_context.invokeid,
+    logGroupName: old_context.logGroupName,
+    logStreamName: old_context.logStreamName,
+    functionVersion: old_context.functionVersion,
+    isDefaultFunctionVersion: old_context.isDefaultFunctionVersion,
+    functionName: old_context.functionName,
+    memoryLimitInMB: old_context.memoryLimitInMB,
+    succeed: function(data) {
+      generateLog(null, () => {
+        old_context.succeed(data)
+      })
+    },
+    fail: function(err) {
+      generateLog(err, () => {
+        old_context.fail(err)
+      })
+    },
+    done: function(err, data) {
+      generateLog(err, () => {
+        old_context.done(err, data)
+      })
+    },
+    iopipe_log: function(level, data) {
+      emitter.queue.push([level, data])
+    },
+    getRemainingTimeInMillis: old_context.getRemainingTimeInMillis
+  }
+
+  /* Map getters/setters */
+  context.__defineGetter__('callbackWaitsForEmptyEventLoop',
+     () => { return old_context.callbackWaitsForEmptyEventLoop })
+  context.__defineSetter__('callbackWaitsForEmptyEventLoop',
+     (value) => { old_context.callbackWaitsForEmptyEventLoop = value })
+
+  return context
+}
+
+function new_callback (generateLog, callback) {
+  if (typeof(callback) !== 'function') {
+    return undefined
+  }
+  return (err, data) => {
+    //console.log("WOLF:CalledLambdaCallback.")
+    generateLog(err, () => {
+      callback.apply(callback, [err, data])
+    })
+  }
+}
+
 module.exports = function(configObject) {
   return function(func) {
     return function() {
@@ -239,53 +290,10 @@ module.exports = function(configObject) {
 
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(emitter, func, start_time, config, args[1])
-      var new_context = (old_context) => {
-        var context = deepcopy(old_context)
-        context.succeed = function(data) {
-          //console.log("WOLF:CalledContextSucceed.")
-          generateLog(null, () => {
-            old_context.succeed(data)
-          })
-        }
-        context.fail = function(err) {
-          //console.log("WOLF:CalledContextFail.")
-          generateLog(err, () => {
-            old_context.fail(err)
-          })
-        }
-        context.done = function(err, data) {
-          //console.log("WOLF:CalledContextDone.")
-          generateLog(err, () => {
-            old_context.done(err, data)
-          })
-        }
-        context.iopipe_log = function(level, data) {
-          emitter.queue.push([level, data])
-        }
-        context.getRemainingTimeInMillis = old_context.getRemainingTimeInMillis
-        /* Map getters/setters */
-        context.__defineGetter__('callbackWaitsForEmptyEventLoop',
-                                 () => { return old_context.callbackWaitsForEmptyEventLoop })
-        context.__defineSetter__('callbackWaitsForEmptyEventLoop',
-                                 (value) => { old_context.callbackWaitsForEmptyEventLoop = value })
-
-        return context
-      }
-      var new_callback = (callback) => {
-        if (typeof(callback) !== 'function') {
-          return undefined
-        }
-        return (err, data) => {
-          //console.log("WOLF:CalledLambdaCallback.")
-          generateLog(err, () => {
-            callback.apply(callback, [err, data])
-          })
-        }
-      }
 
       /* Mangle arguments, wrapping callbacks. */
-      args[1] = new_context(args[1])
-      args[2] = new_callback(args[2])
+      args[1] = new_context(generateLog, args[1])
+      args[2] = new_callback(generateLog, args[2])
 
       try {
         return func.apply(emitter, args)
