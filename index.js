@@ -9,11 +9,22 @@ var util = require("util")
 var url = require("url")
 var path = require("path")
 var os = require("os")
+var uuid = require('uuid')
 
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function readstat (pid) {
+  if (process.platform !== 'linux') {
+    return Promise.resolve({
+      utime: 0,
+      stime: 0,
+      cutime: 0,
+      cstime: 0,
+      rss: 0
+    })
+  }
+
   return Promise.join(
     fs.readFileAsync(`/proc/${pid}/stat`)
   ).spread((
@@ -31,6 +42,19 @@ function readstat (pid) {
 }
 
 function readstatus (pid) {
+  if (process.platform !== 'linux') {
+    var mem = process.memoryUsage()
+    return Promise.resolve({
+      FDSize: 0,
+      Threads: 1,
+      VmRSS: mem.rss / 1024,
+      VmData: 0,
+      VmStk: 0,
+      VmExe: 0,
+      VmSwap: 0
+    })
+  }
+
   return Promise.join(
     fs.readFileAsync(`/proc/${pid}/status`)
   ).spread((
@@ -59,6 +83,10 @@ function readstatus (pid) {
 }
 
 function readbootid () {
+  if (process.platform !== 'linux') {
+    return Promise.resolve(uuid.v4())
+  }
+
   return fs.readFileAsync('/proc/sys/kernel/random/boot_id')
 }
 
