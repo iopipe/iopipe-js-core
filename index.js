@@ -95,7 +95,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             arch: os.arch(),
             linux: {
               pid: {
-                1: {
+                self: {
                   stat_start: pre_proc_self_stat,
                   stat: proc_self_stat,
                   status: proc_self_status
