@@ -179,9 +179,8 @@ function _make_generateLog(emitter, func, start_time, config, context) {
 
         if (config.debug) {
           console.log("IOPIPE-DEBUG: ", response_body)
-          callback()
-          return
         }
+
         if (!config.clientId) {
           callback()
           return
