@@ -13,8 +13,9 @@ var os = require("os")
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-var INVOCATIONS = 0
-var AVG_API_TIMENS = 0
+/* global mutables */
+var INVOCATIONS = 0  // count of invocations for this process
+var AVG_API_TIMENS = 0  // average time in nanosecs for IOpipe API submissions
 
 function readstat (pid) {
   return Promise.join(
@@ -173,7 +174,10 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
           duration: time_nanosecs,
-          api_avg_nstime = AVG_API_TIMENS,
+          api_avg_nstime: AVG_API_TIMENS,
+          process: {
+            invocations: INVOCATIONS
+          }
           client_id: config.clientId
         }
 
