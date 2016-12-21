@@ -13,6 +13,9 @@ var os = require("os")
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
+var INVOCATIONS = 0
+var AVG_API_TIMENS = 0
+
 function readstat (pid) {
   return Promise.join(
     fs.readFileAsync(`/proc/${pid}/stat`)
@@ -170,6 +173,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
           duration: time_nanosecs,
+          api_avg_nstime = AVG_API_TIMENS,
           client_id: config.clientId
         }
 
@@ -185,6 +189,8 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           callback()
           return
         }
+
+        var time_before_request = process.hrtime()
         request(
           {
             url: config.url,
@@ -201,6 +207,11 @@ function _make_generateLog(emitter, func, start_time, config, context) {
               console.log("WOLF:IOpipeLoggingError: ", reqErr)
             }*/
             callback()
+
+            ++INVOCATIONS
+            var req_time = process.hrtime(time_before_request)
+            var req_time_ns = req_time[0] * 1e9 + req_time[1]
+            AVG_API_TIMENS = (AVG_API_TIMENS * INVOCATIONS + req_time_ns) / INVOCATIONS
           }
         )
       }
