@@ -9,6 +9,7 @@ var util = require("util")
 var url = require("url")
 var path = require("path")
 var os = require("os")
+var payload = require("iopipe-payload")
 
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
@@ -77,7 +78,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         proc_self_status,
         boot_id
       ) => {
-        var runtime_env = {
+        var runtime_env = payload.normalize({
           agent: {
             runtime: "nodejs",
             version: VERSION
@@ -128,7 +129,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             getegid: process.getegid(),
             memoryUsage: process.memoryUsage(),
           }
-        }
+        })
 
         var retainErr = {};
         if (err) {
@@ -318,3 +319,5 @@ module.exports = function(configObject) {
     }
   }
 }
+
+module.exports.payload = payload
