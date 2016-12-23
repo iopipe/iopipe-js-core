@@ -165,7 +165,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             logStreamName: context.logStreamName
           },
           errors: retainErr,
-          events: emitter.queue,
+          custom_metrics: emitter.queue,
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
@@ -281,8 +281,22 @@ module.exports = function(configObject) {
       }
 
       var emitter = new _agentEmitter()
-      emitter.on("iopipe_event", (type, data) => {
-        emitter.queue.push([type, data])
+      emitter.on("iopipe_event", (name, value) => {
+        var numberValue, stringValue
+        if (typeof value === 'number') {
+          numberValue = value
+        } else {
+          if(typeof value === 'object') {
+            JSON.stringify(value)
+          } else {
+            stringValue = String(value)
+          }
+        }
+        emitter.queue.push({
+          name: name,
+          n: numberValue,
+          s: stringValue
+        })
       })
 
       var args = [].slice.call(arguments)
