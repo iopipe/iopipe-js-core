@@ -1,6 +1,6 @@
 {
   "name": "iopipe",
-  "version": "0.0.20",
+  "version": "0.1.0",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "index.js",
   "scripts": {
@@ -28,6 +28,7 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "crypto": "0.0.3",
+    "eslint": "^3.12.2",
     "request": "^2.65.0",
     "uuid": "^3.0.1"
   },
