@@ -1,16 +1,19 @@
 "use strict"
 
+var pkg = require('./package.json');
 var crypto = require("crypto")
 var Promise = require("bluebird")
 var request = require("request")
-var EventEmitter = require("events")
 var util = require("util")
 var url = require("url")
 var path = require("path")
 var os = require("os")
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 
-const VERSION = process.env.npm_package_version
+var Context = require("./src/context.js")
+var Callback = require("./src/callback.js")
+
+const VERSION = pkg.version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
 function _make_generateLog(emitter, func, start_time, config, context) {
@@ -114,7 +117,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             logStreamName: context.logStreamName
           },
           errors: retainErr,
-          custom_metrics: emitter.queue,
+          custom_metrics: metrics,
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
@@ -157,113 +160,63 @@ function _make_generateLog(emitter, func, start_time, config, context) {
   }
 }
 
-function _agentEmitter() {
-  this.queue = []
-  EventEmitter.call(this);
-}
-util.inherits(_agentEmitter, EventEmitter)
+function setConfig(configObject) {
+  var baseurl = (configObject && configObject.url) ? configObject.url : DEFAULT_COLLECTOR_URL
+  var eventURL = url.parse(baseurl)
+  eventURL.pathname = path.join(eventURL.pathname, 'v0/event')
+  eventURL.path = eventURL.search ? eventURL.pathname + eventURL.search : eventURL.pathname
 
-function new_context (generateLog, old_context) {
-  var context = {
-    awsRequestId: old_context.awsRequestId,
-    invokeid: old_context.invokeid,
-    logGroupName: old_context.logGroupName,
-    logStreamName: old_context.logStreamName,
-    functionVersion: old_context.functionVersion,
-    isDefaultFunctionVersion: old_context.isDefaultFunctionVersion,
-    functionName: old_context.functionName,
-    memoryLimitInMB: old_context.memoryLimitInMB,
-    succeed: function(data) {
-      generateLog(null, () => {
-        old_context.succeed(data)
-      })
-    },
-    fail: function(err) {
-      generateLog(err, () => {
-        old_context.fail(err)
-      })
-    },
-    done: function(err, data) {
-      generateLog(err, () => {
-        old_context.done(err, data)
-      })
-    },
-    iopipe_log: function(level, data) {
-      emitter.queue.push([level, data])
-    },
-    getRemainingTimeInMillis: old_context.getRemainingTimeInMillis
-  }
-
-  /* Map getters/setters */
-  context.__defineGetter__('callbackWaitsForEmptyEventLoop',
-     () => { return old_context.callbackWaitsForEmptyEventLoop })
-  context.__defineSetter__('callbackWaitsForEmptyEventLoop',
-     (value) => { old_context.callbackWaitsForEmptyEventLoop = value })
-
-  return context
-}
-
-function new_callback (generateLog, callback) {
-  if (typeof(callback) !== 'function') {
-    return undefined
-  }
-  return (err, data) => {
-    //console.log("WOLF:CalledLambdaCallback.")
-    generateLog(err, () => {
-      callback.apply(callback, [err, data])
-    })
+  return {
+    url: eventURL,
+    clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || "",
+    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
   }
 }
 
-module.exports = function(configObject) {
-  return function(func) {
-    return function() {
-      var baseurl = (configObject && configObject.url) ? configObject.url : DEFAULT_COLLECTOR_URL
-      var eventURL = url.parse(baseurl)
-      eventURL.pathname = path.join(eventURL.pathname, 'v0/event')
-      eventURL.path = eventURL.search ? eventURL.pathname + eventURL.search : eventURL.pathname
+function Agent(configObject) {
+  this.config = setConfig(configObject)
+  this.metricsQueue = []
+}
 
-      var config = {
-        url: eventURL,
-        clientId: configObject.clientId || process.env.IOPIPE_CLIENTID || "",
-        debug: configObject.debug || process.env.IOPIPE_DEBUG || false
-      }
+Agent.prototype.log = function(name, value) {
+  var numberValue, stringValue
+  if (typeof value === 'number') {
+    numberValue = value
+  } else {
+    if(typeof value === 'object') {
+      JSON.stringify(value)
+    } else {
+      stringValue = String(value)
+    }
+  }
+  this.metricsQueue.push({
+    name: name,
+    n: numberValue,
+    s: stringValue
+  })
+}
 
-      var emitter = new _agentEmitter()
-      emitter.on("iopipe_event", (name, value) => {
-        var numberValue, stringValue
-        if (typeof value === 'number') {
-          numberValue = value
-        } else {
-          if(typeof value === 'object') {
-            JSON.stringify(value)
-          } else {
-            stringValue = String(value)
-          }
-        }
-        emitter.queue.push({
-          name: name,
-          n: numberValue,
-          s: stringValue
-        })
-      })
+Agent.prototype.wrap = function(func) {
+  const config = this.config
+  let metricsQueue = this.metricsQueue
+  return function() {
+    var args = [].slice.call(arguments)
 
-      var args = [].slice.call(arguments)
+    var start_time = process.hrtime()
+    var generateLog = _make_generateLog(metricsQueue, func, start_time, config, args[1])
 
-      var start_time = process.hrtime()
-      var generateLog = _make_generateLog(emitter, func, start_time, config, args[1])
+    /* Mangle arguments, wrapping callbacks. */
+    args[1] = Context(generateLog, args[1])
+    args[2] = Callback(generateLog, args[2])
 
-      /* Mangle arguments, wrapping callbacks. */
-      args[1] = new_context(generateLog, args[1])
-      args[2] = new_callback(generateLog, args[2])
-
-      try {
-        return func.apply(emitter, args)
-      }
-      catch (err) {
-        generateLog(err, () => {})
-        return undefined
-      }
+    try {
+      return func.apply(emitter, args)
+    }
+    catch (err) {
+      generateLog(err, () => {})
+      return undefined
     }
   }
 }
+
+module.exports.Agent = Agent
