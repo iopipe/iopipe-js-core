@@ -1,42 +1,42 @@
-"use strict"
+'use strict'
 
 function clone(oldObject) {
   // Basis.
   if (!(oldObject instanceof Object)) {
-    return oldObject;
+    return oldObject
   }
 
-  var clonedObject;
+  var clonedObject
 
   // Filter out special objects.
-  var Constructor = oldObject.constructor;
+  var Constructor = oldObject.constructor
   switch (Constructor) {
     // Implement other special objects here.
-    case Promise:
-      clonedObject = oldObject.then();
-      break;
-    case Date:
-      clonedObject = new Constructor(oldObject.getTime());
-      break;
-    default:
-      clonedObject = new Constructor();
+  case Promise:
+    clonedObject = oldObject.then()
+    break
+  case Date:
+    clonedObject = new Constructor(oldObject.getTime())
+    break
+  default:
+    clonedObject = new Constructor()
   }
 
   // Clone each property.
   for (var prop in oldObject) {
-    clonedObject[prop] = clone(oldObject[prop]);
+    clonedObject[prop] = clone(oldObject[prop])
   }
 
-  return clonedObject;
+  return clonedObject
 }
 
 function Context(generateLog, oldContext) {
-  let context = clone(oldContext);
+  let context = clone(oldContext)
   context.succeed = function(data) {
     generateLog.then(
       (x) => {
         x(null, () => {
-          old_context.succeed(data)
+          oldContext.succeed(data)
         })
       }
     )
@@ -45,7 +45,7 @@ function Context(generateLog, oldContext) {
     generateLog.then(
       (x) => {
         x(err, () => {
-          old_context.fail(err)
+          oldContext.fail(err)
         })
       }
     )
@@ -54,7 +54,7 @@ function Context(generateLog, oldContext) {
     generateLog.then(
       (x) => {
         x(err, () => {
-          old_context.done(err, data)
+          oldContext.done(err, data)
         })
       }
     )
