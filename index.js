@@ -1,11 +1,9 @@
 'use strict'
 
 var pkg = require('./package.json')
-var crypto = require('crypto')
 var Promise = require('bluebird')
 var fs = Promise.promisifyAll(require('fs'))
 var request = require('request')
-var util = require('util')
 var url = require('url')
 var path = require('path')
 var os = require('os')
@@ -145,7 +143,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             json: true,
             body: response_body
           },
-          function(reqErr, res, body) {
+          function(err) {
             // Throw uncaught errors from the wrapped function.
             if (err) {
               context.fail(err)
