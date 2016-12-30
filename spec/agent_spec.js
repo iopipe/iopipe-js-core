@@ -11,21 +11,21 @@ describe('metrics agent', () => {
     var iopipe = new IOpipe.Agent({ clientId: 'testSuite' })
     var ctx = context()
     var wrappedFunction = iopipe.wrap(function(event, context) {
-        console.log('foo!')
-        expect(context.getRemainingTimeInMillis()).toEqual(9001)
-      }
+      console.log('foo!')
+      expect(context.getRemainingTimeInMillis()).toEqual(9001)
+    }
     )
 
     wrappedFunction({}, ctx)
 
     ctx.Promise
       .then(resp => {
-        functionResponse = resp;
+        functionResponse = resp
         expect(ctx.getRemainingTimeInMillis()).toEqual(9001)
         done()
       })
       .catch(err => { functionError = err; done() })
-  });
+  })
 })
 
 xdescribe('smoke test', () => {
@@ -37,7 +37,7 @@ xdescribe('smoke test', () => {
       const ctx = context()
       var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
       var wrappedFunction = iopipe.wrap(function(event, context, callback) {
-        context.succeed("Success!")
+        context.succeed('Success!')
       })
       wrappedFunction({}, ctx)
       ctx.Promise
@@ -51,7 +51,7 @@ xdescribe('smoke test', () => {
     })
 
     it('will run when installed on a successful function', (done) => {
-      expect(functionResponse).toEqual("Success!")
+      expect(functionResponse).toEqual('Success!')
       expect(functionError).toBe(null)
       done()
     })
@@ -67,7 +67,7 @@ xdescribe('smoke test', () => {
       functionError = null
       var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
       var wrappedFunction = iopipe.wrap(function(event, context, callback) {
-        context.fail("Fail!")
+        context.fail('Fail!')
       })
       wrappedFunction({}, ctx)
       ctx.Promise
@@ -82,7 +82,7 @@ xdescribe('smoke test', () => {
 
     it('will run when installed on a failing function', (done) => {
       expect(functionResponse).toEqual(null)
-      expect(functionError.message).toEqual("Fail!")
+      expect(functionError.message).toEqual('Fail!')
       done()
     })
   })
@@ -98,12 +98,12 @@ xdescribe('smoke test', () => {
       }
       var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
       var wrappedFunction = iopipe.wrap(function(event, context, callback) {
-        callback(null, "Success callback!")
+        callback(null, 'Success callback!')
       })
       wrappedFunction({}, ctx, cb)
       ctx.Promise
         .then(resp => {
-          expect(resp).toEqual("Success callback!")
+          expect(resp).toEqual('Success callback!')
           done()
         })
         .catch(err => {
@@ -122,7 +122,7 @@ xdescribe('smoke test', () => {
       }
       var iopipe = IOpipe.Agent({ clientId: 'testSuite'})
       var wrappedFunction = iopipe.wrap(function(event, context, callback) {
-        callback("Error callback!")
+        callback('Error callback!')
       })
       wrappedFunction({}, ctx, cb)
       ctx.Promise
@@ -131,7 +131,7 @@ xdescribe('smoke test', () => {
           done()
         })
         .catch(err => {
-          expect(err.message).toEqual("Error callback!")
+          expect(err.message).toEqual('Error callback!')
           done()
         })
     })
@@ -146,7 +146,7 @@ xdescribe('smoke test', () => {
       }
       var iopipe = IOpipe.Agent({ clientId: 'testSuite', debug: true })
       var wrappedFunction = iopipe.wrap(function(event, context, callback) {
-        callback("Error callback!")
+        callback('Error callback!')
       })
       wrappedFunction({}, ctx, cb)
       ctx.Promise
@@ -155,7 +155,7 @@ xdescribe('smoke test', () => {
           done()
         })
         .catch(err => {
-          expect(err.message).toEqual("Error callback!")
+          expect(err.message).toEqual('Error callback!')
           done()
         })
     })

@@ -1,26 +1,27 @@
-"use strict"
+'use strict'
 
-var pkg = require('./package.json');
-var crypto = require("crypto")
-var Promise = require("bluebird")
-var request = require("request")
-var util = require("util")
-var url = require("url")
-var path = require("path")
-var os = require("os")
+var pkg = require('./package.json')
+var crypto = require('crypto')
+var Promise = require('bluebird')
+var fs = Promise.promisifyAll(require('fs'))
+var request = require('request')
+var util = require('util')
+var url = require('url')
+var path = require('path')
+var os = require('os')
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 
-var Context = require("./src/context.js")
-var Callback = require("./src/callback.js")
+var Context = require('./src/context.js')
+var Callback = require('./src/callback.js')
 
 const VERSION = pkg.version
-const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
+const DEFAULT_COLLECTOR_URL = 'https://metrics-api.iopipe.com'
 
 function _make_generateLog(emitter, func, start_time, config, context) {
   var pre_stat_promise = system.readstat('self')
-
+  
   return function generateLog(err, callback) {
-      Promise.join(
+    Promise.join(
         pre_stat_promise,
         system.readstat('self'),
         system.readstatus('self'),
@@ -33,7 +34,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
       ) => {
         var runtime_env = {
           agent: {
-            runtime: "nodejs",
+            runtime: 'nodejs',
             version: VERSION
           },
           host: {
@@ -84,18 +85,18 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           }
         }
 
-        var retainErr = {};
+        var retainErr = {}
         if (err) {
           retainErr = ((err) => {
-                        return {
-                          name: err.name,
-                          message: err.message,
-                          stack: err.stack,
-                          lineNumber: err.lineNumber,
-                          columnNumber: err.columnNumber,
-                          fileName: err.fileName
-                        }
-                      })((typeof(err) === "string") ? new Error(err) : err)
+            return {
+              name: err.name,
+              message: err.message,
+              stack: err.stack,
+              lineNumber: err.lineNumber,
+              columnNumber: err.columnNumber,
+              fileName: err.fileName
+            }
+          })((typeof(err) === 'string') ? new Error(err) : err)
         }
 
         var time_sec_nanosec = process.hrtime(start_time)
@@ -130,7 +131,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         }
 
         if (config.debug) {
-          console.log("IOPIPE-DEBUG: ", response_body)
+          console.log('IOPIPE-DEBUG: ', response_body)
         }
 
         if (!config.clientId) {
@@ -140,7 +141,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         request(
           {
             url: config.url,
-            method: "POST",
+            method: 'POST',
             json: true,
             body: response_body
           },
@@ -168,7 +169,7 @@ function setConfig(configObject) {
 
   return {
     url: eventURL,
-    clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || "",
+    clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
   }
 }
