@@ -2,7 +2,6 @@
 
 var crypto = require("crypto")
 var Promise = require("bluebird")
-var fs = Promise.promisifyAll(require("fs"))
 var request = require("request")
 var EventEmitter = require("events")
 var util = require("util")
