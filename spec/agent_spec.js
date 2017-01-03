@@ -2,40 +2,33 @@ const IOpipe = require('..')
 const context = require('aws-lambda-mock-context')
 
 describe('metrics agent', () => {
-  it('should return an Object', () => {
-    var agent = new IOpipe.Agent()
-    expect(typeof agent).toEqual('object')
+  it('should return a function', () => {
+    var agent = IOpipe()
+    expect(typeof agent).toEqual('function')
   })
 
-  it('should successfully getRemainingTimeInMillis from aws context', (done) => {
-    var iopipe = new IOpipe.Agent({ clientId: 'testSuite' })
+  it('should successfully getRemainingTimeInMillis from aws context', () => {
+    var iopipe = IOpipe({ clientId: 'testSuite' })
     var ctx = context()
-    var wrappedFunction = iopipe.decorate(function(event, context) {
-      console.log('foo!')
-      expect(context.getRemainingTimeInMillis()).toEqual(9001)
+    var wrappedFunction = iopipe(function(event, context) {
+      context.succeed()
     })
 
     wrappedFunction({}, ctx)
 
-    ctx.Promise
-      .then(resp => {
-        functionResponse = resp
-        expect(ctx.getRemainingTimeInMillis()).toEqual(9001)
-        done()
-      })
-      .catch(err => { functionError = err; done() })
+    expect(typeof ctx.getRemainingTimeInMillis).toBe('function')
   })
 })
 
-xdescribe('smoke test', () => {
+describe('smoke test', () => {
   describe('successful functions', () => {
     var functionResponse = null
     var functionError = null
 
     beforeEach(function(done) {
       const ctx = context()
-      var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
+      var iopipe = IOpipe({ clientId: 'testSuite', debug: true})
+      var wrappedFunction = iopipe(function(event, context, callback) {
         context.succeed('Success!')
       })
       wrappedFunction({}, ctx)
@@ -64,8 +57,8 @@ xdescribe('smoke test', () => {
       const ctx = context()
       functionResponse = null
       functionError = null
-      var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
+      var iopipe = IOpipe({ clientId: 'testSuite', debug: true})
+      var wrappedFunction = iopipe(function(event, context, callback) {
         context.fail('Fail!')
       })
       wrappedFunction({}, ctx)
@@ -95,8 +88,8 @@ xdescribe('smoke test', () => {
         else
           ctx.succeed(success)
       }
-      var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
+      var iopipe = IOpipe({ clientId: 'testSuite', debug: true})
+      var wrappedFunction = iopipe(function(event, context, callback) {
         callback(null, 'Success callback!')
       })
       wrappedFunction({}, ctx, cb)
@@ -107,54 +100,6 @@ xdescribe('smoke test', () => {
         })
         .catch(err => {
           expect(err).toBe(null)
-          done()
-        })
-    })
-
-    it('will run when installed on a sucessfull function', (done) => {
-      const ctx = context()
-      function cb(err, success) {
-        if(err)
-          ctx.fail(err)
-        else
-          ctx.succeed(success)
-      }
-      var iopipe = IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
-        callback('Error callback!')
-      })
-      wrappedFunction({}, ctx, cb)
-      ctx.Promise
-        .then(resp => {
-          expect(resp).toBe(null)
-          done()
-        })
-        .catch(err => {
-          expect(err.message).toEqual('Error callback!')
-          done()
-        })
-    })
-
-    it('will run in debug mode when installed on a sucessfull function', (done) => {
-      const ctx = context()
-      function cb(err, success) {
-        if(err)
-          ctx.fail(err)
-        else
-          ctx.succeed(success)
-      }
-      var iopipe = IOpipe.Agent({ clientId: 'testSuite', debug: true })
-      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
-        callback('Error callback!')
-      })
-      wrappedFunction({}, ctx, cb)
-      ctx.Promise
-        .then(resp => {
-          expect(resp).toBe(null)
-          done()
-        })
-        .catch(err => {
-          expect(err.message).toEqual('Error callback!')
           done()
         })
     })
