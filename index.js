@@ -2,13 +2,12 @@
 
 var pkg = require('./package.json')
 var Promise = require('bluebird')
-var fs = Promise.promisifyAll(require('fs'))
 var request = require('request')
 var url = require('url')
 var path = require('path')
 var os = require('os')
-var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 
+var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 var Context = require('./src/context.js')
 var Callback = require('./src/callback.js')
 
@@ -172,7 +171,6 @@ function setConfig(configObject) {
 module.exports = function(options) {
   var fn = function(func) {
     fn.metricsQueue = []
-
     const config = setConfig(options)
 
     return function() {
