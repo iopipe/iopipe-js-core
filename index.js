@@ -195,7 +195,7 @@ Agent.prototype.log = function(name, value) {
   })
 }
 
-Agent.prototype.wrap = function(func) {
+Agent.prototype.decorate = function(func) {
   const config = this.config
   let metricsQueue = this.metricsQueue
   return function() {

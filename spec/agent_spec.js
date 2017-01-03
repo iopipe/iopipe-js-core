@@ -10,11 +10,10 @@ describe('metrics agent', () => {
   it('should successfully getRemainingTimeInMillis from aws context', (done) => {
     var iopipe = new IOpipe.Agent({ clientId: 'testSuite' })
     var ctx = context()
-    var wrappedFunction = iopipe.wrap(function(event, context) {
+    var wrappedFunction = iopipe.decorate(function(event, context) {
       console.log('foo!')
       expect(context.getRemainingTimeInMillis()).toEqual(9001)
-    }
-    )
+    })
 
     wrappedFunction({}, ctx)
 
@@ -36,7 +35,7 @@ xdescribe('smoke test', () => {
     beforeEach(function(done) {
       const ctx = context()
       var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.wrap(function(event, context, callback) {
+      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
         context.succeed('Success!')
       })
       wrappedFunction({}, ctx)
@@ -66,7 +65,7 @@ xdescribe('smoke test', () => {
       functionResponse = null
       functionError = null
       var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.wrap(function(event, context, callback) {
+      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
         context.fail('Fail!')
       })
       wrappedFunction({}, ctx)
@@ -97,7 +96,7 @@ xdescribe('smoke test', () => {
           ctx.succeed(success)
       }
       var iopipe = new IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.wrap(function(event, context, callback) {
+      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
         callback(null, 'Success callback!')
       })
       wrappedFunction({}, ctx, cb)
@@ -121,7 +120,7 @@ xdescribe('smoke test', () => {
           ctx.succeed(success)
       }
       var iopipe = IOpipe.Agent({ clientId: 'testSuite'})
-      var wrappedFunction = iopipe.wrap(function(event, context, callback) {
+      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
         callback('Error callback!')
       })
       wrappedFunction({}, ctx, cb)
@@ -145,7 +144,7 @@ xdescribe('smoke test', () => {
           ctx.succeed(success)
       }
       var iopipe = IOpipe.Agent({ clientId: 'testSuite', debug: true })
-      var wrappedFunction = iopipe.wrap(function(event, context, callback) {
+      var wrappedFunction = iopipe.decorate(function(event, context, callback) {
         callback('Error callback!')
       })
       wrappedFunction({}, ctx, cb)
