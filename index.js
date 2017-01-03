@@ -88,6 +88,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
                           name: err.name,
                           message: err.message,
                           stack: err.stack,
+                          stackHash: crypto.createHash('sha256').update(err.stack).digest('hex'),
                           lineNumber: err.lineNumber,
                           columnNumber: err.columnNumber,
                           fileName: err.fileName
@@ -100,7 +101,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
 
         /*
-         depreciated fields:
+         deprecated fields:
          - time_sec_nanosec (use duration; 11/23/2016)
          - time_sec (use duration; 11/23/2016)
         */
