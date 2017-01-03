@@ -15,9 +15,9 @@ var Callback = require('./src/callback.js')
 const VERSION = pkg.version
 const DEFAULT_COLLECTOR_URL = 'https://metrics-api.iopipe.com'
 
-function _make_generateLog(emitter, func, start_time, config, context) {
+function _make_generateLog(metrics, func, start_time, config, context) {
   var pre_stat_promise = system.readstat('self')
-  
+
   return function generateLog(err, callback) {
     Promise.join(
         pre_stat_promise,
