@@ -1,6 +1,6 @@
 var uuid = require('uuid')
 
-function readstat(pid) {
+function readstat() {
   return Promise.resolve({
     utime: 0,
     stime: 0,
@@ -10,7 +10,7 @@ function readstat(pid) {
   })
 }
 
-function readstatus(pid) {
+function readstatus() {
   var mem = process.memoryUsage()
   return Promise.resolve({
     FDSize: 0,
