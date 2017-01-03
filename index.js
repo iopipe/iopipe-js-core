@@ -96,8 +96,6 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         }
 
         var time_sec_nanosec = process.hrtime(start_time)
-        var time_secs = time_sec_nanosec[0]
-        var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
 
         /*
          depreciated fields:
@@ -120,7 +118,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
-          duration: time_nanosecs,
+          duration: Math.ceil(time_sec_nanosec[0] * 1000000000.0 + time_sec_nanosec[1]),
           client_id: config.clientId
         }
 
