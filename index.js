@@ -9,96 +9,20 @@ var util = require("util")
 var url = require("url")
 var path = require("path")
 var os = require("os")
-var uuid = require('uuid')
+var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 
 const VERSION = process.env.npm_package_version
 const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
 
-function readstat (pid) {
-  if (process.platform !== 'linux') {
-    return Promise.resolve({
-      utime: 0,
-      stime: 0,
-      cutime: 0,
-      cstime: 0,
-      rss: 0
-    })
-  }
-
-  return Promise.join(
-    fs.readFileAsync(`/proc/${pid}/stat`)
-  ).spread((
-    pre_proc_self_stat_file
-  ) => {
-    var pre_proc_self_stat_fields = pre_proc_self_stat_file.toString().split(" ")
-    return {
-      utime: pre_proc_self_stat_fields[13],
-      stime: pre_proc_self_stat_fields[14],
-      cutime: pre_proc_self_stat_fields[15],
-      cstime: pre_proc_self_stat_fields[16],
-      rss: pre_proc_self_stat_fields[23]
-    }
-  })
-}
-
-function readstatus (pid) {
-  if (process.platform !== 'linux') {
-    var mem = process.memoryUsage()
-    return Promise.resolve({
-      FDSize: 0,
-      Threads: 1,
-      VmRSS: mem.rss / 1024,
-      VmData: 0,
-      VmStk: 0,
-      VmExe: 0,
-      VmSwap: 0
-    })
-  }
-
-  return Promise.join(
-    fs.readFileAsync(`/proc/${pid}/status`)
-  ).spread((
-    proc_self_status_file
-  ) => {
-    var proc_self_status_fields = {};
-    // Parse status file and apply to the proc_self_status_fields dict.
-    proc_self_status_file.toString().split("\n").map(
-      (x) => {
-        return (x) ? x.split("\t") : [ null, null ]
-      }
-    ).forEach(
-      (x) => { proc_self_status_fields[x[0]] = x[1] }
-    )
-
-    return {
-      FDSize: proc_self_status_fields['FDSize'],
-      Threads: proc_self_status_fields['Threads'],
-      VmRSS: proc_self_status_fields['VmRSS'],
-      VmData: proc_self_status_fields['VmData'],
-      VmStk: proc_self_status_fields['VmStk'],
-      VmExe: proc_self_status_fields['VmExe'],
-      VmSwap: proc_self_status_fields['VmSwap']
-    }
-  })
-}
-
-function readbootid () {
-  if (process.platform !== 'linux') {
-    return Promise.resolve(uuid.v4())
-  }
-
-  return fs.readFileAsync('/proc/sys/kernel/random/boot_id')
-}
-
 function _make_generateLog(emitter, func, start_time, config, context) {
-  var pre_stat_promise = readstat('self')
+  var pre_stat_promise = system.readstat('self')
 
   return function generateLog(err, callback) {
       Promise.join(
         pre_stat_promise,
-        readstat('self'),
-        readstatus('self'),
-        readbootid()
+        system.readstat('self'),
+        system.readstatus('self'),
+        system.readbootid()
       ).spread((
         pre_proc_self_stat,
         proc_self_stat,
