@@ -33,31 +33,21 @@ function clone(oldObject) {
 function Context(generateLog, oldContext) {
   let context = clone(oldContext)
   context.succeed = function(data) {
-    generateLog.then(
-      (x) => {
-        x(null, () => {
-          oldContext.succeed(data)
-        })
-      }
-    )
+    generateLog(null, () => {
+      oldContext.succeed(data)
+    })
   }
+
   context.fail = function(err) {
-    generateLog.then(
-      (x) => {
-        x(err, () => {
-          oldContext.fail(err)
-        })
-      }
-    )
+    generateLog(err, () => {
+      oldContext.fail(err)
+    })
   }
+
   context.done = function(err, data) {
-    generateLog.then(
-      (x) => {
-        x(err, () => {
-          oldContext.done(err, data)
-        })
-      }
-    )
+    generateLog(err, () => {
+      oldContext.done(err, data)
+    })
   }
 
   context.getRemainingTimeInMillis = oldContext.getRemainingTimeInMillis

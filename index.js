@@ -148,9 +148,6 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             if (err) {
               context.fail(err)
             }
-            /*if (reqErr) {
-              console.log("WOLF:IOpipeLoggingError: ", reqErr)
-            }*/
             callback()
           }
         )
@@ -172,50 +169,49 @@ function setConfig(configObject) {
   }
 }
 
-function Agent(configObject) {
-  this.config = setConfig(configObject)
-  this.metricsQueue = []
-}
+module.exports = function(options) {
+  var fn = function(func) {
+    fn.metricsQueue = []
 
-Agent.prototype.log = function(name, value) {
-  var numberValue, stringValue
-  if (typeof value === 'number') {
-    numberValue = value
-  } else {
-    if(typeof value === 'object') {
-      JSON.stringify(value)
+    const config = setConfig(options)
+
+    return function() {
+      let args = [].slice.call(arguments)
+
+      var start_time = process.hrtime()
+      var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, args[1])
+
+      /* Mangle arguments, wrapping callbacks. */
+      args[1] = Context(generateLog, args[1])
+      args[2] = Callback(generateLog, args[2])
+
+      try {
+        return func.apply(this, args)
+      }
+      catch (err) {
+        generateLog(err, () => {})
+        return undefined
+      }
+    }
+  }
+
+  fn.log = function(name, value) {
+    var numberValue, stringValue
+    if (typeof value === 'number') {
+      numberValue = value
     } else {
-      stringValue = String(value)
+      if(typeof value === 'object') {
+        JSON.stringify(value)
+      } else {
+        stringValue = String(value)
+      }
     }
+    fn.metricsQueue.push({
+      name: name,
+      n: numberValue,
+      s: stringValue
+    })
   }
-  this.metricsQueue.push({
-    name: name,
-    n: numberValue,
-    s: stringValue
-  })
+
+  return fn
 }
-
-Agent.prototype.decorate = function(func) {
-  const config = this.config
-  let metricsQueue = this.metricsQueue
-  return function() {
-    var args = [].slice.call(arguments)
-
-    var start_time = process.hrtime()
-    var generateLog = _make_generateLog(metricsQueue, func, start_time, config, args[1])
-
-    /* Mangle arguments, wrapping callbacks. */
-    args[1] = Context(generateLog, args[1])
-    args[2] = Callback(generateLog, args[2])
-
-    try {
-      return func.apply(emitter, args)
-    }
-    catch (err) {
-      generateLog(err, () => {})
-      return undefined
-    }
-  }
-}
-
-module.exports.Agent = Agent
