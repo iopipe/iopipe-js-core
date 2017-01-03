@@ -23,7 +23,7 @@ function readstatus() {
   })
 }
 
-function readbootid () {
+function readbootid() {
   return Promise.resolve(uuid.v4())
 }
 
