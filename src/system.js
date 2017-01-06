@@ -46,7 +46,7 @@ function readbootid() {
   return new Promise((resolve, reject) => {
     fs.readFile('/proc/sys/kernel/random/boot_id', function handleRead(err, data) {
       if(err) return reject(err)
-      resolve(data)
+      resolve(data.toString())
     })
   })
 }
