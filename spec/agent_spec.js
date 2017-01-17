@@ -18,6 +18,19 @@ describe('metrics agent', () => {
 
     expect(typeof ctx.getRemainingTimeInMillis).toBe('function')
   })
+
+  it('allows .decorate API', function(done) {
+    var iopipe = IOpipe({ clientId: 'testSuite' })
+    var ctx = context()
+    var wrappedFunction = iopipe.decorate(function(event, context) {
+      context.succeed(true)
+    })
+
+    wrappedFunction({}, ctx)
+
+    ctx.Promise
+      .then(resp => { expect(resp).toBeTruthy(); done() })
+      .catch(err => { expect(err).toBe(null); done() })  })
 })
 
 describe('smoke test', () => {
