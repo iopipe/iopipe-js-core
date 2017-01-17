@@ -193,6 +193,9 @@ module.exports = function(options) {
     }
   }
 
+  // Alias decorate to the wrapper function
+  fn.decorate = fn
+
   fn.log = function(name, value) {
     var numberValue, stringValue
     if (typeof value === 'number') {
