@@ -93,7 +93,7 @@ describe('smoke test', () => {
   })
 
   describe('functions using callbacks', () => {
-    it('will run when installed on a sucessfull function', (done) => {
+    it('will run when installed on a sucessful function', (done) => {
       const ctx = context()
       function cb(err, success) {
         if(err)
@@ -115,6 +115,93 @@ describe('smoke test', () => {
           expect(err).toBe(null)
           done()
         })
+    })
+  })
+
+  describe('sends to specified regions', function() {
+    it('sends to ap-southeast-2', function(done) {
+      var iopipe = IOpipe({ clientId: 'testSuite' })
+      var ctx = context({ region: 'ap-southeast-2'})
+      var wrappedFunction = iopipe.decorate(function(event, context) {
+        context.succeed(true)
+      })
+
+      wrappedFunction({}, ctx)
+
+      ctx.Promise
+        .then(resp => { expect(resp).toBeTruthy(); done() })
+        .catch(err => { expect(err).toBe(null); done() })
+    })
+
+    it('sends to eu-west-1', function(done) {
+      var iopipe = IOpipe({ clientId: 'testSuite' })
+      var ctx = context({ region: 'eu-west-1'})
+      var wrappedFunction = iopipe.decorate(function(event, context) {
+        context.succeed(true)
+      })
+
+      wrappedFunction({}, ctx)
+
+      ctx.Promise
+        .then(resp => { expect(resp).toBeTruthy(); done() })
+        .catch(err => { expect(err).toBe(null); done() })
+    })
+
+    it('sends to us-east-1/our default URL', function(done) {
+      var iopipe = IOpipe({ clientId: 'testSuite' })
+      var ctx = context({ region: 'us-east-1'})
+      var wrappedFunction = iopipe.decorate(function(event, context) {
+        context.succeed(true)
+      })
+
+      wrappedFunction({}, ctx)
+
+      ctx.Promise
+        .then(resp => { expect(resp).toBeTruthy(); done() })
+        .catch(err => { expect(err).toBe(null); done() })
+    })
+
+    it('sends to us-east-2', function(done) {
+      var iopipe = IOpipe({ clientId: 'testSuite' })
+      var ctx = context({ region: 'us-east-2'})
+      var wrappedFunction = iopipe.decorate(function(event, context) {
+        context.succeed(true)
+      })
+
+      wrappedFunction({}, ctx)
+
+      ctx.Promise
+        .then(resp => { expect(resp).toBeTruthy(); done() })
+        .catch(err => { expect(err).toBe(null); done() })
+    })
+
+
+    it('sends to us-west-1', function(done) {
+      var iopipe = IOpipe({ clientId: 'testSuite' })
+      var ctx = context({ region: 'us-west-1' })
+      var wrappedFunction = iopipe.decorate(function(event, context) {
+        context.succeed(true)
+      })
+
+      wrappedFunction({}, ctx)
+
+      ctx.Promise
+        .then(resp => { expect(resp).toBeTruthy(); done() })
+        .catch(err => { expect(err).toBe(null); done() })
+    })
+
+    it('sends to us-west-2', function(done) {
+      var iopipe = IOpipe({ clientId: 'testSuite' })
+      var ctx = context({ region: 'us-west-2' })
+      var wrappedFunction = iopipe.decorate(function(event, context) {
+        context.succeed(true)
+      })
+
+      wrappedFunction({}, ctx)
+
+      ctx.Promise
+        .then(resp => { expect(resp).toBeTruthy(); done() })
+        .catch(err => { expect(err).toBe(null); done() })
     })
   })
 })

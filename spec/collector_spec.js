@@ -16,14 +16,12 @@ describe('configuring collector url', function() {
   it('switches based on the region in the ARN', function() {
     var apSoutheast2Context = { invokedFunctionArn: 'arn:aws:lambda:ap-southeast-2:123456789012:function:aws-lambda-mock-context:$LATEST' }
     var euWest1Context = { invokedFunctionArn: 'arn:aws:lambda:eu-west-1:123456789012:function:aws-lambda-mock-context:$LATEST' }
-    var east1Context = { invokedFunctionArn: 'arn:aws:lambda:us-east-1:123456789012:function:aws-lambda-mock-context:$LATEST' }
     var east2Context = { invokedFunctionArn: 'arn:aws:lambda:us-east-2:123456789012:function:aws-lambda-mock-context:$LATEST' }
     var west1Context = { invokedFunctionArn: 'arn:aws:lambda:us-west-1:123456789012:function:aws-lambda-mock-context:$LATEST' }
     var west2Context = { invokedFunctionArn: 'arn:aws:lambda:us-west-2:123456789012:function:aws-lambda-mock-context:$LATEST' }
 
     expect(collector('', apSoutheast2Context).href).toBe('https://metrics-api.ap-southeast-2.iopipe.com/')
     expect(collector('', euWest1Context).href).toBe('https://metrics-api.eu-west-1.iopipe.com/')
-    expect(collector('', east1Context).href).toBe('https://metrics-api.us-east-1.iopipe.com/')
     expect(collector('', east2Context).href).toBe('https://metrics-api.us-east-2.iopipe.com/')
     expect(collector('', west1Context).href).toBe('https://metrics-api.us-west-1.iopipe.com/')
     expect(collector('', west2Context).href).toBe('https://metrics-api.us-west-2.iopipe.com/')

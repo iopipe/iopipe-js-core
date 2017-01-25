@@ -39,9 +39,6 @@ function getCollectorUrl(configUrl, context) {
   case 'eu-west-1':
     baseUrl = 'https://metrics-api.eu-west-1.iopipe.com'
     break
-  case 'us-east-1':
-    baseUrl = 'https://metrics-api.us-east-1.iopipe.com'
-    break
   case 'us-east-2':
     baseUrl = 'https://metrics-api.us-east-2.iopipe.com'
     break
