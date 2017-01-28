@@ -174,6 +174,7 @@ module.exports = function(options) {
     const config = setConfig(options)
 
     return function() {
+      fn.metricsQueue = []
       let args = [].slice.call(arguments)
 
       var start_time = process.hrtime()
