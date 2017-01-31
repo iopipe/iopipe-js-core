@@ -4,7 +4,7 @@
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover jasmine"
+    "test": "istanbul cover jasmine --captureExceptions"
   },
   "repository": {
     "type": "git",
