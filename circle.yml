@@ -1,7 +1,7 @@
 deployment:
   release:
     # release on tagged versions
-    tag: /v*/
+    tag: /v[0-9]+(\.[0-9]+)*/
     owner: iopipe
     commands:
       # login using environment variables
