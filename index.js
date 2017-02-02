@@ -198,6 +198,8 @@ module.exports = function(options) {
   fn.decorate = fn
 
   fn.log = function(name, value) {
+    // Names must be string values
+    if(typeof(name) !== 'string') { return }
     var numberValue, stringValue
     if (typeof value === 'number') {
       numberValue = value
