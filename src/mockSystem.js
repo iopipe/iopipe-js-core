@@ -16,10 +16,6 @@ function readstatus() {
     FDSize: 0,
     Threads: 1,
     VmRSS: mem.rss / 1024,
-    VmData: 0,
-    VmStk: 0,
-    VmExe: 0,
-    VmSwap: 0
   })
 }
 

@@ -41,10 +41,6 @@ function readstatus(pid) {
         FDSize: proc_self_status_fields['FDSize'],
         Threads: proc_self_status_fields['Threads'],
         VmRSS: proc_self_status_fields['VmRSS'],
-        VmData: proc_self_status_fields['VmData'],
-        VmStk: proc_self_status_fields['VmStk'],
-        VmExe: proc_self_status_fields['VmExe'],
-        VmSwap: proc_self_status_fields['VmSwap']
       })
     })
   })
