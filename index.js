@@ -128,7 +128,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         }
 
         if (config.debug) {
-          console.log('IOPIPE-DEBUG: ', response_body)
+          console.log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
         }
 
         if (!config.clientId) {

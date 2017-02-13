@@ -23,11 +23,19 @@ function readstatus(pid) {
       var proc_self_status_fields = {};
       // Parse status file and apply to the proc_self_status_fields dict.
       data.toString().split("\n").map(
-        (x) => {
-          return (x) ? x.split("\t") : [ null, null ]
+        (line) => {
+          return (line) ? line.split("\t") : [ null, null ]
         }
       ).forEach(
-        (x) => { proc_self_status_fields[x[0]] = x[1] }
+        (field) => {
+          var key = field[0]
+          var value = field[1]
+          if (key && value) {
+            var trimmedKey = key.replace(':', '')
+            var cleanValue = Number(value.replace(/\D/g, ''))
+            proc_self_status_fields[trimmedKey] = cleanValue
+          }
+        }
       )
       return resolve({
         FDSize: proc_self_status_fields['FDSize'],
