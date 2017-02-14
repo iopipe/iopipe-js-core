@@ -13,33 +13,37 @@ describe('configuring collector url', function() {
     expect(collector('http://myurl?foo').path).toBe('/v0/event?foo')
   })
 
-  it('switches based on the region in the ARN', function() {
-    var apSoutheast2Context = { invokedFunctionArn: 'arn:aws:lambda:ap-southeast-2:123456789012:function:aws-lambda-mock-context:$LATEST' }
-    var euWest1Context = { invokedFunctionArn: 'arn:aws:lambda:eu-west-1:123456789012:function:aws-lambda-mock-context:$LATEST' }
-    var east2Context = { invokedFunctionArn: 'arn:aws:lambda:us-east-2:123456789012:function:aws-lambda-mock-context:$LATEST' }
-    var west1Context = { invokedFunctionArn: 'arn:aws:lambda:us-west-1:123456789012:function:aws-lambda-mock-context:$LATEST' }
-    var west2Context = { invokedFunctionArn: 'arn:aws:lambda:us-west-2:123456789012:function:aws-lambda-mock-context:$LATEST' }
+  it('switches based on the region set in env vars', function() {
+    process.env.AWS_REGION = 'ap-southeast-2'
+    var apSoutheast2Collector = collector('', {})
+    process.env.AWS_REGION = 'eu-west-1'
+    var euWest1Collector = collector('', {})
+    process.env.AWS_REGION = 'us-east-2'
+    var east2Collector = collector('', {})
+    process.env.AWS_REGION = 'us-west-1'
+    var west1Collector = collector('', {})
+    process.env.AWS_REGION = 'us-west-2'
+    var west2Collector = collector('', {})
 
-    expect(collector('', apSoutheast2Context).href).toBe('https://metrics-api.ap-southeast-2.iopipe.com/')
-    expect(collector('', euWest1Context).href).toBe('https://metrics-api.eu-west-1.iopipe.com/')
-    expect(collector('', east2Context).href).toBe('https://metrics-api.us-east-2.iopipe.com/')
-    expect(collector('', west1Context).href).toBe('https://metrics-api.us-west-1.iopipe.com/')
-    expect(collector('', west2Context).href).toBe('https://metrics-api.us-west-2.iopipe.com/')
+    expect(apSoutheast2Collector.href).toBe('https://metrics-api.ap-southeast-2.iopipe.com/')
+    expect(euWest1Collector.href).toBe('https://metrics-api.eu-west-1.iopipe.com/')
+    expect(east2Collector.href).toBe('https://metrics-api.us-east-2.iopipe.com/')
+    expect(west1Collector.href).toBe('https://metrics-api.us-west-1.iopipe.com/')
+    expect(west2Collector.href).toBe('https://metrics-api.us-west-2.iopipe.com/')
   })
 
   it('defaults if an uncovered region or malformed', function() {
-    var context = {
-      invokedFunctionArn: 'arn:aws:lambda:ap-east-1:123456789012:function:aws-lambda-mock-context:$LATEST'
-    }
+    process.env.AWS_REGION = 'eu-west-2'
+    var euWest2Collector = collector('', {})
 
-    var contextBadArn = {
-      invokedFunctionArn: 'this-isnt-even-an-arn'
-    }
+    process.env.AWS_REGION = 'NotARegion'
+    var notRegionCollector = collector('', {})
 
-    var contextNoArn = {}
+    process.env.AWS_REGION = ''
+    var emptyRegionCollector = collector('', {})
 
-    expect(collector('', context).href).toBe('https://metrics-api.iopipe.com/')
-    expect(collector('', contextBadArn).href).toBe('https://metrics-api.iopipe.com/')
-    expect(collector('', contextNoArn).href).toBe('https://metrics-api.iopipe.com/')
+    expect(euWest2Collector.href).toBe('https://metrics-api.iopipe.com/')
+    expect(notRegionCollector.href).toBe('https://metrics-api.iopipe.com/')
+    expect(emptyRegionCollector.href).toBe('https://metrics-api.iopipe.com/')
   })
 })

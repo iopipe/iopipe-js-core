@@ -93,7 +93,7 @@ describe('smoke test', () => {
   })
 
   describe('functions using callbacks', () => {
-    it('will run when installed on a sucessful function', (done) => {
+    it('will run when installed on a successful function', (done) => {
       const ctx = context()
       function cb(err, success) {
         if(err)
