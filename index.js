@@ -3,16 +3,14 @@
 var pkg = require('./package.json')
 var Promise = require('bluebird')
 var request = require('request')
-var url = require('url')
-var path = require('path')
 var os = require('os')
 
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
+var getCollectorUrl = require('./src/collector.js')
 var Context = require('./src/context.js')
 var Callback = require('./src/callback.js')
 
 const VERSION = pkg.version
-const DEFAULT_COLLECTOR_URL = 'https://metrics-api.iopipe.com'
 const MODULE_LOAD_TIME = Date.now()
 
 // Default on module load; changed to false on first handler invocation.
@@ -148,7 +146,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         }
         request(
           {
-            url: config.url,
+            url: getCollectorUrl(config.url),
             method: 'POST',
             json: true,
             body: response_body
@@ -167,13 +165,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
 }
 
 function setConfig(configObject) {
-  var baseurl = (configObject && configObject.url) ? configObject.url : DEFAULT_COLLECTOR_URL
-  var eventURL = url.parse(baseurl)
-  eventURL.pathname = path.join(eventURL.pathname, 'v0/event')
-  eventURL.path = eventURL.search ? eventURL.pathname + eventURL.search : eventURL.pathname
-
   return {
-    url: eventURL,
+    url: (configObject && configObject.url) ? configObject.url : '',
     clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
   }
