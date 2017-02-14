@@ -9,7 +9,7 @@ function addPathToUrl(baseUrl) {
   return eventURL
 }
 
-function getCollectorUrl(configUrl, context) {
+function getCollectorUrl(configUrl) {
   if (configUrl) {
     return addPathToUrl(configUrl)
   }

@@ -135,7 +135,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         }
         request(
           {
-            url: getCollectorUrl(config.url, context),
+            url: getCollectorUrl(config.url),
             method: 'POST',
             json: true,
             body: response_body

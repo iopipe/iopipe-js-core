@@ -1,6 +1,11 @@
 var collector = require('../src/collector.js')
 
 describe('configuring collector url', function() {
+  beforeEach(function() {
+    // clear region for testing
+    process.env.AWS_REGION = ''
+  })
+
   it('returns a base url if nothing else', function() {
     expect(collector().href).toBe('https://metrics-api.iopipe.com/')
   })
