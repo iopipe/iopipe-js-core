@@ -11,6 +11,11 @@ var Context = require('./src/context.js')
 var Callback = require('./src/callback.js')
 
 const VERSION = pkg.version
+const MODULE_LOAD_TIME = Date.now()
+
+// Default on module load; changed to false on first handler invocation.
+var COLDSTART = true
+
 
 function _make_generateLog(metrics, func, start_time, config, context) {
   var pre_stat_promise = system.readstat('self')
@@ -30,7 +35,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         var runtime_env = {
           agent: {
             runtime: 'nodejs',
-            version: VERSION
+            version: VERSION,
+            load_time: MODULE_LOAD_TIME
           },
           host: {
             vm_id: boot_id
@@ -112,6 +118,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             logGroupName: context.logGroupName,
             logStreamName: context.logStreamName
           },
+          coldstart: COLDSTART,
           errors: retainErr,
           custom_metrics: metrics,
           time_sec_nanosec: time_sec_nanosec,
@@ -119,6 +126,10 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           time_nanosec: time_sec_nanosec[1],
           duration: Math.ceil(time_sec_nanosec[0] * 1000000000.0 + time_sec_nanosec[1]),
           client_id: config.clientId
+        }
+
+        if (COLDSTART === true) {
+          COLDSTART = false
         }
 
         if (context.getRemainingTimeInMillis) {
