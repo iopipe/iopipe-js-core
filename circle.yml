@@ -1,0 +1,9 @@
+deployment:
+  release:
+    # release on tagged versions
+    tag: /v[0-9]+(\.[0-9]+)*/
+    owner: iopipe
+    commands:
+      # login using environment variables
+      - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
+      - npm publish

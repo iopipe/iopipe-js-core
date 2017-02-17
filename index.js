@@ -1,80 +1,35 @@
-"use strict"
+'use strict'
 
-var crypto = require("crypto")
-var Promise = require("bluebird")
-var fs = Promise.promisifyAll(require("fs"))
-var request = require("request")
-var EventEmitter = require("events")
-var util = require("util")
-var url = require("url")
-var path = require("path")
-var os = require("os")
+var pkg = require('./package.json')
+var Promise = require('bluebird')
+var request = require('request')
+var os = require('os')
 
-const VERSION = process.env.npm_package_version
-const DEFAULT_COLLECTOR_URL = "https://metrics-api.iopipe.com"
+var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
+var getCollectorUrl = require('./src/collector.js')
+var Context = require('./src/context.js')
+var Callback = require('./src/callback.js')
+
+
+const VERSION = pkg.version
+const MODULE_LOAD_TIME = Date.now()
 
 /* global mutables */
 var INVOCATIONS = 0  // count of invocations for this process
 var AVG_API_TIMENS = 0  // average time in nanosecs for IOpipe API submissions
+// Default on module load; changed to false on first handler invocation.
+var COLDSTART = true
 
-function readstat (pid) {
-  return Promise.join(
-    fs.readFileAsync(`/proc/${pid}/stat`)
-  ).spread((
-    pre_proc_self_stat_file
-  ) => {
-    var pre_proc_self_stat_fields = pre_proc_self_stat_file.toString().split(" ")
-    return {
-      utime: pre_proc_self_stat_fields[13],
-      stime: pre_proc_self_stat_fields[14],
-      cutime: pre_proc_self_stat_fields[15],
-      cstime: pre_proc_self_stat_fields[16],
-      rss: pre_proc_self_stat_fields[23]
-    }
-  })
-}
 
-function readstatus (pid) {
-  return Promise.join(
-    fs.readFileAsync(`/proc/${pid}/status`)
-  ).spread((
-    proc_self_status_file
-  ) => {
-    var proc_self_status_fields = {};
-    // Parse status file and apply to the proc_self_status_fields dict.
-    proc_self_status_file.toString().split("\n").map(
-      (x) => {
-        return (x) ? x.split("\t") : [ null, null ]
-      }
-    ).forEach(
-      (x) => { proc_self_status_fields[x[0]] = x[1] }
-    )
-
-    return {
-      FDSize: proc_self_status_fields['FDSize'],
-      Threads: proc_self_status_fields['Threads'],
-      VmRSS: proc_self_status_fields['VmRSS'],
-      VmData: proc_self_status_fields['VmData'],
-      VmStk: proc_self_status_fields['VmStk'],
-      VmExe: proc_self_status_fields['VmExe'],
-      VmSwap: proc_self_status_fields['VmSwap']
-    }
-  })
-}
-
-function readbootid () {
-  return fs.readFileAsync('/proc/sys/kernel/random/boot_id')
-}
-
-function _make_generateLog(emitter, func, start_time, config, context) {
-  var pre_stat_promise = readstat('self')
+function _make_generateLog(metrics, func, start_time, config, context) {
+  var pre_stat_promise = system.readstat('self')
 
   return function generateLog(err, callback) {
-      Promise.join(
+    Promise.join(
         pre_stat_promise,
-        readstat('self'),
-        readstatus('self'),
-        readbootid()
+        system.readstat('self'),
+        system.readstatus('self'),
+        system.readbootid()
       ).spread((
         pre_proc_self_stat,
         proc_self_stat,
@@ -83,8 +38,9 @@ function _make_generateLog(emitter, func, start_time, config, context) {
       ) => {
         var runtime_env = {
           agent: {
-            runtime: "nodejs",
-            version: VERSION
+            runtime: 'nodejs',
+            version: VERSION,
+            load_time: MODULE_LOAD_TIME
           },
           host: {
             vm_id: boot_id
@@ -134,23 +90,21 @@ function _make_generateLog(emitter, func, start_time, config, context) {
           }
         }
 
-        var retainErr = {};
+        var retainErr = {}
         if (err) {
           retainErr = ((err) => {
-                        return {
-                          name: err.name,
-                          message: err.message,
-                          stack: err.stack,
-                          lineNumber: err.lineNumber,
-                          columnNumber: err.columnNumber,
-                          fileName: err.fileName
-                        }
-                      })((typeof(err) === "string") ? new Error(err) : err)
+            return {
+              name: err.name,
+              message: err.message,
+              stack: err.stack,
+              lineNumber: err.lineNumber,
+              columnNumber: err.columnNumber,
+              fileName: err.fileName
+            }
+          })((typeof(err) === 'string') ? new Error(err) : err)
         }
 
         var time_sec_nanosec = process.hrtime(start_time)
-        var time_secs = time_sec_nanosec[0]
-        var time_nanosecs = Math.ceil(time_secs * 1000000000.0 + time_sec_nanosec[1])
 
         /*
          depreciated fields:
@@ -168,17 +122,20 @@ function _make_generateLog(emitter, func, start_time, config, context) {
             logGroupName: context.logGroupName,
             logStreamName: context.logStreamName
           },
+          coldstart: COLDSTART,
           errors: retainErr,
-          events: emitter.queue,
+          custom_metrics: metrics,
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
-          duration: time_nanosecs,
           api_avg_nstime: AVG_API_TIMENS,
-          process: {
-            invocations: INVOCATIONS
-          }
+          process_invocations: INVOCATIONS,
+          duration: Math.ceil(time_sec_nanosec[0] * 1000000000.0 + time_sec_nanosec[1]),
           client_id: config.clientId
+        }
+
+        if (COLDSTART === true) {
+          COLDSTART = false
         }
 
         if (context.getRemainingTimeInMillis) {
@@ -186,7 +143,7 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         }
 
         if (config.debug) {
-          console.log("IOPIPE-DEBUG: ", response_body)
+          console.log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
         }
 
         if (!config.clientId) {
@@ -197,19 +154,16 @@ function _make_generateLog(emitter, func, start_time, config, context) {
         var time_before_request = process.hrtime()
         request(
           {
-            url: config.url,
-            method: "POST",
+            url: getCollectorUrl(config.url),
+            method: 'POST',
             json: true,
             body: response_body
           },
-          function(reqErr, res, body) {
+          function(err) {
             // Throw uncaught errors from the wrapped function.
             if (err) {
               context.fail(err)
             }
-            /*if (reqErr) {
-              console.log("WOLF:IOpipeLoggingError: ", reqErr)
-            }*/
             callback()
 
             ++INVOCATIONS
@@ -223,94 +177,32 @@ function _make_generateLog(emitter, func, start_time, config, context) {
   }
 }
 
-function _agentEmitter() {
-  this.queue = []
-  EventEmitter.call(this);
-}
-util.inherits(_agentEmitter, EventEmitter)
-
-function new_context (generateLog, old_context) {
-  var context = {
-    awsRequestId: old_context.awsRequestId,
-    invokeid: old_context.invokeid,
-    logGroupName: old_context.logGroupName,
-    logStreamName: old_context.logStreamName,
-    functionVersion: old_context.functionVersion,
-    isDefaultFunctionVersion: old_context.isDefaultFunctionVersion,
-    functionName: old_context.functionName,
-    memoryLimitInMB: old_context.memoryLimitInMB,
-    succeed: function(data) {
-      generateLog(null, () => {
-        old_context.succeed(data)
-      })
-    },
-    fail: function(err) {
-      generateLog(err, () => {
-        old_context.fail(err)
-      })
-    },
-    done: function(err, data) {
-      generateLog(err, () => {
-        old_context.done(err, data)
-      })
-    },
-    iopipe_log: function(level, data) {
-      emitter.queue.push([level, data])
-    },
-    getRemainingTimeInMillis: old_context.getRemainingTimeInMillis
-  }
-
-  /* Map getters/setters */
-  context.__defineGetter__('callbackWaitsForEmptyEventLoop',
-     () => { return old_context.callbackWaitsForEmptyEventLoop })
-  context.__defineSetter__('callbackWaitsForEmptyEventLoop',
-     (value) => { old_context.callbackWaitsForEmptyEventLoop = value })
-
-  return context
-}
-
-function new_callback (generateLog, callback) {
-  if (typeof(callback) !== 'function') {
-    return undefined
-  }
-  return (err, data) => {
-    //console.log("WOLF:CalledLambdaCallback.")
-    generateLog(err, () => {
-      callback.apply(callback, [err, data])
-    })
+function setConfig(configObject) {
+  return {
+    url: (configObject && configObject.url) ? configObject.url : '',
+    clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || '',
+    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
   }
 }
 
-module.exports = function(configObject) {
-  return function(func) {
+module.exports = function(options) {
+  var fn = function(func) {
+    fn.metricsQueue = []
+    const config = setConfig(options)
+
     return function() {
-      var baseurl = (configObject && configObject.url) ? configObject.url : DEFAULT_COLLECTOR_URL
-      var eventURL = url.parse(baseurl)
-      eventURL.pathname = path.join(eventURL.pathname, 'v0/event')
-      eventURL.path = eventURL.search ? eventURL.pathname + eventURL.search : eventURL.pathname
-
-      var config = {
-        url: eventURL,
-        clientId: configObject.clientId || process.env.IOPIPE_CLIENTID || "",
-        debug: configObject.debug || process.env.IOPIPE_DEBUG || false
-      }
-
-      var emitter = new _agentEmitter()
-      emitter.on("iopipe_event", (type, data) => {
-        emitter.queue.push([type, data])
-      })
-
-      var args = [].slice.call(arguments)
+      fn.metricsQueue = []
+      let args = [].slice.call(arguments)
 
       var start_time = process.hrtime()
-      var generateLog = _make_generateLog(emitter, func, start_time, config, args[1])
+      var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, args[1])
 
       /* Mangle arguments, wrapping callbacks. */
-      args[1] = new_context(generateLog, args[1])
-      args[2] = new_callback(generateLog, args[2])
+      args[1] = Context(generateLog, args[1])
+      args[2] = Callback(generateLog, args[2])
 
       try {
-        return func.apply(emitter, args)
+        return func.apply(this, args)
       }
       catch (err) {
         generateLog(err, () => {})
@@ -318,4 +210,27 @@ module.exports = function(configObject) {
       }
     }
   }
+
+  // Alias decorate to the wrapper function
+  fn.decorate = fn
+
+  fn.log = function(name, value) {
+    var numberValue, stringValue
+    if (typeof value === 'number') {
+      numberValue = value
+    } else {
+      if(typeof value === 'object') {
+        JSON.stringify(value)
+      } else {
+        stringValue = String(value)
+      }
+    }
+    fn.metricsQueue.push({
+      name: name,
+      n: numberValue,
+      s: stringValue
+    })
+  }
+
+  return fn
 }
