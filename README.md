@@ -1,6 +1,6 @@
 IOpipe Analytics & Distributed Tracing Agent
 --------------------------------------------
-[![Coverage Status](https://coveralls.io/repos/github/iopipe/iopipe/badge.svg?branch=coveralls)](https://coveralls.io/github/iopipe/iopipe?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/iopipe/iopipe/badge.svg?branch=master)](https://coveralls.io/github/iopipe/iopipe?branch=master)
 [![npm version](https://badge.fury.io/js/iopipe.svg)](https://badge.fury.io/js/iopipe)
 
 This package provides analytics and distributed tracing for
