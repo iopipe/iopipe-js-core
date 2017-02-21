@@ -39,7 +39,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             load_time: MODULE_LOAD_TIME
           },
           host: {
-            vm_id: boot_id
+            container_id: boot_id
           },
           os: {
             hostname: os.hostname(),
