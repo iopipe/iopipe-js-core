@@ -133,7 +133,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         }
 
         if (context.getRemainingTimeInMillis) {
-          response_body['getRemainingTimeInMillis'] = context.getRemainingTimeInMillis()
+          response_body.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis()
         }
 
         if (config.debug) {
