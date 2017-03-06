@@ -19,7 +19,7 @@
     "tracing",
     "distributed tracing"
   ],
-  "author": "Eric Windisch <eric@iopipe.com>",
+  "author": "IOpipe <dev@iopipe.com>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/iopipe/iopipe/issues"
@@ -28,13 +28,13 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "crypto": "0.0.3",
-    "eslint": "^3.12.2",
     "request": "^2.65.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
     "aws-lambda-mock-context": "^3.0.0",
     "coveralls": "^2.11.12",
+    "eslint": "^3.12.2",
     "eslint-plugin-jasmine": "^2.2.0",
     "istanbul": "^0.4.4",
     "jasmine": "^2.4.1"
