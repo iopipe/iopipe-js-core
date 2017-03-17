@@ -4,6 +4,7 @@ var pkg = require('./package.json')
 var Promise = require('bluebird')
 var request = require('request')
 var os = require('os')
+var tls = require('tls')
 
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 var getCollectorUrl = require('./src/collector.js')
@@ -15,6 +16,7 @@ const MODULE_LOAD_TIME = Date.now()
 
 // Default on module load; changed to false on first handler invocation.
 var COLDSTART = true
+var TLS_SESSION = false
 
 
 function _make_generateLog(metrics, func, start_time, config, context) {
@@ -144,28 +146,60 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           callback()
           return
         }
-        request(
-          {
-            url: getCollectorUrl(config.url),
-            method: 'POST',
-            json: true,
-            body: response_body
-          },
-          function(err) {
-            // Throw uncaught errors from the wrapped function.
-            if (err) {
-              context.fail(err)
+
+        var url = getCollectorUrl(config.url)
+        if (config.tls_tickets && !TLS_SESSION) {
+          config.debug && console.log("TLS: Creating ticket: ", JSON.stringify(url))
+          var init_socket = tls.connect({
+            servername: url.host,
+            host: url.host,
+            port: url.port || 443
+          }, () => {
+            if (init_socket.authorized) {
+              config.debug && console.log("TLS: Have ticket.")
+              TLS_SESSION = init_socket.getSession()
+              _post_data(url, response_body, context, TLS_SESSION, callback)
+            } else {
+              config.debug && console.log("TLS: Not authorized. Error: ", init_socket.authorizationError)
+              callback()
             }
-            callback()
-          }
-        )
+            config.debug && console.log("TLS: Init complete.")
+            init_socket.end()
+            config.debug && console.log("TLS: socket closed.")
+          })
+        } else {
+          config.debug && console.log("TLS: reusing TLS token.")
+          _post_data(url, response_body, context, TLS_SESSION, callback)
+        }
       }
     )
   }
 }
 
+function _post_data(url, response_body, context, session, callback) {
+  request(
+    {
+      url: url,
+      method: 'POST',
+      json: true,
+      body: response_body,
+      agentOptions: {
+        session: session
+      }
+    },
+    function(err) {
+      // Throw uncaught errors from the wrapped function.
+      if (err) {
+        context.fail(err)
+      }
+      callback()
+    }
+  )
+}
+
 function setConfig(configObject) {
   return {
+    tls_tickets: configObject && configObject.tls_tickets || process.env.IOPIPE_TLS_TICKETS || true,
     url: (configObject && configObject.url) ? configObject.url : '',
     clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
