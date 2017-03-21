@@ -4,6 +4,7 @@ var pkg = require('./package.json')
 var Promise = require('bluebird')
 var request = require('request')
 var os = require('os')
+var https = require('https')
 
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 var getCollectorUrl = require('./src/collector.js')
@@ -12,6 +13,10 @@ var Callback = require('./src/callback.js')
 
 const VERSION = pkg.version
 const MODULE_LOAD_TIME = Date.now()
+const httpsAgent = new https.Agent({
+  maxCachedSessions: 1,
+  keepAlive: true
+});
 
 // Default on module load; changed to false on first handler invocation.
 var COLDSTART = true
@@ -149,7 +154,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             url: getCollectorUrl(config.url),
             method: 'POST',
             json: true,
-            body: response_body
+            body: response_body,
+            agent: httpsAgent
           },
           function(err) {
             // Throw uncaught errors from the wrapped function.
