@@ -174,7 +174,8 @@ function setConfig(configObject) {
   return {
     url: (configObject && configObject.url) ? configObject.url : '',
     clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || '',
-    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
+    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
+    timeout_millis: 50
   }
 }
 
@@ -190,14 +191,29 @@ module.exports = function(options) {
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, args[1])
 
+      var end_time = 599900  /* Maximum execution: 100ms short of 5 minutes */
+      if (config.timeout_millis > 0 && args[1] && args[1].getRemainingTimeInMillis) {
+        end_time = Math.max(0, args[1].getRemainingTimeInMillis() - config.timeout_millis)
+      }
+
+      var timeout = setTimeout(() => {
+        generateLog(new Error("Timeout Exceeded.", () => {})
+      }), end_time)
+
+      var callback = (err, cb) => {
+        clearTimeout(timeout)
+        generateLog(err, cb)
+      }
+
       /* Mangle arguments, wrapping callbacks. */
-      args[1] = Context(generateLog, args[1])
-      args[2] = Callback(generateLog, args[2])
+      args[1] = Context(callback, args[1])
+      args[2] = Callback(callback, args[2])
 
       try {
         return func.apply(this, args)
       }
       catch (err) {
+        clearTimeout(timeout)
         generateLog(err, () => {})
         return undefined
       }
