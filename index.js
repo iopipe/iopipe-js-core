@@ -5,6 +5,7 @@ var Promise = require('bluebird')
 var request = require('request')
 var os = require('os')
 var https = require('https')
+var net = require('net')
 
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 var getCollectorUrl = require('./src/collector.js')
