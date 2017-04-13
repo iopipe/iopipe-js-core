@@ -155,7 +155,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             method: 'POST',
             json: true,
             body: response_body,
-            agent: httpsAgent
+            agent: httpsAgent,
+            timeout: config.network_timeout,
           },
           function(err) {
             // Throw uncaught errors from the wrapped function.
@@ -174,7 +175,8 @@ function setConfig(configObject) {
   return {
     url: (configObject && configObject.url) ? configObject.url : '',
     clientId: configObject && configObject.clientId || process.env.IOPIPE_CLIENTID || '',
-    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false
+    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
+    network_timeout: 5000,
   }
 }
 
