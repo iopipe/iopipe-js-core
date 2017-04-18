@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - '4.3'
+env:
+  - CXX=g++-4.8
+
+# node 4 likes the G++ v4.8 compiler
+# # see https://docs.travis-ci.com/user/languages/javascript-with-nodejs#Node.js-v4-(or-io.js-v3)-compiler-requirements
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+
+deploy:
+  provider: npm
+  api_key: API_KEY_HERE
