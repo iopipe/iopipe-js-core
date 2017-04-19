@@ -199,8 +199,8 @@ module.exports = function(options) {
       }
 
       var timeout = setTimeout(() => {
-        generateLog(new Error("Timeout Exceeded.", () => {})
-      }), end_time)
+        generateLog(new Error("Timeout Exceeded."), function noop() {})
+      }, end_time)
 
       var callback = (err, cb) => {
         clearTimeout(timeout)
