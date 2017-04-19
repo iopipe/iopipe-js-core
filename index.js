@@ -160,7 +160,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           },
           function(err) {
             // Log errors, don't block on failed requests
-            if (err) {
+            if (err && config.debug) {
               console.log('Write to IOpipe failed:')
               console.log(err)
             }
