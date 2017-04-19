@@ -28,7 +28,7 @@ exports.handle = iopipe(
 # Environment-based config
 
 This library will look for an environment variable,
-`IOPIPE_CLIENTID` and will use this if one is not
+`IOPIPE_TOKEN` and will use this if one is not
 explicitly passed to the configuration object.
 
 This is an easy way to separate configuration from
