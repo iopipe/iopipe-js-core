@@ -145,10 +145,6 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           console.log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
         }
 
-        if (!config.clientId) {
-          callback()
-          return
-        }
         request(
           {
             url: getCollectorUrl(config.url),
@@ -184,6 +180,11 @@ module.exports = function(options) {
   var fn = function(func) {
     fn.metricsQueue = []
     const config = setConfig(options)
+
+    if (!config.clientId) {
+      // No-op if user doesn't set an IOpipe token.
+      return func
+    }
 
     return function() {
       fn.metricsQueue = []
