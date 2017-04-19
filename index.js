@@ -159,9 +159,10 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             timeout: config.network_timeout,
           },
           function(err) {
-            // Throw uncaught errors from the wrapped function.
+            // Log errors, don't block on failed requests
             if (err) {
-              context.fail(err)
+              console.log('Write to IOpipe failed:')
+              console.log(err)
             }
             callback()
           }
