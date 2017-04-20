@@ -216,7 +216,7 @@ module.exports = function(options) {
       }
       catch (err) {
         clearTimeout(timeout)
-        generateLog(err, () => {})
+        generateLog(err, function noop() {})
         return undefined
       }
     }
