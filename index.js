@@ -11,6 +11,7 @@ var getCollectorUrl = require('./src/collector.js')
 var Context = require('./src/context.js')
 var Callback = require('./src/callback.js')
 
+
 const VERSION = pkg.version
 const MODULE_LOAD_TIME = Date.now()
 const httpsAgent = new https.Agent({
@@ -18,6 +19,9 @@ const httpsAgent = new https.Agent({
   keepAlive: true
 });
 
+/* global mutables */
+var INVOCATIONS = 0  // count of invocations for this process
+var AVG_API_TIMENS = 0  // average time in nanosecs for IOpipe API submissions
 // Default on module load; changed to false on first handler invocation.
 var COLDSTART = true
 
@@ -129,6 +133,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           time_sec_nanosec: time_sec_nanosec,
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
+          api_avg_nstime: AVG_API_TIMENS,
+          process_invocations: INVOCATIONS,
           duration: Math.ceil(time_sec_nanosec[0] * 1000000000.0 + time_sec_nanosec[1]),
           client_id: config.clientId
         }
@@ -149,6 +155,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           callback()
           return
         }
+
+        var time_before_request = process.hrtime()
         request(
           {
             url: getCollectorUrl(config.url),
@@ -165,6 +173,11 @@ function _make_generateLog(metrics, func, start_time, config, context) {
               console.log(err)
             }
             callback()
+
+            ++INVOCATIONS
+            var req_time = process.hrtime(time_before_request)
+            var req_time_ns = req_time[0] * 1e9 + req_time[1]
+            AVG_API_TIMENS = (AVG_API_TIMENS * INVOCATIONS + req_time_ns) / INVOCATIONS
           }
         )
       }
