@@ -156,7 +156,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             json: true,
             body: response_body,
             agent: httpsAgent,
-            timeout: config.network_timeout,
+            timeout: config.networkTimeout,
           },
           function(err) {
             // Throw uncaught errors from the wrapped function.
@@ -176,8 +176,8 @@ function setConfig(configObject) {
     url: (configObject && configObject.url) ? configObject.url : '',
     clientId: configObject && configObject.clientId || process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
-    network_timeout: 5000,
-    timeout_millis: 50
+    networkTimeout: configObject && configObject.networkTimeout || 5000,
+    timeoutWindow: configObject && configObject.timeoutWindow || 50
   }
 }
 
@@ -194,8 +194,8 @@ module.exports = function(options) {
       var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, args[1])
 
       var end_time = 599900  /* Maximum execution: 100ms short of 5 minutes */
-      if (config.timeout_millis > 0 && args[1] && args[1].getRemainingTimeInMillis) {
-        end_time = Math.max(0, args[1].getRemainingTimeInMillis() - config.timeout_millis)
+      if (config.timeoutWindow > 0 && args[1] && args[1].getRemainingTimeInMillis) {
+        end_time = Math.max(0, args[1].getRemainingTimeInMillis() - config.timeoutWindow)
       }
 
       var timeout = setTimeout(() => {
