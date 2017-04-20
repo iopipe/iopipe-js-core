@@ -156,7 +156,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             json: true,
             body: response_body,
             agent: httpsAgent,
-            timeout: config.network_timeout,
+            timeout: config.networkTimeout,
           },
           function(err) {
             // Log errors, don't block on failed requests
@@ -177,7 +177,8 @@ function setConfig(configObject) {
     url: (configObject && configObject.url) ? configObject.url : '',
     clientId: configObject && configObject.clientId || process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
-    network_timeout: 5000,
+    networkTimeout: configObject && configObject.networkTimeout || 5000,
+    timeoutWindow: configObject && configObject.timeoutWindow || 50
   }
 }
 
@@ -193,15 +194,30 @@ module.exports = function(options) {
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, args[1])
 
+      var end_time = 599900  /* Maximum execution: 100ms short of 5 minutes */
+      if (config.timeoutWindow > 0 && args[1] && args[1].getRemainingTimeInMillis) {
+        end_time = Math.max(0, args[1].getRemainingTimeInMillis() - config.timeoutWindow)
+      }
+
+      var timeout = setTimeout(() => {
+        generateLog(new Error("Timeout Exceeded."), function noop() {})
+      }, end_time)
+
+      var callback = (err, cb) => {
+        clearTimeout(timeout)
+        generateLog(err, cb)
+      }
+
       /* Mangle arguments, wrapping callbacks. */
-      args[1] = Context(generateLog, args[1])
-      args[2] = Callback(generateLog, args[2])
+      args[1] = Context(callback, args[1])
+      args[2] = Callback(callback, args[2])
 
       try {
         return func.apply(this, args)
       }
       catch (err) {
-        generateLog(err, () => {})
+        clearTimeout(timeout)
+        generateLog(err, function noop() {})
         return undefined
       }
     }
