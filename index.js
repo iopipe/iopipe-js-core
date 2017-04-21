@@ -18,15 +18,14 @@ const httpsAgent = new https.Agent({
   maxCachedSessions: 1,
   keepAlive: true
 });
-httpsAgent.createConnection = function(options, callback) {
+
+httpsAgent.originalCreateConnection = httpsAgent.createConnection
+httpsAgent.createConnection = function(port, host, options) {
   /* noDelay is documented as defaulting to true, but docs lie.
      this sacrifices throughput for latency and should be faster
      for how we submit data. */
-  var socket = net.createConnection(options).noDelay(true)
-  if (callback) {
-    callback(undefined, socket)
-    return
-  }
+  var socket = httpsAgent.originalCreateConnection(port, host, options);
+  socket.setNoDelay(true);
   return socket
 }
 
