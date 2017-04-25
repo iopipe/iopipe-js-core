@@ -31,8 +31,9 @@ This library will look for an environment variable,
 `IOPIPE_TOKEN` and will use this if one is not
 explicitly passed to the configuration object.
 
-This is an easy way to separate configuration from
-code.
+**N.B.** If you have `IOPIPE_TOKEN` set, _and_ pass a configuration object
+when requiring the IOpipe library, the library will use the token in the
+configuration object.
 
 ```javascript
 exports.handle = require("iopipe")()(
