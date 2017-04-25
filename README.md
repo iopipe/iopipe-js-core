@@ -8,7 +8,7 @@ event-driven applications running on AWS Lambda.
 
 # Installation & usage
 
-Installation is simple. Just require this module with your client id
+Installation is simple. Simply require this module with your token
 ([register for access](https://www.iopipe.com)) and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda.
@@ -16,7 +16,7 @@ running on AWS Lambda.
 Example:
 
 ```javascript
-var iopipe = require("iopipe")({ clientId: "YOUR_ID"})
+var iopipe = require("iopipe")({ token: "YOUR_TOKEN"})
 
 exports.handle = iopipe(
   function (event, context) {
