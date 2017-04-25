@@ -8,7 +8,7 @@ event-driven applications running on AWS Lambda.
 
 # Installation & usage
 
-Installation is simple. Simply require this module with your token
+Installation by requiring this module, and passing it an object with your token
 ([register for access](https://www.iopipe.com)) and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda.
@@ -29,11 +29,9 @@ exports.handle = iopipe(
 
 This library will look for an environment variable,
 `IOPIPE_TOKEN` and will use this if one is not
-explicitly passed to the configuration object.
-
-**N.B.** If you have `IOPIPE_TOKEN` set, _and_ pass a configuration object
-when requiring the IOpipe library, the library will use the token in the
-configuration object.
+explicitly passed to the configuration object. If a token is passed to the
+configuration object, the library will prefer that token over the environment
+variable.
 
 ```javascript
 exports.handle = require("iopipe")()(
