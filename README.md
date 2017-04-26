@@ -13,6 +13,9 @@ Installation by requiring this module, and passing it an object with your token
 automatically monitor and collect metrics from your application
 running on AWS Lambda.
 
+If you are using the Serverless Framework to deploy your lambdas, check out our
+[serverless plugin](https://github.com/iopipe/serverless-plugin-iopipe).
+
 Example:
 
 ```javascript
