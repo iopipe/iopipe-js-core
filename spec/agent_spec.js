@@ -22,7 +22,7 @@ describe('metrics agent', () => {
   })
 
   it('allows .decorate API', function(done) {
-    var iopipe = IOpipe({ clientId: 'testSuite' })
+    var iopipe = IOpipe({ token: 'testSuite' })
     var ctx = context()
     var wrappedFunction = iopipe.decorate(function(event, context) {
       context.succeed(true)

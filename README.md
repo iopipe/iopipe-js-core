@@ -8,15 +8,18 @@ event-driven applications running on AWS Lambda.
 
 # Installation & usage
 
-Installation is simple. Just require this module with your client id
-([register for access](https://www.iopipe.com)) and it will
+Install by requiring this module, passing it an object with your project token
+([register for access](https://www.iopipe.com)), and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda.
+
+If you are using the Serverless Framework to deploy your lambdas, check out our
+[serverless plugin](https://github.com/iopipe/serverless-plugin-iopipe).
 
 Example:
 
 ```javascript
-var iopipe = require("iopipe")({ clientId: "YOUR_ID"})
+var iopipe = require("iopipe")({ token: "YOUR_TOKEN"})
 
 exports.handle = iopipe(
   function (event, context) {
@@ -27,12 +30,10 @@ exports.handle = iopipe(
 
 # Environment-based config
 
-This library will look for an environment variable,
-`IOPIPE_TOKEN` and will use this if one is not
-explicitly passed to the configuration object.
-
-This is an easy way to separate configuration from
-code.
+This library will look for an environment variable, `IOPIPE_TOKEN` and will use
+this if one is not explicitly passed to the configuration object. If a project
+token is passed to the configuration object, the library will prefer that
+token over the environment variable.
 
 ```javascript
 exports.handle = require("iopipe")()(
