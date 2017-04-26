@@ -8,8 +8,8 @@ event-driven applications running on AWS Lambda.
 
 # Installation & usage
 
-Installation by requiring this module, and passing it an object with your token
-([register for access](https://www.iopipe.com)) and it will
+Install by requiring this module, passing it an object with your token
+([register for access](https://www.iopipe.com)), and it will
 automatically monitor and collect metrics from your application
 running on AWS Lambda.
 
