@@ -140,7 +140,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
           duration: Math.ceil(time_sec_nanosec[0] * 1000000000.0 + time_sec_nanosec[1]),
-          client_id: config.clientId
+          client_id: config.clientId,
+          installMethod: config.installMethod
         }
 
         if (COLDSTART === true) {
@@ -184,7 +185,8 @@ function setConfig(configObject) {
     clientId: configObject && (configObject.token || configObject.clientId) || process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
     networkTimeout: configObject && configObject.networkTimeout || 5000,
-    timeoutWindow: configObject && configObject.timeoutWindow || 50
+    timeoutWindow: configObject && configObject.timeoutWindow || 50,
+    installMethod: configObject && configObject.installMethod || process.env.IOPIPE_INSTALL_METHOD || "manual"
   }
 }
 
