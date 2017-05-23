@@ -40,11 +40,13 @@ function _make_generateLog(metrics, func, start_time, config, context) {
   return function generateLog(err, callback) {
     Promise.join(
         pre_stat_promise,
+        system.getfsutil('/tmp'),
         system.readstat('self'),
         system.readstatus('self'),
         system.readbootid()
       ).spread((
         pre_proc_self_stat,
+        fs_util_tmp,
         proc_self_stat,
         proc_self_status,
         boot_id
@@ -66,6 +68,14 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             usedmem: os.totalmem() - os.freemem(),
             cpus: os.cpus(),
             arch: os.arch(),
+            disk: {
+              '/tmp': {
+                max_mb: Math.ceil(fs_util_tmp.totalBytes / 1024),
+                used_mb: Math.ceil((fs_util_tmp.totalBytes - fs_util_tmp.freeBytes) / 1024),
+                free_mb: Math.ceil(fs_util_tmp.freeBytes / 1024),
+                used_percentage: fs_util_tmp.percentageUsed
+              }
+            },
             linux: {
               pid: {
                 self: {
