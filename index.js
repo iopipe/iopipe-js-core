@@ -5,6 +5,7 @@ var Promise = require('bluebird')
 var request = require('request')
 var os = require('os')
 var https = require('https')
+var uuid = require('uuid')
 
 var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 var getCollectorUrl = require('./src/collector.js')
@@ -13,6 +14,7 @@ var Callback = require('./src/callback.js')
 
 const VERSION = pkg.version
 const MODULE_LOAD_TIME = Date.now()
+const PROCESS_ID = uuid.v4()
 const httpsAgent = new https.Agent({
   maxCachedSessions: 1,
   keepAlive: true
@@ -140,6 +142,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           time_sec: time_sec_nanosec[0],
           time_nanosec: time_sec_nanosec[1],
           duration: Math.ceil(time_sec_nanosec[0] * 1000000000.0 + time_sec_nanosec[1]),
+          processId: PROCESS_ID,
           client_id: config.clientId,
           installMethod: config.installMethod
         }
