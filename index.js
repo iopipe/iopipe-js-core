@@ -166,15 +166,6 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           agent: httpsAgent,
           timeout: config.networkTimeout
         }, (res) => {
-          // Log errors, don't block on failed requests
-          req.on('error', function reportError() {
-            if (config.debug) {
-              console.log('Write to IOpipe failed')
-              console.log(err)
-            }
-            callback()
-          })
-
           var apiResponse = ''
 
           res.on('data', function (chunk) {
@@ -188,6 +179,13 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             }
             callback()
           })
+        }).on('error', (e) => {
+          // Log errors, don't block on failed requests
+          if (config.debug) {
+            console.log('Write to IOpipe failed')
+            console.log(err)
+          }
+          callback()
         })
 
         req.write(JSON.stringify(response_body))
