@@ -16,9 +16,9 @@ function getHostname(configUrl) {
   if (configUrl) {
     return url.parse(configUrl).hostname
   }
-  const allowedRegions = ['ap-southeast-2', 'eu-west-1', 'us-east-2', 'us-west-1', 'us-west-2'];
+  const supportedRegions = ['ap-southeast-2', 'eu-west-1', 'us-east-2', 'us-west-1', 'us-west-2'];
   var regionString = '';
-  if (allowedRegions.indexOf(process.env.AWS_REGION) > -1){
+  if (supportedRegions.indexOf(process.env.AWS_REGION) > -1){
     regionString = `.${process.env.AWS_REGION}`;
   }
   return `metrics-api${regionString}.iopipe.com`;
