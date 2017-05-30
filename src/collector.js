@@ -16,31 +16,12 @@ function getHostname(configUrl) {
   if (configUrl) {
     return url.parse(configUrl).hostname
   }
-
-  var baseUrl = 'metrics-api.iopipe.com'
-  var region = process.env.AWS_REGION || ''
-
-  switch (region) {
-  case 'ap-southeast-2':
-    baseUrl = 'metrics-api.ap-southeast-2.iopipe.com'
-    break
-  case 'eu-west-1':
-    baseUrl = 'metrics-api.eu-west-1.iopipe.com'
-    break
-  case 'us-east-2':
-    baseUrl = 'metrics-api.us-east-2.iopipe.com'
-    break
-  case 'us-west-1':
-    baseUrl = 'metrics-api.us-west-1.iopipe.com'
-    break
-  case 'us-west-2':
-    baseUrl = 'metrics-api.us-west-2.iopipe.com'
-    break
-  default:
-    baseUrl = 'metrics-api.iopipe.com'
+  const allowedRegions = ['ap-southeast-2', 'eu-west-1', 'us-east-2', 'us-west-1', 'us-west-2'];
+  var regionString = '';
+  if (allowedRegions.indexOf(process.env.AWS_REGION) > -1){
+    regionString = `.${process.env.AWS_REGION}`;
   }
-
-  return baseUrl
+  return `metrics-api${regionString}.iopipe.com`;
 }
 
 module.exports = {
