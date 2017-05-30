@@ -217,7 +217,7 @@ describe('smoke test', () => {
       var wrappedFunction = iopipe.decorate(function(event, context) {
         context.succeed(true)
       })
-
+      var ctx = context()
       wrappedFunction({}, ctx)
 
       ctx.Promise
