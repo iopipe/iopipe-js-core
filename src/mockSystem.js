@@ -1,4 +1,4 @@
-var uuid = require('uuid')
+var uuid = require('uuid/v4')
 
 function readstat() {
   return Promise.resolve({
@@ -20,7 +20,7 @@ function readstatus() {
 }
 
 function readbootid() {
-  return Promise.resolve(uuid.v4())
+  return Promise.resolve(uuid())
 }
 
 module.exports = {
