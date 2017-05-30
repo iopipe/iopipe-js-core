@@ -27,7 +27,6 @@
   "homepage": "https://github.com/iopipe/iopipe#readme",
   "dependencies": {
     "crypto": "0.0.3",
-    "request": "^2.65.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {

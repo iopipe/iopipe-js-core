@@ -1,15 +1,14 @@
 'use strict'
 
-var pkg = require('./package.json')
-var request = require('request')
-var os = require('os')
-var https = require('https')
-var uuid = require('uuid')
+const pkg = require('./package.json')
+const os = require('os')
+const https = require('https')
+const uuid = require('uuid')
 
-var system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
-var getCollectorUrl = require('./src/collector.js')
-var Context = require('./src/context.js')
-var Callback = require('./src/callback.js')
+const system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
+const setConfig = require('./src/config.js')
+const Context = require('./src/context.js')
+const Callback = require('./src/callback.js')
 
 const VERSION = pkg.version
 const MODULE_LOAD_TIME = Date.now()
@@ -158,24 +157,40 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           console.log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
         }
 
-        request(
-          {
-            url: getCollectorUrl(config.url),
-            method: 'POST',
-            json: true,
-            body: response_body,
-            agent: httpsAgent,
-            timeout: config.networkTimeout,
-          },
-          function(err) {
-            // Log errors, don't block on failed requests
-            if (err && config.debug) {
-              console.log('Write to IOpipe failed:')
+        var req = https.request({
+          hostname: config.url,
+          path: config.path,
+          port: 443,
+          method: 'POST',
+          headers: {'content-type' : 'application/json'},
+          agent: httpsAgent,
+          timeout: config.networkTimeout
+        }, (res) => {
+          // Log errors, don't block on failed requests
+          req.on('error', function reportError() {
+            if (config.debug) {
+              console.log('Write to IOpipe failed')
               console.log(err)
             }
+          })
+
+          var apiResponse = ''
+
+          res.on('data', function (chunk) {
+            apiResponse += chunk
+          })
+
+          res.on('end', function () {
+            if (config.debug) {
+              console.log(`API STATUS: ${res.statusCode}`)
+              console.log(`API RESPONSE: ${apiResponse}`)
+            }
             callback()
-          }
-        )
+          })
+        })
+
+        req.write(JSON.stringify(response_body))
+        req.end()
       }
     ).catch((err) => {
       if (err && config.debug) {
@@ -184,17 +199,6 @@ function _make_generateLog(metrics, func, start_time, config, context) {
       }
       callback()
     })
-  }
-}
-
-function setConfig(configObject) {
-  return {
-    url: (configObject && configObject.url) ? configObject.url : '',
-    clientId: configObject && (configObject.token || configObject.clientId) || process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
-    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
-    networkTimeout: configObject && configObject.networkTimeout || 5000,
-    timeoutWindow: configObject && configObject.timeoutWindow || 50,
-    installMethod: configObject && configObject.installMethod || process.env.IOPIPE_INSTALL_METHOD || "manual"
   }
 }
 
