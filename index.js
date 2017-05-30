@@ -1,7 +1,6 @@
 'use strict'
 
 var pkg = require('./package.json')
-var Promise = require('bluebird')
 var request = require('request')
 var os = require('os')
 var https = require('https')
@@ -38,12 +37,12 @@ function _make_generateLog(metrics, func, start_time, config, context) {
   var pre_stat_promise = system.readstat('self')
 
   return function generateLog(err, callback) {
-    Promise.join(
+    Promise.all([
         pre_stat_promise,
         system.readstat('self'),
         system.readstatus('self'),
         system.readbootid()
-      ).spread((
+      ]).then((
         pre_proc_self_stat,
         proc_self_stat,
         proc_self_status,
@@ -178,7 +177,13 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           }
         )
       }
-    )
+    ).catch((err) => {
+      if (err && config.debug) {
+        console.log('Error collecting IOpipe data:')
+        console.log(err)
+      }
+      callback()
+    })
   }
 }
 
