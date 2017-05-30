@@ -9,6 +9,7 @@ const system = (process.platform === 'linux') ? require('./src/system.js') : req
 const setConfig = require('./src/config.js')
 const Context = require('./src/context.js')
 const Callback = require('./src/callback.js')
+const log = console.log
 
 const VERSION = pkg.version
 const MODULE_LOAD_TIME = Date.now()
@@ -154,7 +155,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         }
 
         if (config.debug) {
-          console.log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
+          log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
         }
 
         var req = https.request({
@@ -174,16 +175,16 @@ function _make_generateLog(metrics, func, start_time, config, context) {
 
           res.on('end', function () {
             if (config.debug) {
-              console.log(`API STATUS: ${res.statusCode}`)
-              console.log(`API RESPONSE: ${apiResponse}`)
+              log(`API STATUS: ${res.statusCode}`)
+              log(`API RESPONSE: ${apiResponse}`)
             }
             callback()
           })
         }).on('error', (err) => {
           // Log errors, don't block on failed requests
           if (config.debug) {
-            console.log('Write to IOpipe failed')
-            console.log(err)
+            log('Write to IOpipe failed')
+            log(err)
           }
           callback()
         })
@@ -193,8 +194,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
       }
     ).catch((err) => {
       if (err && config.debug) {
-        console.log('Error collecting IOpipe data:')
-        console.log(err)
+        log('Error collecting IOpipe data:')
+        log(err)
       }
       callback()
     })
