@@ -214,8 +214,6 @@ describe('smoke test', () => {
 
     it('sends to custom URLs (staging)', function(done) {
       var iopipe = IOpipe({ clientId: 'testSuite', url: 'https://metrics-api-staging.iopipe.com' })
-      process.env.AWS_REGION = 'us-west-2'
-      var ctx = context({ region: 'us-west-2' })
       var wrappedFunction = iopipe.decorate(function(event, context) {
         context.succeed(true)
       })
