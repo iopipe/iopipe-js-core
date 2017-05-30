@@ -43,10 +43,11 @@ function _make_generateLog(metrics, func, start_time, config, context) {
         system.readstatus('self'),
         system.readbootid()
       ]).then((results) => {
-        const [pre_proc_self_stat,
-          proc_self_stat,
-          proc_self_status,
-          boot_id] = results
+        const pre_proc_self_stat = results[0],
+          proc_self_stat = results[1],
+          proc_self_status = results[2],
+          boot_id = results[3]
+
         var runtime_env = {
           agent: {
             runtime: 'nodejs',
