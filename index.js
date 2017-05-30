@@ -172,6 +172,7 @@ function _make_generateLog(metrics, func, start_time, config, context) {
               console.log('Write to IOpipe failed')
               console.log(err)
             }
+            callback()
           })
 
           var apiResponse = ''
