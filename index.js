@@ -3,6 +3,8 @@
 const pkg = require('./package.json')
 const os = require('os')
 const https = require('https')
+const uuid = require('uuid/v4')
+const dns = require('dns')
 
 const system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 const setConfig = require('./src/config.js')
@@ -33,7 +35,7 @@ httpsAgent.createConnection = function(port, host, options) {
 var COLDSTART = true
 
 
-function _make_generateLog(metrics, func, start_time, config, context) {
+function _make_generateLog(metrics, func, start_time, config, dnsPromise, context) {
   var pre_stat_promise = system.readstat('self')
 
   return function generateLog(err, callback) {
@@ -159,35 +161,37 @@ function _make_generateLog(metrics, func, start_time, config, context) {
           log('IOPIPE-DEBUG: ', JSON.stringify(response_body))
         }
 
-        var req = https.request({
-          hostname: config.url,
-          path: config.path,
-          port: 443,
-          method: 'POST',
-          headers: {'content-type' : 'application/json'},
-          agent: httpsAgent,
-          timeout: config.networkTimeout
-        }, (res) => {
-          var apiResponse = ''
+        dnsPromise.then((ipAddress) => {
+          var req = https.request({
+            hostname: ipAddress,
+            path: config.path,
+            port: 443,
+            method: 'POST',
+            headers: {'content-type' : 'application/json'},
+            agent: httpsAgent,
+            timeout: config.networkTimeout
+          }, (res) => {
+            var apiResponse = ''
 
-          res.on('data', function (chunk) {
-            apiResponse += chunk
-          })
+            res.on('data', function (chunk) {
+              apiResponse += chunk
+            })
 
-          res.on('end', function () {
+            res.on('end', function () {
+              if (config.debug) {
+                log(`API STATUS: ${res.statusCode}`)
+                log(`API RESPONSE: ${apiResponse}`)
+              }
+              callback()
+            })
+          }).on('error', (err) => {
+            // Log errors, don't block on failed requests
             if (config.debug) {
-              log(`API STATUS: ${res.statusCode}`)
-              log(`API RESPONSE: ${apiResponse}`)
+              log('Write to IOpipe failed')
+              log(err)
             }
             callback()
           })
-        }).on('error', (err) => {
-          // Log errors, don't block on failed requests
-          if (config.debug) {
-            log('Write to IOpipe failed')
-            log(err)
-          }
-          callback()
         })
 
         req.write(JSON.stringify(response_body))
@@ -213,12 +217,22 @@ module.exports = function(options) {
       return func
     }
 
+    /* Only resolve DNS on coldstarts */
+    var dnsPromise = new Promise((resolve, reject) => {
+      dns.lookup(config.host, (err, address, family) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(address)
+      })
+    })
+
     return function() {
       fn.metricsQueue = []
       let args = [].slice.call(arguments)
 
       var start_time = process.hrtime()
-      var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, args[1])
+      var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, collectorUrlPromise, args[1])
 
       var end_time = 599900  /* Maximum execution: 100ms short of 5 minutes */
       if (config.timeoutWindow > 0 && args[1] && args[1].getRemainingTimeInMillis) {

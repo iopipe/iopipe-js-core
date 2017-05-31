@@ -4,7 +4,7 @@ const getHostname = collector.getHostname,
 
 module.exports = function setConfig(configObject) {
   return {
-    url: (configObject && configObject.url) ? getHostname(configObject.url) : getHostname(),
+    host: (configObject && configObject.url) ? getHostname(configObject.url) : getHostname(),
     path: (configObject && configObject.url) ? getCollectorPath(configObject.url) : getCollectorPath(),
     clientId: configObject && (configObject.token || configObject.clientId) || process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
     debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
