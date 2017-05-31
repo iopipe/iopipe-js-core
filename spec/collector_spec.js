@@ -1,4 +1,7 @@
-var { getHostname, getCollectorPath } = require('../src/collector.js')
+const collector = require('../src/collector.js')
+const getHostname = collector.getHostname,
+  getCollectorPath = collector.getCollectorPath
+
 
 describe('configuring collector hostname', function() {
   beforeEach(function() {
