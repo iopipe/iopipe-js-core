@@ -187,11 +187,18 @@ function _make_generateLog(metrics, func, start_time, config, dnsPromise, contex
           }).on('error', (err) => {
             // Log errors, don't block on failed requests
             if (config.debug) {
-              log('Write to IOpipe failed')
+              log('Write to IOpipe failed.')
               log(err)
             }
             callback()
           })
+        }).catch((err) => {
+          // Log errors, don't block on failed requests
+          if (config.debug) {
+            log('Write to IOpipe failed. DNS resolution error.')
+            log(err)
+          }
+          callback()
         })
 
         req.write(JSON.stringify(response_body))
