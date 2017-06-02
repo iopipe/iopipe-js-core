@@ -239,7 +239,7 @@ module.exports = function(options) {
       })
 
       var start_time = process.hrtime()
-      var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, collectorUrlPromise, args[1])
+      var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, dnsPromise, args[1])
 
       var end_time = 599900  /* Maximum execution: 100ms short of 5 minutes */
       if (config.timeoutWindow > 0 && args[1] && args[1].getRemainingTimeInMillis) {
