@@ -132,7 +132,8 @@ function _make_generateLog(metrics, func, start_time, config, context) {
             memoryLimitInMB: context.memoryLimitInMB,
             awsRequestId: context.awsRequestId,
             logGroupName: context.logGroupName,
-            logStreamName: context.logStreamName
+            logStreamName: context.logStreamName,
+            traceId: process.env._X_AMZN_TRACE_ID
           },
           coldstart: COLDSTART,
           errors: retainErr,
