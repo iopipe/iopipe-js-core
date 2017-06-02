@@ -217,19 +217,19 @@ module.exports = function(options) {
       return func
     }
 
-    /* Only resolve DNS on coldstarts */
-    var dnsPromise = new Promise((resolve, reject) => {
-      dns.lookup(config.host, (err, address, family) => {
-        if (err) {
-          reject(err)
-        }
-        resolve(address)
-      })
-    })
-
     return function() {
       fn.metricsQueue = []
       let args = [].slice.call(arguments)
+
+      /* Only resolve DNS on coldstarts */
+      var dnsPromise = new Promise((resolve, reject) => {
+        dns.lookup(config.host, (err, address, family) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(address)
+        })
+      })
 
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, collectorUrlPromise, args[1])
