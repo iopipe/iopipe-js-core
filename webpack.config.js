@@ -1,5 +1,4 @@
 const path = require("path")
-//const webpack = require('webpack');
 
 module.exports = {
   target: "node",
@@ -9,8 +8,5 @@ module.exports = {
     filename: "./iopipe.js",
     libraryTarget: 'commonjs2',
     library: "iopipe"
-  },
-  /*plugins: [
-    new webpack.optimize.UglifyJsPlugin()
-  ]*/
+  }
 }
