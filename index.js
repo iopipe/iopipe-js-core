@@ -5,7 +5,6 @@ const Context = require('./src/context.js')
 const Callback = require('./src/callback.js')
 const Report = require('./src/report.js')
 const globals = require('./src/globals')
-const log = console.log
 
 function makeDnsPromise(host) {
   return new Promise((resolve, reject) => {
