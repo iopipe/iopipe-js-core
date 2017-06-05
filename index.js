@@ -3,7 +3,7 @@
 const pkg = require('./package.json')
 const os = require('os')
 const https = require('https')
-const uuid = require('uuid')
+const uuid = require('uuid/v4')
 
 const system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 const setConfig = require('./src/config.js')
@@ -13,7 +13,7 @@ const log = console.log
 
 const VERSION = pkg.version
 const MODULE_LOAD_TIME = Date.now()
-const PROCESS_ID = uuid.v4()
+const PROCESS_ID = uuid()
 const httpsAgent = new https.Agent({
   maxCachedSessions: 1,
   keepAlive: true
