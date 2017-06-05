@@ -149,9 +149,7 @@ function _make_generateLog(metrics, func, start_time, config, dnsPromise, contex
           installMethod: config.installMethod
         }
 
-        if (COLDSTART === true) {
-          COLDSTART = false
-        }
+        COLDSTART = false
 
         if (context.getRemainingTimeInMillis) {
           response_body.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis()
@@ -214,6 +212,17 @@ function _make_generateLog(metrics, func, start_time, config, dnsPromise, contex
   }
 }
 
+function makeDnsPromise(host) {
+  return new Promise((resolve, reject) => {
+    dns.lookup(host, (err, address) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(address)
+    })
+  })
+}
+
 module.exports = function(options) {
   var fn = function(func) {
     fn.metricsQueue = []
@@ -224,19 +233,18 @@ module.exports = function(options) {
       return func
     }
 
+
+    /* resolve DNS early on coldstarts */
+    var dnsPromise = makeDnsPromise(config.host)
+
     return function() {
       fn.metricsQueue = []
       let args = [].slice.call(arguments)
 
-      /* Only resolve DNS on coldstarts */
-      var dnsPromise = new Promise((resolve, reject) => {
-        dns.lookup(config.host, (err, address) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(address)
-        })
-      })
+      if (!COLDSTART) {
+        /* Get an updated DNS record. */
+        dnsPromise = makeDnsPromise(config.host)
+      }
 
       var start_time = process.hrtime()
       var generateLog = _make_generateLog(fn.metricsQueue, func, start_time, config, dnsPromise, args[1])
