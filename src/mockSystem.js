@@ -1,4 +1,4 @@
-var uuid = require('uuid/v4')
+var uuid = require('./uuidv4')
 
 function readstat() {
   return Promise.resolve({

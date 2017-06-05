@@ -25,9 +25,6 @@
     "url": "https://github.com/iopipe/iopipe/issues"
   },
   "homepage": "https://github.com/iopipe/iopipe#readme",
-  "dependencies": {
-    "uuid": "^3.0.1"
-  },
   "devDependencies": {
     "aws-lambda-mock-context": "^3.0.0",
     "coveralls": "^2.11.12",
