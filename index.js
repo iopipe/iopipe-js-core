@@ -3,12 +3,12 @@
 const pkg = require('./package.json')
 const os = require('os')
 const https = require('https')
-const uuid = require('uuid/v4')
 
 const system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
 const setConfig = require('./src/config.js')
 const Context = require('./src/context.js')
 const Callback = require('./src/callback.js')
+const uuid = require('./src/uuidv4')
 const log = console.log
 
 const VERSION = pkg.version
