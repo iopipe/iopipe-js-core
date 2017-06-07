@@ -268,6 +268,8 @@ module.exports = function(options) {
       n: numberValue,
       s: stringValue
     })
+
+    fn.VERSION = VERSION
   }
 
   return fn

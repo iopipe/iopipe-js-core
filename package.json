@@ -2,14 +2,19 @@
   "name": "iopipe",
   "version": "0.3.1",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
-  "main": "index.js",
+  "main": "dist/iopipe.js",
   "scripts": {
-    "test": "istanbul cover jasmine --captureExceptions"
+    "test": "istanbul cover jasmine --captureExceptions",
+    "build": "webpack --progress --profile --colors",
+    "prepare": "webpack --progress --profile --colors"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iopipe/iopipe.git"
   },
+  "files": [
+    "dist/"
+  ],
   "keywords": [
     "serverless",
     "agent",
@@ -31,6 +36,7 @@
     "eslint": "^3.12.2",
     "eslint-plugin-jasmine": "^2.2.0",
     "istanbul": "^0.4.4",
-    "jasmine": "^2.4.1"
+    "jasmine": "^2.4.1",
+    "webpack": "2.6.1"
   }
 }
