@@ -3,7 +3,6 @@
 const pkg = require('./package.json')
 const os = require('os')
 const https = require('https')
-const uuid = require('uuid/v4')
 const dns = require('dns')
 
 const system = (process.platform === 'linux') ? require('./src/system.js') : require('./src/mockSystem.js')
