@@ -10,6 +10,7 @@ function sendRequest(requestBody, config, ipAddress) {
   return new Promise((resolve, reject) => {
     var req = https.request({
       hostname: ipAddress,
+      servername: config.host,
       path: config.path,
       port: 443,
       method: 'POST',
@@ -160,8 +161,7 @@ class Report {
       }
 
       this.dnsPromise.then(function(ipAddress) {
-        console.log(ipAddress)
-        sendRequest(this.report, config, ipAddress).then(function afterRequest(res) {
+        sendRequest(self.report, config, ipAddress).then(function afterRequest(res) {
           if (config.debug) {
             log(`API STATUS: ${res.status}`)
             log(`API RESPONSE: ${res.apiResponse}`)
