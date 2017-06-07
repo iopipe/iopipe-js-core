@@ -161,6 +161,7 @@ function _make_generateLog(metrics, func, start_time, config, dnsPromise, contex
         dnsPromise.then((ipAddress) => {
           var req = https.request({
             hostname: ipAddress,
+            servername: config.host,
             path: config.path,
             port: 443,
             method: 'POST',
