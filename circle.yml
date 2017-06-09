@@ -1,3 +1,7 @@
+machine:
+  environment:
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
+
 deployment:
   release:
     # release on tagged versions
@@ -7,3 +11,11 @@ deployment:
       # login using environment variables
       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
       - npm publish
+
+  acceptanceTests:
+    branch: master
+    owner: iopipe
+    commands:
+      - npm install serverless@1.15.1
+      - npm run build
+      - cd acceptance && npm run all
