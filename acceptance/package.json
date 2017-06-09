@@ -4,7 +4,10 @@
   "description": "",
   "main": "handler.js",
   "scripts": {
-    "deploy": "npm link iopipe && serverless deploy",
-    "invoke": "sls invoke -f simpleSuccess"
+    "build": "cp ../dist/iopipe.js ./iopipe.js",
+    "deploy": "serverless deploy",
+    "invoke": "sls invoke -f simpleSuccess",
+    "local": "sls invoke local -f simpleSuccess",
+    "all": "npm run build && npm run local && npm run deploy"
   }
 }
