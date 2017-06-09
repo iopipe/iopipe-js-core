@@ -1,5 +1,5 @@
 'use strict';
-var iopipe = require('./iopipe')({
+var iopipe = require('dist/iopipe')({
   debug: true
 });
 
