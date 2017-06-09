@@ -1,0 +1,10 @@
+{
+  "name": "acceptance-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "deploy": "npm link iopipe && serverless deploy",
+    "invoke": "sls invoke -f simpleSuccess"
+  }
+}
