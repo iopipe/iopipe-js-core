@@ -19,4 +19,4 @@ deployment:
       - npm install serverless@1.15.1
       - npm run build
       - npm link
-      - cd acceptance && npm run deploy
+      - cd acceptance && npm run deploy && npm run invoke
