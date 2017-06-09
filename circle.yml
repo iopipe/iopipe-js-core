@@ -18,4 +18,5 @@ deployment:
     commands:
       - npm install serverless@1.15.1
       - npm run build
-      - cd acceptance && serverless deploy
+      - npm link
+      - cd acceptance && npm run deploy
