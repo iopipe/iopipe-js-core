@@ -1,12 +1,13 @@
 {
   "name": "iopipe",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
   "scripts": {
     "test": "istanbul cover jasmine --captureExceptions",
     "build": "webpack --progress --profile --colors",
-    "prepare": "webpack --progress --profile --colors"
+    "prepare": "webpack --progress --profile --colors",
+    "prepublishOnly": "webpack --progress --profile --colors"
   },
   "repository": {
     "type": "git",
