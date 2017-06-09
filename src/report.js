@@ -87,10 +87,12 @@ class Report {
       coldstart: globals.COLDSTART,
       custom_metrics: metrics || [],
     }
+
+    // Set to false after coldstart
+    globals.COLDSTART = false
   }
 
   send(err, callback) {
-
     // Send report only once
     if (this.sent) {
       return

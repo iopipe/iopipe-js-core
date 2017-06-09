@@ -1,0 +1,20 @@
+service: qa-events-agent
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: prod
+  region: us-west-2
+  role: arn:aws:iam::554407330061:role/lambda_basic_vpc_execution
+
+package:
+  include:
+    - ../dist/**
+
+functions:
+  simpleSuccess:
+    handler: handler.simpleSuccess
+    environment:
+      IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
+    events:
+      - schedule: rate(10 minutes)

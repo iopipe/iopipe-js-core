@@ -92,7 +92,7 @@ module.exports = function(options) {
       s: stringValue
     })
 
-    fn.VERSION = VERSION
+    fn.VERSION = globals.VERSION
   }
 
   return fn
