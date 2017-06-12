@@ -4,7 +4,7 @@ module.exports = {
   target: "node",
   entry: "./index.js",
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'lib'),
     filename: "./iopipe.js",
     libraryTarget: 'commonjs2',
     library: "iopipe"
