@@ -10,7 +10,7 @@ module.exports = function setConfig(configObject) {
     debug: process.env.IOPIPE_DEBUG || false,
     networkTimeout: 5000,
     captureTimeouts: true,
-    timeoutWindow:50,
+    timeoutWindow: 150,
     installMethod: "manual"
   }
 
