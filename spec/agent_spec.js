@@ -33,14 +33,6 @@ describe('metrics agent', () => {
     ctx.Promise
       .then(resp => { expect(resp).toBeTruthy(); done() })
       .catch(err => { expect(err).toBe(null); done() })  })
-
-  it('sends timeouts', function() {
-    var iopipe = IOpipe({ token: 'testSuite', captureTimeouts: false})
-    var ctx = context()
-    var wrappedFunction = iopipe(function(event, context) {
-      context.succeed()
-    })
-  })
 })
 
 describe('smoke test', () => {
