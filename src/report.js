@@ -97,6 +97,7 @@ class Report {
     if (this.sent) {
       return
     }
+    this.sent = true
     const self = this
     const config = this.config
     const context = this.context
@@ -168,7 +169,6 @@ class Report {
             log(`API STATUS: ${res.status}`)
             log(`API RESPONSE: ${res.apiResponse}`)
           }
-          self.sent = true
           callback()
         }).catch(function handleErr(err) {
           // Log errors, don't block on failed requests

@@ -3,13 +3,30 @@ const getHostname = collector.getHostname,
   getCollectorPath = collector.getCollectorPath
 
 module.exports = function setConfig(configObject) {
-  return {
-    host: (configObject && configObject.url) ? getHostname(configObject.url) : getHostname(),
-    path: (configObject && configObject.url) ? getCollectorPath(configObject.url) : getCollectorPath(),
-    clientId: configObject && (configObject.token || configObject.clientId) || process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
-    debug: configObject && configObject.debug || process.env.IOPIPE_DEBUG || false,
-    networkTimeout: configObject && configObject.networkTimeout || 5000,
-    timeoutWindow: configObject && configObject.timeoutWindow || 50,
-    installMethod: configObject && configObject.installMethod || process.env.IOPIPE_INSTALL_METHOD || "manual"
+  const defaults = {
+    host: getHostname(),
+    path: getCollectorPath(),
+    clientId: process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
+    debug: process.env.IOPIPE_DEBUG || false,
+    networkTimeout: 5000,
+    timeoutWindow: Number(process.env.IOPIPE_TIMEOUT_WINDOW) || 150,
+    installMethod: "manual"
   }
+
+  if (configObject) {
+    var config = Object.assign({}, defaults)
+    if (configObject.url) {
+      config.host = getHostname(configObject.url)
+      config.path = getCollectorPath(configObject.url)
+    }
+
+    config.clientId = (configObject.token || configObject.clientId) || defaults.clientId
+    config.debug = configObject.debug ||defaults.debug
+    config.timeoutWindow = Number.isInteger(configObject.timeoutWindow) ? configObject.timeoutWindow : defaults.timeoutWindow
+    config.installMethod = configObject.installMethod || process.env.IOPIPE_INSTALL_METHOD || defaults.installMethod
+
+    return config
+  }
+
+  return defaults
 }

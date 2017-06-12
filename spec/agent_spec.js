@@ -1,4 +1,4 @@
-const IOpipe = require('..')
+const IOpipe = require('../index.js')
 const context = require('aws-lambda-mock-context')
 // default region for testing
 process.env.AWS_REGION = 'us-east-1'

@@ -43,6 +43,20 @@ exports.handle = require("iopipe")()(
 )
 ```
 
+# Capturing timeouts
+
+By default, IOpipe will capture timeouts by exiting your function 150ms early
+from the AWS configured timeout, to allow time for reporting. You can disable this
+feature by setting `timeoutWindow` to `0` in your configuration:
+
+```javascript
+var iopipe = require("iopipe")({ token: "YOUR_TOKEN", timeoutWindow: 0})
+```
+
+You can also update the timeout window from `IOPIPE_TIMEOUT_WINDOW` in your environment
+variables; IOpipe will prefer the configuration in the code over environment
+variables if both are configured.
+
 # Debugging integration
 
 Debugging is possible by seeing the `debug` key to `true`
