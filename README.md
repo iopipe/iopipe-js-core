@@ -53,6 +53,10 @@ feature by setting `timeoutWindow` to `0` in your configuration:
 var iopipe = require("iopipe")({ token: "YOUR_TOKEN", timeoutWindow: 0})
 ```
 
+You can also update the timeout window from `IOPIPE_TIMEOUT_WINDOW` in your environment
+variables; IOpipe will prefer the configuration in the code over environment
+variables if both are configured.
+
 # Debugging integration
 
 Debugging is possible by seeing the `debug` key to `true`

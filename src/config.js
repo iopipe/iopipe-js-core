@@ -9,7 +9,7 @@ module.exports = function setConfig(configObject) {
     clientId: process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
     debug: process.env.IOPIPE_DEBUG || false,
     networkTimeout: 5000,
-    timeoutWindow: 150,
+    timeoutWindow: Number(process.env.IOPIPE_TIMEOUT_WINDOW) || 150,
     installMethod: "manual"
   }
 
