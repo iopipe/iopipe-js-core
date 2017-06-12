@@ -4,7 +4,7 @@
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
   "scripts": {
-    "test": "npm run build && istanbul cover jasmine --captureExceptions",
+    "test": "istanbul cover jasmine --captureExceptions",
     "build": "webpack --progress --profile --colors",
     "prepare": "webpack --progress --profile --colors",
     "prepublishOnly": "webpack --progress --profile --colors"
