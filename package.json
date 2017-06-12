@@ -2,7 +2,7 @@
   "name": "iopipe",
   "version": "0.4.3",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
-  "main": "lib/iopipe.js",
+  "main": "dist/iopipe.js",
   "scripts": {
     "test": "istanbul cover jasmine --captureExceptions",
     "build": "webpack --progress --profile --colors",
@@ -14,7 +14,7 @@
     "url": "git+https://github.com/iopipe/iopipe.git"
   },
   "files": [
-    "lib/"
+    "dist/"
   ],
   "keywords": [
     "serverless",

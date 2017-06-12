@@ -2,4 +2,4 @@
 .serverless
 node_modules
 coverage
-lib
+dist
