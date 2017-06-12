@@ -10,6 +10,7 @@ deployment:
     tag: /v[0-9]+(\.[0-9]+)*/
     owner: iopipe
     commands:
+      - npm run build
       # login using environment variables
       - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
       - npm publish
