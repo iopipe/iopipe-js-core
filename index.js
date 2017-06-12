@@ -55,7 +55,7 @@ module.exports = function(options) {
       const report = new Report(config, args[1], startTime, fn.metricsQueue, dnsPromise)
 
       if (config.captureTimeouts) {
-        var timeout = setupTimeoutCapture(config, report, args[1])
+        timeout = setupTimeoutCapture(config, report, args[1])
       }
 
       var callback = (err, cb) => {
