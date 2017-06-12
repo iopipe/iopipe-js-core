@@ -9,7 +9,7 @@ describe('setting up config object', function() {
       debug: false,
       networkTimeout: 5000,
       captureTimeouts: true,
-      timeoutWindow: 50,
+      timeoutWindow: 150,
       installMethod: 'manual'
     })
   })
