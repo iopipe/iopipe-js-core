@@ -17,6 +17,17 @@ function makeDnsPromise(host) {
   })
 }
 
+function setupTimeoutCapture(config, report, context) {
+  var endTime = 599900  /* Maximum execution: 100ms short of 5 minutes */
+  if (config.timeoutWindow > 0 && context && context.getRemainingTimeInMillis) {
+    endTime = Math.max(0, context.getRemainingTimeInMillis() - config.timeoutWindow)
+  }
+
+  var timeout = setTimeout(() => {
+    report.send(new Error("Timeout Exceeded."), function noop() {})
+  }, endTime)
+}
+
 module.exports = function(options) {
   var fn = function(func) {
     fn.metricsQueue = []
@@ -27,13 +38,13 @@ module.exports = function(options) {
       return func
     }
 
-
     /* resolve DNS early on coldstarts */
     var dnsPromise = makeDnsPromise(config.host)
 
     return function() {
       fn.metricsQueue = []
-      let args = [].slice.call(arguments)
+      var args = [].slice.call(arguments),
+        timeout
 
       if (!globals.COLDSTART) {
         /* Get an updated DNS record. */
@@ -43,17 +54,12 @@ module.exports = function(options) {
       var startTime = process.hrtime()
       const report = new Report(config, args[1], startTime, fn.metricsQueue, dnsPromise)
 
-      var endTime = 599900  /* Maximum execution: 100ms short of 5 minutes */
-      if (config.timeoutWindow > 0 && args[1] && args[1].getRemainingTimeInMillis) {
-        endTime = Math.max(0, args[1].getRemainingTimeInMillis() - config.timeoutWindow)
+      if (config.captureTimeouts) {
+        var timeout = setupTimeoutCapture(config, report, args[1])
       }
 
-      var timeout = setTimeout(() => {
-        report.send(new Error("Timeout Exceeded."), function noop() {})
-      }, endTime)
-
       var callback = (err, cb) => {
-        clearTimeout(timeout)
+        if (timeout) { clearTimeout(timeout) }
         report.send(err, cb)
       }
 
