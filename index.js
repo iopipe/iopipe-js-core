@@ -18,7 +18,7 @@ function makeDnsPromise(host) {
 }
 
 function setupTimeoutCapture(config, report, context) {
-  if (config.timeoutWindow === 0) {
+  if (config.timeoutWindow < 1) {
     return
   }
 
