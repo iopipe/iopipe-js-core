@@ -23,7 +23,7 @@ function setupTimeoutCapture(config, report, context) {
     endTime = Math.max(0, context.getRemainingTimeInMillis() - config.timeoutWindow)
   }
 
-  var timeout = setTimeout(() => {
+  return setTimeout(() => {
     report.send(new Error("Timeout Exceeded."), function noop() {})
   }, endTime)
 }
