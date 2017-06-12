@@ -8,7 +8,6 @@ describe('setting up config object', function() {
       clientId: '',
       debug: false,
       networkTimeout: 5000,
-      captureTimeouts: true,
       timeoutWindow: 150,
       installMethod: 'manual'
     })

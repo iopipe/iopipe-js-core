@@ -9,7 +9,6 @@ module.exports = function setConfig(configObject) {
     clientId: process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || '',
     debug: process.env.IOPIPE_DEBUG || false,
     networkTimeout: 5000,
-    captureTimeouts: true,
     timeoutWindow: 150,
     installMethod: "manual"
   }
@@ -23,8 +22,7 @@ module.exports = function setConfig(configObject) {
 
     config.clientId = (configObject.token || configObject.clientId) || defaults.clientId
     config.debug = configObject.debug ||defaults.debug
-    config.captureTimeouts = configObject.captureTimeouts !== undefined ? configObject.captureTimeouts : true
-    config.timeoutWindow = configObject.timeoutWindow || defaults.timeoutWindow
+    config.timeoutWindow = Number.isInteger(configObject.timeoutWindow) ? configObject.timeoutWindow : defaults.timeoutWindow
     config.installMethod = configObject.installMethod || process.env.IOPIPE_INSTALL_METHOD || defaults.installMethod
 
     return config

@@ -47,10 +47,10 @@ exports.handle = require("iopipe")()(
 
 By default, IOpipe will capture timeouts by exiting your function 150ms early
 from the _configured timeout_, to allow time for reporting. You can disable this
-feature by setting `captureTimeouts` to false in your configuration:
+feature by setting `timeoutWindow` to `0` in your configuration:
 
 ```javascript
-var iopipe = require("iopipe")({ token: "YOUR_TOKEN", captureTimeouts: false})
+var iopipe = require("iopipe")({ token: "YOUR_TOKEN", timeoutWindow: 0})
 ```
 
 # Debugging integration

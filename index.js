@@ -18,6 +18,10 @@ function makeDnsPromise(host) {
 }
 
 function setupTimeoutCapture(config, report, context) {
+  if (config.timeoutWindow === 0) {
+    return
+  }
+
   var endTime = 599900  /* Maximum execution: 100ms short of 5 minutes */
   if (config.timeoutWindow > 0 && context && context.getRemainingTimeInMillis) {
     endTime = Math.max(0, context.getRemainingTimeInMillis() - config.timeoutWindow)
@@ -43,8 +47,7 @@ module.exports = function(options) {
 
     return function() {
       fn.metricsQueue = []
-      var args = [].slice.call(arguments),
-        timeout
+      var args = [].slice.call(arguments)
 
       if (!globals.COLDSTART) {
         /* Get an updated DNS record. */
@@ -54,9 +57,7 @@ module.exports = function(options) {
       var startTime = process.hrtime()
       const report = new Report(config, args[1], startTime, fn.metricsQueue, dnsPromise)
 
-      if (config.captureTimeouts) {
-        timeout = setupTimeoutCapture(config, report, args[1])
-      }
+      var timeout = setupTimeoutCapture(config, report, args[1])
 
       var callback = (err, cb) => {
         if (timeout) { clearTimeout(timeout) }
