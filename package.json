@@ -4,10 +4,10 @@
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
   "scripts": {
-    "test": "istanbul cover jasmine --captureExceptions",
     "build": "webpack --progress --profile --colors",
+    "eslint": "eslint src spec",
     "prepare": "webpack --progress --profile --colors",
-    "prepublishOnly": "webpack --progress --profile --colors"
+    "test": "istanbul cover jasmine --captureExceptions"
   },
   "repository": {
     "type": "git",
@@ -33,12 +33,16 @@
   "homepage": "https://github.com/iopipe/iopipe#readme",
   "devDependencies": {
     "aws-lambda-mock-context": "^3.0.0",
+    "babel-eslint": "^7.2.3",
     "coveralls": "^2.11.12",
     "eslint": "^3.12.2",
-    "eslint-plugin-jasmine": "^2.2.0",
     "iopipe-payload": "^1.3.1",
+    "eslint-plugin-jasmine": "^2.5.0",
+    "eslint-plugin-prettier": "^2.1.2",
     "istanbul": "^0.4.4",
     "jasmine": "^2.4.1",
+    "prettier": "^1.4.4",
     "webpack": "2.6.1"
-  }
+  },
+  "dependencies": {}
 }
