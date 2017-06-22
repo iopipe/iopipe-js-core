@@ -1,42 +1,44 @@
-const Report = require('../src/report')
-const context = require('aws-lambda-mock-context')
-const schema = require('iopipe-payload').PAYLOAD_SCHEMA
+const Report = require('../src/report');
+const context = require('aws-lambda-mock-context');
+const schema = require('iopipe-payload').PAYLOAD_SCHEMA;
 // arguments
 const config = {
   clientId: 'foo'
-}
+};
 
-describe('Report creation', function() {
-  it('creates a new report object', function() {
-    expect(typeof (new Report(config, context(), process.hrtime(), []))).toBe('object')
-  })
+describe('Report creation', () => {
+  it('creates a new report object', () => {
+    expect(typeof new Report(config, context(), process.hrtime(), [])).toBe(
+      'object'
+    );
+  });
 
-  it('can take no arguments', function() {
-    expect(typeof (new Report())).toBe('object')
-  })
+  it('can take no arguments', () => {
+    expect(typeof new Report()).toBe('object');
+  });
 
-  it('creates a report that matches the schema', function() {
-    const r = new Report()
+  it('creates a report that matches the schema', () => {
+    const r = new Report();
     function iterateKeys(object) {
-      Object.keys(object).forEach(function(key) {
+      Object.keys(object).forEach(key => {
         // custom metrics array
         if (Array.isArray(schema[key])) {
-          expect(Array.isArray(r.report[key])).toBeTruthy()
+          expect(Array.isArray(r.report[key])).toBeTruthy();
         } else if (typeof schema[key] == 'object') {
-          return iterateKeys(schema[key], true)
+          return iterateKeys(schema[key], true);
         }
-        expect(key in r.report)
-      })
+        return expect(key in r.report).toBeTruthy();
+      });
     }
 
-    iterateKeys(schema)
-  })
+    iterateKeys(schema);
+  });
 
-  it('keeps custom metrics references', function() {
-    var myMetrics = []
-    const r = new Report(config, context(), process.hrtime(), myMetrics)
-    myMetrics.push({ n:1, name: 'a_value'})
+  it('keeps custom metrics references', () => {
+    let myMetrics = [];
+    const r = new Report(config, context(), process.hrtime(), myMetrics);
+    myMetrics.push({ n: 1, name: 'a_value' });
 
-    expect(r.report.custom_metrics.length).toBe(1)
-  })
-})
+    expect(r.report.custom_metrics.length).toBe(1);
+  });
+});

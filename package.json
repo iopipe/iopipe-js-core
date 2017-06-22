@@ -7,7 +7,7 @@
     "build": "webpack --progress --profile --colors",
     "eslint": "eslint src spec",
     "prepare": "webpack --progress --profile --colors",
-    "test": "istanbul cover jasmine --captureExceptions"
+    "test": "npm run eslint && istanbul cover jasmine --captureExceptions"
   },
   "repository": {
     "type": "git",
@@ -44,5 +44,10 @@
     "prettier": "^1.4.4",
     "webpack": "2.6.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "pre-commit": "^1.2.2"
+  },
+  "pre-commit": [
+    "test"
+  ]
 }

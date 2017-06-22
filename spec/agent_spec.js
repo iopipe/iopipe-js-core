@@ -1,228 +1,137 @@
-const IOpipe = require('../index.js')
-const context = require('aws-lambda-mock-context')
+const IOpipe = require('../index.js');
+const mockContext = require('aws-lambda-mock-context');
 // default region for testing
-process.env.AWS_REGION = 'us-east-1'
+process.env.AWS_REGION = 'us-east-1';
+
+function runWrappedFunction(contextArg, eventArg, iopipeArg, functionArg) {
+  const ctx = contextArg || mockContext();
+  const iopipe = iopipeArg || IOpipe({ token: 'testSuite' });
+  const event = eventArg || {};
+  const defaultFn = (fnEvent, context) => {
+    context.succeed('Success');
+  };
+  const fnToRun = functionArg || iopipe(defaultFn);
+  return new Promise(resolve => {
+    function fnResolver(error, response) {
+      return resolve({
+        ctx: ctx,
+        response: response,
+        iopipe: iopipe,
+        error: error
+      });
+    }
+    fnToRun(event, ctx, fnResolver);
+    ctx.Promise.then(success => fnResolver(null, success)).catch(fnResolver);
+  });
+}
+
+function sendToRegionTest(regionArg, done) {
+  const region = regionArg || 'us-east-1';
+  process.env.AWS_REGION = region;
+  runWrappedFunction(
+    mockContext({ region: region }),
+    null,
+    IOpipe({ clientId: 'testSuite' })
+  ).then(obj => {
+    expect(obj.response).toEqual('Success');
+    expect(obj.error).toEqual(null);
+    done();
+  });
+}
 
 describe('metrics agent', () => {
   it('should return a function', () => {
-    var agent = IOpipe()
-    expect(typeof agent).toEqual('function')
-  })
+    let agent = IOpipe();
+    expect(typeof agent).toEqual('function');
+  });
 
   it('should successfully getRemainingTimeInMillis from aws context', () => {
-    var iopipe = IOpipe({ clientId: 'testSuite' })
-    var ctx = context()
-    var wrappedFunction = iopipe(function(event, context) {
-      context.succeed()
-    })
+    runWrappedFunction().then(obj => {
+      expect(typeof obj.ctx.getRemainingTimeInMillis).toBe('function');
+    });
+  });
 
-    wrappedFunction({}, ctx)
+  it('allows .decorate API', () => {
+    let iopipe = IOpipe({ token: 'testSuite' });
+    let wrappedFunction = iopipe.decorate((event, ctx) => {
+      ctx.succeed('Decorate');
+    });
 
-    expect(typeof ctx.getRemainingTimeInMillis).toBe('function')
-  })
-
-  it('allows .decorate API', function(done) {
-    var iopipe = IOpipe({ token: 'testSuite' })
-    var ctx = context()
-    var wrappedFunction = iopipe.decorate(function(event, context) {
-      context.succeed(true)
-    })
-
-    wrappedFunction({}, ctx)
-
-    ctx.Promise
-      .then(resp => { expect(resp).toBeTruthy(); done() })
-      .catch(err => { expect(err).toBe(null); done() })  })
-})
+    runWrappedFunction(null, null, null, wrappedFunction).then(obj => {
+      expect(obj.response).toEqual('Decorate');
+    });
+  });
+});
 
 describe('smoke test', () => {
-  describe('successful functions', () => {
-    var functionResponse = null
-    var functionError = null
+  it('will run when installed on a successful function', done => {
+    runWrappedFunction().then(obj => {
+      expect(obj.response).toBeTruthy();
+      done();
+    });
+  });
 
-    beforeEach(function(done) {
-      const ctx = context()
-      var iopipe = IOpipe({ clientId: 'testSuite', debug: true})
-      var wrappedFunction = iopipe(function(event, context, callback) {
-        context.succeed('Success!')
-      })
-      wrappedFunction({}, ctx)
-      ctx.Promise
-        .then(resp => { functionResponse = resp; done() })
-        .catch(err => { functionError = err; done() })
-    })
-
-    afterEach(function() {
-      functionResponse = null
-      functionError = null
-    })
-
-    it('will run when installed on a successful function', (done) => {
-      expect(functionResponse).toEqual('Success!')
-      expect(functionError).toBe(null)
-      done()
-    })
-  })
-
-  describe('failing functions', () => {
-    var functionResponse = null
-    var functionError = null
-
-    beforeEach(function(done) {
-      const ctx = context()
-      functionResponse = null
-      functionError = null
-      var iopipe = IOpipe({ clientId: 'testSuite', debug: true})
-      var wrappedFunction = iopipe(function(event, context, callback) {
-        context.fail('Fail!')
-      })
-      wrappedFunction({}, ctx)
-      ctx.Promise
-        .then(resp => { functionResponse = resp; done() })
-        .catch(err => { functionError = err; done() })
-    })
-
-    afterEach(function() {
-      functionResponse = null
-      functionError = null
-    })
-
-    it('will run when installed on a failing function', (done) => {
-      expect(functionResponse).toEqual(null)
-      expect(functionError.message).toEqual('Fail!')
-      done()
-    })
-  })
+  it('will run when installed on a failing function', done => {
+    const fn = (event, context) => {
+      context.fail('Whoops!');
+    };
+    runWrappedFunction(null, null, null, fn).then(obj => {
+      expect(obj.error instanceof Error).toEqual(true);
+      expect(obj.error.message).toEqual('Whoops!');
+      expect(obj.response).toBeUndefined();
+      done();
+    });
+  });
 
   describe('functions using callbacks', () => {
-    it('will run when installed on a successful function', (done) => {
-      const ctx = context()
-      function cb(err, success) {
-        if(err)
-          ctx.fail(err)
-        else
-          ctx.succeed(success)
-      }
-      var iopipe = IOpipe({ clientId: 'testSuite', debug: true})
-      var wrappedFunction = iopipe(function(event, context, callback) {
-        callback(null, 'Success callback!')
-      })
-      wrappedFunction({}, ctx, cb)
-      ctx.Promise
-        .then(resp => {
-          expect(resp).toEqual('Success callback!')
-          done()
+    it('will run when installed on a successful function using callbacks', done => {
+      const fn = (event, ctx, cb) => {
+        cb(null, 'Success!');
+      };
+      runWrappedFunction(null, null, null, fn).then(obj => {
+        expect(obj.response).toEqual('Success!');
+        done();
+      });
+    });
+  });
+
+  describe('sends to specified regions', () => {
+    it('sends to ap-southeast-2', done => {
+      sendToRegionTest('ap-southeast-2', done);
+    });
+
+    it('sends to eu-west-1', done => {
+      sendToRegionTest('eu-west-1', done);
+    });
+
+    it('sends to us-east-1/our default URL', done => {
+      sendToRegionTest('us-east-1', done);
+    });
+
+    it('sends to us-east-2', done => {
+      sendToRegionTest('us-east-2', done);
+    });
+
+    it('sends to us-west-1', done => {
+      sendToRegionTest('us-west-1', done);
+    });
+
+    it('sends to us-west-2', done => {
+      sendToRegionTest('us-west-2', done);
+    });
+
+    it('sends to custom URLs (staging)', done => {
+      runWrappedFunction(
+        null,
+        null,
+        IOpipe({
+          clientId: 'testSuite',
+          url: 'https://metrics-api-staging.iopipe.com'
         })
-        .catch(err => {
-          expect(err).toBe(null)
-          done()
-        })
-    })
-  })
-
-  describe('sends to specified regions', function() {
-    it('sends to ap-southeast-2', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite' })
-      process.env.AWS_REGION = 'ap-southeast-2'
-      var ctx = context({ region: 'ap-southeast-2'})
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-
-    it('sends to eu-west-1', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite' })
-      process.env.AWS_REGION = 'eu-west-1'
-      var ctx = context({ region: 'eu-west-1'})
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-
-    it('sends to us-east-1/our default URL', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite' })
-      process.env.AWS_REGION = 'us-east-1'
-      var ctx = context({ region: 'us-east-1'})
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-
-    it('sends to us-east-2', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite' })
-      process.env.AWS_REGION = 'us-east-2'
-      var ctx = context({ region: 'us-east-2'})
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-
-
-    it('sends to us-west-1', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite' })
-      process.env.AWS_REGION = 'us-west-1'
-      var ctx = context({ region: 'us-west-1' })
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-
-    it('sends to us-west-2', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite' })
-      process.env.AWS_REGION = 'us-west-2'
-      var ctx = context({ region: 'us-west-2' })
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-
-    it('sends to custom URLs (staging)', function(done) {
-      var iopipe = IOpipe({ clientId: 'testSuite', url: 'https://metrics-api-staging.iopipe.com' })
-      var wrappedFunction = iopipe.decorate(function(event, context) {
-        context.succeed(true)
-      })
-      var ctx = context()
-      wrappedFunction({}, ctx)
-
-      ctx.Promise
-        .then(resp => { expect(resp).toBeTruthy(); done() })
-        .catch(err => { expect(err).toBe(null); done() })
-    })
-  })
-})
+      ).then(obj => {
+        expect(obj.response).toEqual('Success');
+        done();
+      });
+    });
+  });
+});
