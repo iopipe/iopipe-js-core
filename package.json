@@ -7,7 +7,8 @@
     "build": "webpack --progress --profile --colors",
     "eslint": "eslint src spec",
     "jasmine": "istanbul cover jasmine --captureExceptions",
-    "prepare": "webpack --progress --profile --colors",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "npm run eslint && npm run build && npm run jasmine"
   },
   "repository": {
@@ -41,12 +42,11 @@
     "iopipe-payload": "^1.4.0",
     "istanbul": "^0.4.4",
     "jasmine": "^2.4.1",
+    "pre-commit": "^1.2.2",
     "prettier": "^1.4.4",
     "webpack": "2.6.1"
   },
-  "dependencies": {
-    "pre-commit": "^1.2.2"
-  },
+  "dependencies": {},
   "pre-commit": [
     "test"
   ]
