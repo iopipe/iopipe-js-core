@@ -49,7 +49,7 @@ module.exports = options => {
     /* resolve DNS early on coldstarts */
     dnsPromise = makeDnsPromise(config.host);
 
-    return function iopipeWrapper() {
+    return function IOpipeWrapper() {
       fn.metricsQueue = [];
       const args = [].slice.call(arguments);
 

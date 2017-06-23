@@ -63,6 +63,7 @@ module.exports = {
     'no-extra-bind': 2, // http://eslint.org/docs/rules/no-extra-bind
     'no-floating-decimal': 2, // http://eslint.org/docs/rules/no-floating-decimal
     'no-implied-eval': 2, // http://eslint.org/docs/rules/no-implied-eval
+    'no-invalid-this': 2, // http://eslint.org/docs/rules/no-invalid-this
     'no-lone-blocks': 2, // http://eslint.org/docs/rules/no-lone-blocks
     'no-loop-func': 2, // http://eslint.org/docs/rules/no-loop-func
     'no-multi-str': 2, // http://eslint.org/docs/rules/no-multi-str
