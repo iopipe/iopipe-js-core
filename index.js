@@ -36,9 +36,9 @@ function setupTimeoutCapture(config, report, context) {
 }
 
 module.exports = options => {
-  var fn = func => {
-    fn.metricsQueue = [];
+  const fn = func => {
     var dnsPromise = undefined;
+    fn.metricsQueue = [];
     const config = setConfig(options);
 
     if (!config.clientId) {

@@ -8,7 +8,7 @@ const log = console.log;
 
 function sendRequest(requestBody, config, ipAddress) {
   return new Promise((resolve, reject) => {
-    let req = https
+    const req = https
       .request(
         {
           hostname: ipAddress,
@@ -21,7 +21,7 @@ function sendRequest(requestBody, config, ipAddress) {
           timeout: config.networkTimeout
         },
         res => {
-          let apiResponse = '';
+          var apiResponse = '';
 
           res.on('data', chunk => {
             apiResponse += chunk;

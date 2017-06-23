@@ -1,4 +1,4 @@
-let uuid = require('./uuidv4');
+const uuid = require('./uuidv4');
 
 function readstat() {
   return Promise.resolve({
@@ -11,7 +11,7 @@ function readstat() {
 }
 
 function readstatus() {
-  let mem = process.memoryUsage();
+  const mem = process.memoryUsage();
   return Promise.resolve({
     FDSize: 0,
     Threads: 1,

@@ -1,12 +1,12 @@
-let url = require('url');
-let path = require('path');
+const url = require('url');
+const path = require('path');
 
 function getCollectorPath(baseUrl) {
   if (!baseUrl) {
     return '/v0/event';
   }
+  const eventURL = url.parse(baseUrl);
 
-  let eventURL = url.parse(baseUrl);
   eventURL.pathname = path.join(eventURL.pathname, 'v0/event');
   eventURL.path = eventURL.search
     ? eventURL.pathname + eventURL.search
@@ -15,6 +15,7 @@ function getCollectorPath(baseUrl) {
 }
 
 function getHostname(configUrl) {
+  var regionString = '';
   if (configUrl) {
     return url.parse(configUrl).hostname;
   }
@@ -25,7 +26,6 @@ function getHostname(configUrl) {
     'us-west-1',
     'us-west-2'
   ];
-  let regionString = '';
   if (supportedRegions.indexOf(process.env.AWS_REGION) > -1) {
     regionString = `.${process.env.AWS_REGION}`;
   }

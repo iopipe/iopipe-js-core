@@ -1,10 +1,10 @@
-let fs = require('fs');
+const fs = require('fs');
 
 function readstat(pid) {
   return new Promise((resolve, reject) => {
     fs.readFile(`/proc/${pid}/stat`, function handleRead(err, statFile) {
+      const preProcSelfStatFields = (statFile || '').toString().split(' ');
       if (err) return reject(err);
-      let preProcSelfStatFields = statFile.toString().split(' ');
       return resolve({
         utime: preProcSelfStatFields[13],
         stime: preProcSelfStatFields[14],
@@ -19,8 +19,8 @@ function readstat(pid) {
 function readstatus(pid) {
   return new Promise((resolve, reject) => {
     fs.readFile(`/proc/${pid}/status`, function handleRead(err, data) {
+      const procSelfStatusFields = {};
       if (err) return reject(err);
-      let procSelfStatusFields = {};
       // Parse status file and apply to the procSelfStatusFields dict.
       data
         .toString()
@@ -29,11 +29,11 @@ function readstatus(pid) {
           return line ? line.split('\t') : [null, null];
         })
         .forEach(field => {
-          let key = field[0];
-          let value = field[1];
+          const key = field[0];
+          const value = field[1];
           if (key && value) {
-            let trimmedKey = key.replace(':', '');
-            let cleanValue = Number(value.replace(/\D/g, ''));
+            const trimmedKey = key.replace(':', '');
+            const cleanValue = Number(value.replace(/\D/g, ''));
             procSelfStatusFields[trimmedKey] = cleanValue;
           }
         });

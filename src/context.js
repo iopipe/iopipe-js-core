@@ -34,7 +34,7 @@ function clone(oldObject) {
 }
 
 function Context(generateLog, oldContext) {
-  let context = clone(oldContext);
+  var context = clone(oldContext);
   context.succeed = data => {
     generateLog(null, () => {
       oldContext.succeed(data);

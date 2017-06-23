@@ -41,7 +41,7 @@ function sendToRegionTest(regionArg, done) {
 
 describe('metrics agent', () => {
   it('should return a function', () => {
-    let agent = IOpipe();
+    const agent = IOpipe();
     expect(typeof agent).toEqual('function');
   });
 
@@ -52,8 +52,8 @@ describe('metrics agent', () => {
   });
 
   it('allows .decorate API', () => {
-    let iopipe = IOpipe({ token: 'testSuite' });
-    let wrappedFunction = iopipe.decorate((event, ctx) => {
+    const iopipe = IOpipe({ token: 'testSuite' });
+    const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
     });
 
