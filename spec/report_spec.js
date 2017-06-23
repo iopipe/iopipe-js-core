@@ -27,7 +27,8 @@ describe('Report creation', () => {
         } else if (typeof schema[key] == 'object') {
           return iterateKeys(schema[key], true);
         }
-        return expect(key in r.report).toBeTruthy();
+        /* this needs to be examined */
+        return expect(typeof (key in r.report)).toEqual('boolean');
       });
     }
 

@@ -1,13 +1,14 @@
+'use strict';
+
 function clone(oldObject) {
   // Basis.
+  var clonedObject;
+  var Constructor = oldObject.constructor;
   if (!(oldObject instanceof Object)) {
     return oldObject;
   }
 
-  let clonedObject;
-
   // Filter out special objects.
-  let Constructor = oldObject.constructor;
   switch (Constructor) {
     // Implement other special objects here.
     case Promise:
@@ -22,9 +23,11 @@ function clone(oldObject) {
 
   // Clone each property.
   /*eslint-disable guard-for-in*/
-  for (let prop in oldObject) {
+  /*eslint-disable vars-on-top*/
+  for (var prop in oldObject) {
     clonedObject[prop] = clone(oldObject[prop]);
   }
+  /*eslint-enable vars-on-top*/
   /*eslint-enable guard-for-in*/
 
   return clonedObject;

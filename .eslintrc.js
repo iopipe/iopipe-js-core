@@ -1,5 +1,4 @@
 module.exports = {
-  parser: 'babel-eslint',
   extends: ['eslint:recommended', 'plugin:jasmine/recommended'],
   plugins: ['prettier', 'jasmine'],
   env: {
@@ -31,15 +30,12 @@ module.exports = {
     /**
  * Strict mode
  */
-    // babel inserts "use strict"; for us
-    // http://eslint.org/docs/rules/strict
     'prettier/prettier': [
       'error',
       {
         singleQuote: true
       }
     ],
-    strict: [2, 'never'],
     'no-shadow': 2, // http://eslint.org/docs/rules/no-shadow
     'no-shadow-restricted-names': 2, // http://eslint.org/docs/rules/no-shadow-restricted-names
     'no-unused-vars': [

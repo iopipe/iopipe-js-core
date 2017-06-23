@@ -20,7 +20,7 @@ function makeDnsPromise(host) {
 function setupTimeoutCapture(config, report, context) {
   var endTime = 599900; /* Maximum execution: 100ms short of 5 minutes */
   if (config.timeoutWindow < 1) {
-    return null;
+    return undefined;
   }
 
   if (config.timeoutWindow > 0 && context && context.getRemainingTimeInMillis) {
@@ -36,8 +36,9 @@ function setupTimeoutCapture(config, report, context) {
 }
 
 module.exports = options => {
-  const fn = func => {
+  var fn = func => {
     fn.metricsQueue = [];
+    var dnsPromise = undefined;
     const config = setConfig(options);
 
     if (!config.clientId) {
@@ -46,9 +47,9 @@ module.exports = options => {
     }
 
     /* resolve DNS early on coldstarts */
-    let dnsPromise = makeDnsPromise(config.host);
+    dnsPromise = makeDnsPromise(config.host);
 
-    return () => {
+    return function iopipeWrapper() {
       fn.metricsQueue = [];
       const args = [].slice.call(arguments);
 
