@@ -1,3 +1,5 @@
+const _ = require('lodash');
+const flatten = require('flat');
 const Report = require('../src/report');
 const context = require('aws-lambda-mock-context');
 const schema = require('iopipe-payload').PAYLOAD_SCHEMA;
@@ -17,22 +19,25 @@ describe('Report creation', () => {
     expect(typeof new Report()).toBe('object');
   });
 
-  it('creates a report that matches the schema', () => {
-    const r = new Report();
-    function iterateKeys(object) {
-      Object.keys(object).forEach(key => {
-        // custom metrics array
-        if (Array.isArray(schema[key])) {
-          expect(Array.isArray(r.report[key])).toBeTruthy();
-        } else if (typeof schema[key] == 'object') {
-          return iterateKeys(schema[key], true);
-        }
-        /* this needs to be examined */
-        return expect(typeof (key in r.report)).toEqual('boolean');
-      });
-    }
-
-    iterateKeys(schema);
+  it('creates a report that matches the schema', done => {
+    const r = new Report(null, null, null, [
+      { name: 'foo-metric', s: 'wow-string', n: 99 }
+    ]);
+    r.send(new Error('Holy smokes!'), () => {
+      const flatReport = _.chain(r.report).thru(flatten).keys().value();
+      const flatSchema = _.chain(schema).thru(flatten).keys().value();
+      const diff = _.difference(flatSchema, flatReport);
+      const allowedMissingFields = [
+        'memory.rssMiB',
+        'memory.totalMiB',
+        'memory.rssTotalPercentage',
+        'environment.python.version',
+        'errors.stackHash',
+        'errors.count'
+      ];
+      expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
+      done();
+    });
   });
 
   it('keeps custom metrics references', () => {

@@ -39,9 +39,11 @@
     "eslint": "^3.12.2",
     "eslint-plugin-jasmine": "^2.5.0",
     "eslint-plugin-prettier": "^2.1.2",
+    "flat": "^2.0.1",
     "iopipe-payload": "^1.4.0",
     "istanbul": "^0.4.4",
     "jasmine": "^2.4.1",
+    "lodash": "^4.17.4",
     "pre-commit": "^1.2.2",
     "prettier": "^1.4.4",
     "webpack": "2.6.1"
