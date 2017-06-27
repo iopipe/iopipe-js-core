@@ -1,4 +1,4 @@
-var uuid = require('./uuidv4')
+const uuid = require('./uuidv4');
 
 function readstat() {
   return Promise.resolve({
@@ -7,24 +7,24 @@ function readstat() {
     cutime: 0,
     cstime: 0,
     rss: 0
-  })
+  });
 }
 
 function readstatus() {
-  var mem = process.memoryUsage()
+  const mem = process.memoryUsage();
   return Promise.resolve({
     FDSize: 0,
     Threads: 1,
-    VmRSS: mem.rss / 1024,
-  })
+    VmRSS: mem.rss / 1024
+  });
 }
 
 function readbootid() {
-  return Promise.resolve(uuid())
+  return Promise.resolve(uuid());
 }
 
 module.exports = {
   readstat,
   readstatus,
   readbootid
-}
+};

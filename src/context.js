@@ -1,64 +1,69 @@
-'use strict'
+'use strict';
 
 function clone(oldObject) {
   // Basis.
+  var clonedObject;
+  var Constructor = oldObject.constructor;
   if (!(oldObject instanceof Object)) {
-    return oldObject
+    return oldObject;
   }
 
-  var clonedObject
-
   // Filter out special objects.
-  var Constructor = oldObject.constructor
   switch (Constructor) {
     // Implement other special objects here.
-  case Promise:
-    clonedObject = oldObject.then()
-    break
-  case Date:
-    clonedObject = new Constructor(oldObject.getTime())
-    break
-  default:
-    clonedObject = new Constructor()
+    case Promise:
+      clonedObject = oldObject.then();
+      break;
+    case Date:
+      clonedObject = new Constructor(oldObject.getTime());
+      break;
+    default:
+      clonedObject = new Constructor();
   }
 
   // Clone each property.
+  /*eslint-disable guard-for-in*/
+  /*eslint-disable vars-on-top*/
   for (var prop in oldObject) {
-    clonedObject[prop] = clone(oldObject[prop])
+    clonedObject[prop] = clone(oldObject[prop]);
   }
+  /*eslint-enable vars-on-top*/
+  /*eslint-enable guard-for-in*/
 
-  return clonedObject
+  return clonedObject;
 }
 
 function Context(generateLog, oldContext) {
-  let context = clone(oldContext)
-  context.succeed = function(data) {
+  var context = clone(oldContext);
+  context.succeed = data => {
     generateLog(null, () => {
-      oldContext.succeed(data)
-    })
-  }
+      oldContext.succeed(data);
+    });
+  };
 
-  context.fail = function(err) {
+  context.fail = err => {
     generateLog(err, () => {
-      oldContext.fail(err)
-    })
-  }
+      oldContext.fail(err);
+    });
+  };
 
-  context.done = function(err, data) {
+  context.done = (err, data) => {
     generateLog(err, () => {
-      oldContext.done(err, data)
-    })
-  }
+      oldContext.done(err, data);
+    });
+  };
 
-  context.getRemainingTimeInMillis = oldContext.getRemainingTimeInMillis
+  context.getRemainingTimeInMillis = oldContext.getRemainingTimeInMillis;
 
   /* Map getters/setters */
-  context.__defineGetter__('callbackWaitsForEmptyEventLoop',
-                           () => { return oldContext.callbackWaitsForEmptyEventLoop })
-  context.__defineSetter__('callbackWaitsForEmptyEventLoop',
-                           (value) => { oldContext.callbackWaitsForEmptyEventLoop = value })
+  context.__defineGetter__('callbackWaitsForEmptyEventLoop', () => {
+    return oldContext.callbackWaitsForEmptyEventLoop;
+  });
+  context.__defineSetter__('callbackWaitsForEmptyEventLoop', value => {
+    oldContext.callbackWaitsForEmptyEventLoop = value;
+  });
 
-  return context
+  return context;
 }
 
-module.exports = Context
+module.exports = Context;
