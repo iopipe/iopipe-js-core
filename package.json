@@ -44,6 +44,7 @@
     "coveralls": "^2.11.12",
     "eslint": "^3.12.2",
     "eslint-plugin-jasmine": "^2.5.0",
+    "eslint-plugin-jest": "^20.0.3",
     "eslint-plugin-prettier": "^2.1.2",
     "flat": "^2.0.1",
     "iopipe-payload": "^1.4.0",
