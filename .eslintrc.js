@@ -1,33 +1,14 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:jasmine/recommended'],
-  plugins: ['prettier', 'jasmine'],
+  extends: ['eslint:recommended'],
+  plugins: ['prettier', 'jest'],
   env: {
-    browser: true,
     node: true,
     es6: true,
-    jasmine: true
+    jasmine: true,
+    'jest/globals': true
   },
   parserOptions: {
-    sourceType: 'module',
-    ecmaFeatures: {
-      arrowFunctions: true,
-      blockBindings: true,
-      classes: true,
-      defaultParams: true,
-      destructuring: true,
-      forOf: true,
-      generators: false,
-      modules: true,
-      objectLiteralComputedProperties: true,
-      objectLiteralDuplicateProperties: false,
-      objectLiteralShorthandMethods: true,
-      objectLiteralShorthandProperties: true,
-      restParams: true,
-      spread: true,
-      superInFunctions: true,
-      templateStrings: true,
-      jsx: true
-    }
+    sourceType: 'module'
   },
   rules: {
     /**
