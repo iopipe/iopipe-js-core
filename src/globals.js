@@ -1,12 +1,12 @@
-const pkg = require('../package.json');
-const uuid = require('./uuidv4');
-const https = require('https');
+import uuid from './uuidv4';
+import https from 'https';
 
+// Default on module load; changed to false on first handler invocation.
+var COLDSTART = true;
+const pkg = require('../package.json');
 const VERSION = pkg.version;
 const MODULE_LOAD_TIME = Date.now();
 const PROCESS_ID = uuid();
-// Default on module load; changed to false on first handler invocation.
-var COLDSTART = true;
 
 const httpsAgent = new https.Agent({
   maxCachedSessions: 1,

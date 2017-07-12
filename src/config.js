@@ -1,6 +1,5 @@
-const collector = require('./collector.js');
-const getHostname = collector.getHostname;
-const getCollectorPath = collector.getCollectorPath;
+import collector from './collector';
+const { getHostname, getCollectorPath } = collector;
 
 module.exports = function setConfig(configObject) {
   const defaults = {

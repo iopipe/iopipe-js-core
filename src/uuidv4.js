@@ -1,5 +1,5 @@
 /* https://gist.github.com/jed/982883 */
-const crypto = require('crypto');
+import crypto from 'crypto';
 module.exports = a =>
   a
     ? (a ^ ((crypto.randomBytes(1)[0] % 16) >> (a / 4))).toString(16)

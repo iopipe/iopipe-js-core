@@ -1,12 +1,14 @@
-const IOpipe = require('../dist/iopipe.js');
-const mockContext = require('aws-lambda-mock-context');
+import IOpipe from '../dist/iopipe.js';
+import mockContext from 'aws-lambda-mock-context';
 // default region for testing
 process.env.AWS_REGION = 'us-east-1';
 
-function runWrappedFunction(contextArg, eventArg, iopipeArg, functionArg) {
-  const ctx = contextArg || mockContext();
-  const iopipe = iopipeArg || IOpipe({ token: 'testSuite' });
-  const event = eventArg || {};
+function runWrappedFunction(
+  ctx = mockContext(),
+  event = {},
+  iopipe = IOpipe({ token: 'testSuite' }),
+  functionArg
+) {
   const defaultFn = (fnEvent, context) => {
     context.succeed('Success');
   };
@@ -14,10 +16,10 @@ function runWrappedFunction(contextArg, eventArg, iopipeArg, functionArg) {
   return new Promise(resolve => {
     function fnResolver(error, response) {
       return resolve({
-        ctx: ctx,
-        response: response,
-        iopipe: iopipe,
-        error: error
+        ctx,
+        response,
+        iopipe,
+        error
       });
     }
     fnToRun(event, ctx, fnResolver);
@@ -25,12 +27,11 @@ function runWrappedFunction(contextArg, eventArg, iopipeArg, functionArg) {
   });
 }
 
-function sendToRegionTest(regionArg, done) {
-  const region = regionArg || 'us-east-1';
+function sendToRegionTest(region = 'us-east-1', done) {
   process.env.AWS_REGION = region;
   runWrappedFunction(
     mockContext({ region: region }),
-    null,
+    undefined,
     IOpipe({ clientId: 'testSuite' })
   ).then(obj => {
     expect(obj.response).toEqual('Success');
@@ -57,7 +58,12 @@ describe('metrics agent', () => {
       ctx.succeed('Decorate');
     });
 
-    runWrappedFunction(null, null, null, wrappedFunction).then(obj => {
+    runWrappedFunction(
+      undefined,
+      undefined,
+      undefined,
+      wrappedFunction
+    ).then(obj => {
       expect(obj.response).toEqual('Decorate');
     });
   });
@@ -75,7 +81,7 @@ describe('smoke test', () => {
     const fn = (event, context) => {
       context.fail('Whoops!');
     };
-    runWrappedFunction(null, null, null, fn).then(obj => {
+    runWrappedFunction(undefined, undefined, undefined, fn).then(obj => {
       expect(obj.error instanceof Error).toEqual(true);
       expect(obj.error.message).toEqual('Whoops!');
       expect(obj.response).toBeUndefined();
@@ -88,7 +94,7 @@ describe('smoke test', () => {
       const fn = (event, ctx, cb) => {
         cb(null, 'Success!');
       };
-      runWrappedFunction(null, null, null, fn).then(obj => {
+      runWrappedFunction(undefined, undefined, undefined, fn).then(obj => {
         expect(obj.response).toEqual('Success!');
         done();
       });
@@ -96,34 +102,23 @@ describe('smoke test', () => {
   });
 
   describe('sends to specified regions', () => {
-    it('sends to ap-southeast-2', done => {
-      sendToRegionTest('ap-southeast-2', done);
-    });
-
-    it('sends to eu-west-1', done => {
-      sendToRegionTest('eu-west-1', done);
-    });
-
-    it('sends to us-east-1/our default URL', done => {
-      sendToRegionTest('us-east-1', done);
-    });
-
-    it('sends to us-east-2', done => {
-      sendToRegionTest('us-east-2', done);
-    });
-
-    it('sends to us-west-1', done => {
-      sendToRegionTest('us-west-1', done);
-    });
-
-    it('sends to us-west-2', done => {
-      sendToRegionTest('us-west-2', done);
+    [
+      'ap-southeast-2',
+      'eu-west-1',
+      'us-east-1',
+      'us-east-2',
+      'us-west-1',
+      'us-west-2'
+    ].forEach(region => {
+      it(`sends to ${region}`, done => {
+        sendToRegionTest(region, done);
+      });
     });
 
     it('sends to custom URLs (staging)', done => {
       runWrappedFunction(
-        null,
-        null,
+        undefined,
+        undefined,
         IOpipe({
           clientId: 'testSuite',
           url: 'https://metrics-api-staging.iopipe.com'

@@ -1,10 +1,11 @@
-const setConfig = require('../src/config.js');
+import setConfig from './config';
 
 describe('setting up config object', () => {
   beforeEach(() => {
     delete process.env.IOPIPE_TOKEN;
     delete process.env.IOPIPE_CLIENTID;
     delete process.env.IOPIPE_TIMEOUT_WINDOW;
+    delete process.env.AWS_REGION;
   });
 
   it('can accept 0 arguments and returns default config', () => {

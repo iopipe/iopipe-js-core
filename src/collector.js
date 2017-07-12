@@ -1,16 +1,16 @@
-const url = require('url');
-const path = require('path');
+import url from 'url';
+import { join } from 'path';
 
 function getCollectorPath(baseUrl) {
   if (!baseUrl) {
     return '/v0/event';
   }
   const eventURL = url.parse(baseUrl);
+  eventURL.pathname = join(eventURL.pathname, 'v0/event');
+  const { pathname, search } = eventURL;
 
-  eventURL.pathname = path.join(eventURL.pathname, 'v0/event');
-  eventURL.path = eventURL.search
-    ? eventURL.pathname + eventURL.search
-    : eventURL.pathname;
+  eventURL.pathname = join(pathname, 'v0/event');
+  eventURL.path = search ? pathname + search : pathname;
   return eventURL.path;
 }
 

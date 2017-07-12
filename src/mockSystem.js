@@ -1,4 +1,4 @@
-const uuid = require('./uuidv4');
+import uuid from './uuidv4';
 
 function readstat() {
   return Promise.resolve({

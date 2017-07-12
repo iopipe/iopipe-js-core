@@ -1,6 +1,5 @@
-const collector = require('../src/collector.js');
-const getHostname = collector.getHostname;
-const getCollectorPath = collector.getCollectorPath;
+import collector from './collector';
+const { getHostname, getCollectorPath } = collector;
 
 describe('configuring collector hostname', () => {
   beforeEach(() => {

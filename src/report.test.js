@@ -1,9 +1,9 @@
-const _ = require('lodash');
-const flatten = require('flat');
-const Report = require('../src/report');
-const context = require('aws-lambda-mock-context');
-const schema = require('iopipe-payload').PAYLOAD_SCHEMA;
-// arguments
+import _ from 'lodash';
+import flatten from 'flat';
+import Report from './report';
+import context from 'aws-lambda-mock-context';
+import { PAYLOAD_SCHEMA as schema } from 'iopipe-payload';
+
 const config = {
   clientId: 'foo'
 };
@@ -20,7 +20,7 @@ describe('Report creation', () => {
   });
 
   it('creates a report that matches the schema', done => {
-    const r = new Report(null, null, null, [
+    const r = new Report(undefined, undefined, undefined, [
       { name: 'foo-metric', s: 'wow-string', n: 99 }
     ]);
     r.send(new Error('Holy smokes!'), () => {
