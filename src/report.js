@@ -1,10 +1,12 @@
-const globals = require('./globals');
+import os from 'os';
+import https from 'https';
+
+import globals from './globals';
+
 const system = process.platform === 'linux'
   ? require('./system.js')
   : require('./mockSystem.js');
-const os = require('os');
-const https = require('https');
-const log = console.log;
+const { log } = console;
 
 function sendRequest(requestBody, config, ipAddress) {
   return new Promise((resolve, reject) => {
@@ -42,7 +44,13 @@ function sendRequest(requestBody, config, ipAddress) {
 }
 
 class Report {
-  constructor(config, context, startTime, metrics, dnsPromise) {
+  constructor(
+    config = {},
+    context = {},
+    startTime = process.hrtime(),
+    metrics,
+    dnsPromise = Promise.resolve()
+  ) {
     this.initalPromises = {
       statPromise: system.readstat('self'),
       bootIdPromise: system.readbootid()
@@ -51,25 +59,35 @@ class Report {
     // flag on report sending status, reports are sent once
     this.sent = false;
 
-    this.config = config || {};
-    this.context = context || {};
-    this.startTime = startTime || process.hrtime();
-    this.dnsPromise = dnsPromise || Promise.resolve();
+    this.config = config;
+    this.context = context;
+    this.startTime = startTime;
+    this.dnsPromise = dnsPromise;
 
     // Populate initial report skeleton on construction
+    const {
+      functionName,
+      functionVersion,
+      awsRequestId,
+      invokedFunctionArn,
+      logGroupName,
+      logStreamName,
+      memoryLimitInMB
+    } = this.context;
+
     this.report = {
       client_id: this.config.clientId || undefined,
       installMethod: this.config.installMethod,
       duration: undefined,
       processId: globals.PROCESS_ID,
       aws: {
-        functionName: this.context.functionName,
-        functionVersion: this.context.functionVersion,
-        awsRequestId: this.context.awsRequestId,
-        invokedFunctionArn: this.context.invokedFunctionArn,
-        logGroupName: this.context.logGroupName,
-        logStreamName: this.context.logStreamName,
-        memoryLimitInMB: this.context.memoryLimitInMB,
+        functionName,
+        functionVersion,
+        awsRequestId,
+        invokedFunctionArn,
+        logGroupName,
+        logStreamName,
+        memoryLimitInMB,
         getRemainingTimeInMillis: undefined,
         traceId: process.env._X_AMZN_TRACE_ID
       },
@@ -110,13 +128,22 @@ class Report {
     // Add error to report if necessary
     if (err) {
       const reportError = typeof err === 'string' ? new Error(err) : err;
+      const {
+        name,
+        message,
+        stack,
+        lineNumber,
+        columnNumber,
+        fileName
+      } = reportError;
+
       this.report.errors = {
-        name: reportError.name,
-        message: reportError.message,
-        stack: reportError.stack,
-        lineNumber: reportError.lineNumber,
-        columnNumber: reportError.columnNumber,
-        fileName: reportError.fileName
+        name,
+        message,
+        stack,
+        lineNumber,
+        columnNumber,
+        fileName
       };
     }
 

@@ -1,10 +1,9 @@
-'use strict';
-const dns = require('dns');
-const setConfig = require('./src/config.js');
-const Context = require('./src/context.js');
-const Callback = require('./src/callback.js');
-const Report = require('./src/report.js');
-const globals = require('./src/globals');
+import dns from 'dns';
+import setConfig from './config';
+import Context from './context';
+import Callback from './callback';
+import Report from './report';
+import globals from './globals';
 
 function makeDnsPromise(host) {
   return new Promise((resolve, reject) => {
@@ -17,13 +16,13 @@ function makeDnsPromise(host) {
   });
 }
 
-function setupTimeoutCapture(config, report, context) {
+function setupTimeoutCapture(config, report, context = {}) {
   var endTime = 599900; /* Maximum execution: 100ms short of 5 minutes */
   if (config.timeoutWindow < 1) {
     return undefined;
   }
 
-  if (config.timeoutWindow > 0 && context && context.getRemainingTimeInMillis) {
+  if (config.timeoutWindow > 0 && context.getRemainingTimeInMillis) {
     endTime = Math.max(
       0,
       context.getRemainingTimeInMillis() - config.timeoutWindow
@@ -106,7 +105,7 @@ module.exports = options => {
       }
     }
     fn.metricsQueue.push({
-      name: name,
+      name,
       n: numberValue,
       s: stringValue
     });

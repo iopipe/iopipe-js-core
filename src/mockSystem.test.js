@@ -1,4 +1,5 @@
-let system = require('../src/mockSystem.js');
+import _ from 'lodash';
+import system from './mockSystem';
 
 describe('mock system functions', () => {
   it('promisifies system data', () => {
@@ -11,12 +12,13 @@ describe('mock system functions', () => {
   });
 
   it('gives simple 0s for readstat', done => {
+    expect.assertions(5);
     system.readstat().then(data => {
-      expect(data.utime).toBe(0);
-      expect(data.stime).toBe(0);
-      expect(data.cutime).toBe(0);
-      expect(data.cstime).toBe(0);
-      expect(data.rss).toBe(0);
+      _.chain(data)
+        .pick(['utime', 'stime', 'cutime', 'cstime', 'rss'])
+        .values()
+        .forEach(n => expect(n).toBe(0))
+        .value();
       done();
     });
   });

@@ -1,12 +1,23 @@
-const path = require("path")
+const path = require('path');
 
 module.exports = {
-  target: "node",
-  entry: "./index.js",
+  target: 'node',
+  entry: './src/index',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: "./iopipe.js",
+    filename: './iopipe.js',
     libraryTarget: 'commonjs2',
-    library: "iopipe"
+    library: 'iopipe'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: 'babel-loader'
+        }
+      }
+    ]
   }
-}
+};

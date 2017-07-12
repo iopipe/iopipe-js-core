@@ -1,5 +1,3 @@
-'use strict';
-
 function clone(oldObject) {
   // Basis.
   var clonedObject;

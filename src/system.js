@@ -1,8 +1,8 @@
-const fs = require('fs');
+import { readFile } from 'fs';
 
 function readstat(pid) {
   return new Promise((resolve, reject) => {
-    fs.readFile(`/proc/${pid}/stat`, function handleRead(err, statFile) {
+    readFile(`/proc/${pid}/stat`, function handleRead(err, statFile) {
       const preProcSelfStatFields = (statFile || '').toString().split(' ');
       if (err) return reject(err);
       return resolve({
@@ -18,7 +18,7 @@ function readstat(pid) {
 
 function readstatus(pid) {
   return new Promise((resolve, reject) => {
-    fs.readFile(`/proc/${pid}/status`, function handleRead(err, data) {
+    readFile(`/proc/${pid}/status`, function handleRead(err, data) {
       const procSelfStatusFields = {};
       if (err) return reject(err);
       // Parse status file and apply to the procSelfStatusFields dict.
@@ -29,8 +29,7 @@ function readstatus(pid) {
           return line ? line.split('\t') : [null, null];
         })
         .forEach(field => {
-          const key = field[0];
-          const value = field[1];
+          const [key, value] = field;
           if (key && value) {
             const trimmedKey = key.replace(':', '');
             const cleanValue = Number(value.replace(/\D/g, ''));
@@ -48,10 +47,7 @@ function readstatus(pid) {
 
 function readbootid() {
   return new Promise((resolve, reject) => {
-    fs.readFile('/proc/sys/kernel/random/boot_id', function handleRead(
-      err,
-      data
-    ) {
+    readFile('/proc/sys/kernel/random/boot_id', function handleRead(err, data) {
       return err ? reject(err) : resolve(data.toString());
     });
   });
