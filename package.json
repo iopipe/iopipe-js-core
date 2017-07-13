@@ -50,12 +50,10 @@
     "jest": "^20.0.4",
     "lodash": "^4.17.4",
     "pre-commit": "^1.2.2",
-    "prettier": "^1.4.4",
+    "prettier": "^1.5.2",
     "webpack": "^3.2.0"
   },
-  "dependencies": {
-    "clone": "^2.1.1"
-  },
+  "dependencies": {},
   "pre-commit": [
     "test"
   ],

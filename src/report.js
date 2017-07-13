@@ -3,9 +3,10 @@ import https from 'https';
 
 import globals from './globals';
 
-const system = process.platform === 'linux'
-  ? require('./system.js')
-  : require('./mockSystem.js');
+const system =
+  process.platform === 'linux'
+    ? require('./system.js')
+    : require('./mockSystem.js');
 const { log } = console;
 
 function sendRequest(requestBody, config, ipAddress) {
@@ -205,7 +206,7 @@ class Report {
                 log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
               }
               self.sent = true;
-              callback();
+              callback(err);
             })
             .catch(function handleErr(collectorErr) {
               // Log errors, don't block on failed requests
@@ -213,7 +214,7 @@ class Report {
                 log('Write to IOpipe failed');
                 log(collectorErr);
               }
-              callback();
+              callback(err);
             });
         })
         .catch(dnsErr => {
@@ -222,7 +223,7 @@ class Report {
             log('Write to IOpipe failed. DNS resolution error.');
             log(dnsErr);
           }
-          callback();
+          callback(err);
         });
     });
   }

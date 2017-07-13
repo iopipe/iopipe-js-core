@@ -2,7 +2,6 @@ import dns from 'dns';
 import setConfig from './config';
 import Report from './report';
 import globals from './globals';
-import clone from 'clone';
 
 let config = setConfig();
 let dnsPromise = undefined;
@@ -39,38 +38,48 @@ function setupTimeoutCapture(wrapperInstance) {
 
 class IOpipeWrapperClass {
   constructor(userFunc, originalEvent, originalContext, originalCallback) {
-    this.metrics = [];
-    this.originalContext = originalContext;
-    this.originalCallback = originalCallback;
-
     if (!globals.COLDSTART) {
       /* Get an updated DNS record. */
       dnsPromise = makeDnsPromise(config.host);
     }
 
-    this.startTime = process.hrtime();
+    this.metrics = [];
+    this.originalContext = originalContext;
+    this.originalCallback = originalCallback;
     this.report = new Report(
       config,
-      originalContext,
-      this.startTime,
+      this.originalContext,
+      process.hrtime(),
       this.metrics,
       dnsPromise
     );
 
-    this.modifiedContext = Object.assign(clone(originalContext), {
-      // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClasss
+    // preserve original functions via a property name change
+    ['succeed', 'fail', 'done'].forEach(method => {
+      Object.defineProperty(
+        this.originalContext,
+        `original_${method}`,
+        Object.getOwnPropertyDescriptor(this.originalContext, method)
+      );
+    });
+
+    // assign modified methods and objects here
+    this.modifiedContext = Object.assign(this.originalContext, {
+      // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClass
       succeed: this.succeed.bind(this),
       fail: this.fail.bind(this),
       done: this.done.bind(this),
       iopipe: {
         log: this.log.bind(this),
-        metrics: this.metrics
+        metrics: this.metrics,
+        version: globals.VERSION
       }
     });
 
     this.modifiedCallback = (err, data) => {
       this.sendReport(err, () => {
-        typeof originalCallback === 'function' && originalCallback(err, data);
+        typeof this.originalCallback === 'function' &&
+          this.originalCallback(err, data);
       });
     };
 
@@ -95,30 +104,24 @@ class IOpipeWrapperClass {
   }
   succeed(data) {
     this.sendReport(null, () => {
-      this.originalContext.succeed(data);
+      this.originalContext.original_succeed(data);
     });
   }
   fail(err) {
-    this.sendReport(err, () => {
-      this.originalContext.fail(err);
-    });
+    this.sendReport(err, this.originalContext.original_fail);
   }
   done(err, data) {
     this.sendReport(err, () => {
-      this.originalContext.done(err, data);
+      this.originalContext.original_done(err, data);
     });
   }
-  log(name, value) {
+  log(name, value = 1) {
     var numberValue = undefined;
     var stringValue = undefined;
     if (typeof value === 'number') {
       numberValue = value;
     } else {
-      if (typeof value === 'object') {
-        JSON.stringify(value);
-      } else {
-        stringValue = String(value);
-      }
+      stringValue = typeof value === 'string' ? value : JSON.stringify(value);
     }
     this.metrics.push({
       name,
@@ -150,7 +153,5 @@ module.exports = options => {
 
   // Alias decorate to the wrapper function
   fn.decorate = fn;
-
-  fn.VERSION = globals.VERSION;
   return fn;
 };

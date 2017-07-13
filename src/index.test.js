@@ -71,19 +71,27 @@ describe('metrics agent', () => {
   });
 
   it('has a proper context object', done => {
-    expect.assertions(3);
+    // expect.assertions(3);
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       // use json, otherwise it seems circular refs are doing bad things
+      ctx.callbackWaitsForEmptyEventLoop = true;
       ctx.succeed(JSON.stringify(ctx));
     });
 
-    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
+    const testContext = mockContext();
+    expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
+    testContext.callbackWaitsForEmptyEventLoop = false;
+    expect(testContext.callbackWaitsForEmptyEventLoop).toBe(false);
+
+    runWrappedFunction(testContext, undefined, undefined, wrappedFunction)
       .then(obj => {
         const ctx = JSON.parse(obj.response);
         expect(_.isObject(ctx)).toBeTruthy();
         expect(_.isArray(ctx.iopipe.metrics)).toBeTruthy();
         expect(ctx.memoryLimitInMB).toBe('128');
+        expect(ctx.callbackWaitsForEmptyEventLoop).toBe(true);
+        expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
         done();
       })
       .catch(err => {
@@ -93,23 +101,81 @@ describe('metrics agent', () => {
   });
 
   it('allows .log functionality', done => {
-    expect.assertions(6);
+    // expect.assertions(6);
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.iopipe.log('metric-1', 'foo');
-      ctx.iopipe.log('metric-2', 'bar');
+      ctx.iopipe.log('metric-2', true);
+      ctx.iopipe.log('metric-3', { ding: 'dong' });
+      ctx.iopipe.log('metric-4', ['whoa']);
+      ctx.iopipe.log('metric-5', 100);
+      ctx.iopipe.log('metric-6');
       ctx.succeed(ctx.iopipe.metrics);
     });
 
     runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
       .then(obj => {
         expect(_.isArray(obj.response)).toEqual(true);
-        expect(obj.response.length).toEqual(2);
-        const metric = obj.response[0];
-        expect(metric).toBeInstanceOf(Object);
-        expect(metric.name).toEqual('metric-1');
-        expect(metric.n).toEqual(undefined);
-        expect(metric.s).toEqual('foo');
+        expect(obj.response.length).toEqual(6);
+        const [m1, m2, m3, m4, m5, m6] = obj.response;
+        expect(m1).toBeInstanceOf(Object);
+        expect(m1.name).toEqual('metric-1');
+        expect(m1.n).toEqual(undefined);
+        expect(m1.s).toEqual('foo');
+        expect(m2.s).toEqual('true');
+        expect(m3.s).toEqual('{"ding":"dong"}');
+        expect(m4.s).toEqual('["whoa"]');
+        expect(m5.n).toEqual(100);
+        expect(m6.n).toEqual(1);
+        done();
+      })
+      .catch(err => {
+        console.error(err);
+        throw err;
+      });
+  });
+
+  it('does not have metric (.log) collisions', done => {
+    expect.assertions(9);
+    let function1IsComplete = false;
+    let function2IsComplete = false;
+
+    const iopipe = IOpipe({ token: 'testSuite' });
+    const wrappedFunction1 = iopipe.decorate((event, ctx) => {
+      // use json, otherwise it seems circular refs are doing bad things
+      ctx.iopipe.log('func-1', true);
+      setTimeout(() => {
+        function1IsComplete = true;
+        ctx.succeed(ctx.iopipe.metrics);
+      }, 5);
+    });
+
+    const wrappedFunction2 = iopipe.decorate((event, ctx) => {
+      // use json, otherwise it seems circular refs are doing bad things
+      ctx.iopipe.log('func-2', true);
+      setTimeout(() => {
+        function2IsComplete = true;
+        ctx.succeed(ctx.iopipe.metrics);
+      }, 10);
+    });
+
+    expect(function1IsComplete).toBe(false);
+    expect(function2IsComplete).toBe(false);
+
+    Promise.all(
+      [wrappedFunction1, wrappedFunction2].map(fn =>
+        runWrappedFunction(undefined, undefined, undefined, fn)
+      )
+    )
+      .then(values => {
+        const [fn1, fn2] = values;
+        expect(function1IsComplete && function2IsComplete).toBe(true);
+        expect(_.isArray(fn1.response)).toBe(true);
+        expect(_.isArray(fn2.response)).toBe(true);
+        expect(fn1.response.length).toBe(1);
+        expect(fn2.response.length).toBe(1);
+        expect(fn1.response[0].name).toEqual('func-1');
+        expect(fn2.response[0].name).toEqual('func-2');
         done();
       })
       .catch(err => {
