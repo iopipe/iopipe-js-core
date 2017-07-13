@@ -14,11 +14,12 @@ describe('mock system functions', () => {
   it('gives simple 0s for readstat', done => {
     expect.assertions(5);
     system.readstat().then(data => {
-      _.chain(data)
-        .pick(['utime', 'stime', 'cutime', 'cstime', 'rss'])
-        .values()
-        .forEach(n => expect(n).toBe(0))
-        .value();
+      const { utime, stime, cutime, cstime, rss } = data;
+      expect(utime).toBe(0);
+      expect(stime).toBe(0);
+      expect(cutime).toBe(0);
+      expect(cstime).toBe(0);
+      expect(rss).toBe(0);
       done();
     });
   });
