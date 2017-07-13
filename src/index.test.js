@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import IOpipe from '../dist/iopipe.js';
 import mockContext from 'aws-lambda-mock-context';
 // default region for testing
@@ -52,20 +53,69 @@ describe('metrics agent', () => {
     });
   });
 
-  it('allows .decorate API', () => {
-    const iopipe = IOpipe({ token: 'testSuite' });
+  it('allows .decorate API', done => {
+    const iopipe = IOpipe({ token: 'testSuite', debug: true });
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
     });
 
-    runWrappedFunction(
-      undefined,
-      undefined,
-      undefined,
-      wrappedFunction
-    ).then(obj => {
-      expect(obj.response).toEqual('Decorate');
+    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
+      .then(obj => {
+        expect(obj.response).toEqual('Decorate');
+        done();
+      })
+      .catch(err => {
+        console.error(err);
+        throw err;
+      });
+  });
+
+  it('has a proper context object', done => {
+    expect.assertions(3);
+    const iopipe = IOpipe({ token: 'testSuite' });
+    const wrappedFunction = iopipe.decorate((event, ctx) => {
+      // use json, otherwise it seems circular refs are doing bad things
+      ctx.succeed(JSON.stringify(ctx));
     });
+
+    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
+      .then(obj => {
+        const ctx = JSON.parse(obj.response);
+        expect(_.isObject(ctx)).toBeTruthy();
+        expect(_.isArray(ctx.iopipe.metrics)).toBeTruthy();
+        expect(ctx.memoryLimitInMB).toBe('128');
+        done();
+      })
+      .catch(err => {
+        console.error(err);
+        throw err;
+      });
+  });
+
+  it('allows .log functionality', done => {
+    expect.assertions(6);
+    const iopipe = IOpipe({ token: 'testSuite' });
+    const wrappedFunction = iopipe.decorate((event, ctx) => {
+      ctx.iopipe.log('metric-1', 'foo');
+      ctx.iopipe.log('metric-2', 'bar');
+      ctx.succeed(ctx.iopipe.metrics);
+    });
+
+    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
+      .then(obj => {
+        expect(_.isArray(obj.response)).toEqual(true);
+        expect(obj.response.length).toEqual(2);
+        const metric = obj.response[0];
+        expect(metric).toBeInstanceOf(Object);
+        expect(metric.name).toEqual('metric-1');
+        expect(metric.n).toEqual(undefined);
+        expect(metric.s).toEqual('foo');
+        done();
+      })
+      .catch(err => {
+        console.error(err);
+        throw err;
+      });
   });
 });
 
