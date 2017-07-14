@@ -71,7 +71,7 @@ describe('metrics agent', () => {
   });
 
   it('has a proper context object', done => {
-    // expect.assertions(3);
+    expect.assertions(7);
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       // use json, otherwise it seems circular refs are doing bad things
@@ -101,7 +101,7 @@ describe('metrics agent', () => {
   });
 
   it('allows .log functionality', done => {
-    // expect.assertions(6);
+    expect.assertions(11);
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.iopipe.log('metric-1', 'foo');
