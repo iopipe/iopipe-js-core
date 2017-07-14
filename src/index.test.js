@@ -142,7 +142,6 @@ describe('metrics agent', () => {
 
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction1 = iopipe.decorate((event, ctx) => {
-      // use json, otherwise it seems circular refs are doing bad things
       ctx.iopipe.log('func-1', true);
       setTimeout(() => {
         function1IsComplete = true;
@@ -151,7 +150,6 @@ describe('metrics agent', () => {
     });
 
     const wrappedFunction2 = iopipe.decorate((event, ctx) => {
-      // use json, otherwise it seems circular refs are doing bad things
       ctx.iopipe.log('func-2', true);
       setTimeout(() => {
         function2IsComplete = true;
