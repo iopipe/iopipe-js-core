@@ -13,7 +13,7 @@ function defaultCatch(err) {
 function runWrappedFunction(
   ctx = mockContext(),
   event = {},
-  iopipe = IOpipe({ token: 'testSuite!' }),
+  iopipe = IOpipe({ token: 'testSuite' }),
   functionArg
 ) {
   const defaultFn = (fnEvent, context) => {
@@ -60,7 +60,7 @@ describe('metrics agent', () => {
   });
 
   it('allows per-setup configuration', done => {
-    // expect.assertions(5);
+    expect.assertions(10);
     let f1Complete = false;
     let f2Complete = false;
 
