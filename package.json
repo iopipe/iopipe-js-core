@@ -46,6 +46,7 @@
     "eslint-plugin-prettier": "^2.1.2",
     "flat": "^2.0.1",
     "iopipe-payload": "^1.4.0",
+    "is-ip": "^2.0.0",
     "istanbul": "^0.4.4",
     "jest": "^20.0.4",
     "lodash": "^4.17.4",

@@ -1,13 +1,19 @@
 import _ from 'lodash';
 import IOpipe from '../dist/iopipe.js';
 import mockContext from 'aws-lambda-mock-context';
+import isIp from 'is-ip';
 // default region for testing
 process.env.AWS_REGION = 'us-east-1';
+
+function defaultCatch(err) {
+  console.error(err);
+  throw err;
+}
 
 function runWrappedFunction(
   ctx = mockContext(),
   event = {},
-  iopipe = IOpipe({ token: 'testSuite' }),
+  iopipe = IOpipe({ token: 'testSuite!' }),
   functionArg
 ) {
   const defaultFn = (fnEvent, context) => {
@@ -53,8 +59,62 @@ describe('metrics agent', () => {
     });
   });
 
+  it('allows per-setup configuration', done => {
+    // expect.assertions(5);
+    let f1Complete = false;
+    let f2Complete = false;
+
+    const iopipe = IOpipe({
+      token: 'number-1',
+      url: 'https://metrics-api.us-west-1.iopipe.com'
+    });
+    const wrappedFunction1 = iopipe(function foo(event, ctx) {
+      setTimeout(() => {
+        f1Complete = true;
+        ctx.succeed(ctx.iopipe);
+      }, 10);
+    });
+
+    const iopipe2 = IOpipe({
+      token: 'number-2',
+      url: 'https://metrics-api.us-west-2.iopipe.com'
+    });
+    const wrappedFunction2 = iopipe2(function foo(event, ctx) {
+      setTimeout(() => {
+        f2Complete = true;
+        ctx.succeed(ctx.iopipe);
+      }, 5);
+    });
+
+    expect(f1Complete).toBe(false);
+    expect(f2Complete).toBe(false);
+
+    Promise.all(
+      [wrappedFunction1, wrappedFunction2].map(fn =>
+        runWrappedFunction(undefined, undefined, undefined, fn)
+      )
+    )
+      .then(values => {
+        const [fn1, fn2] = values;
+        Promise.all([fn1.response.dnsPromise, fn2.response.dnsPromise])
+          .then(proms => {
+            const [dns1, dns2] = proms;
+            expect(f1Complete && f2Complete).toBe(true);
+            expect(fn1.response.config.clientId).toBe('number-1');
+            expect(fn2.response.config.clientId).toBe('number-2');
+            expect(_.every([_.isString(dns1), _.isString(dns2)])).toBe(true);
+            expect(isIp(dns1)).toBe(true);
+            expect(isIp(dns2)).toBe(true);
+            expect(dns1).not.toEqual(dns2);
+            done();
+          })
+          .catch(defaultCatch);
+      })
+      .catch(defaultCatch);
+  });
+
   it('allows .decorate API', done => {
-    const iopipe = IOpipe({ token: 'testSuite', debug: true });
+    const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
     });
@@ -64,10 +124,7 @@ describe('metrics agent', () => {
         expect(obj.response).toEqual('Decorate');
         done();
       })
-      .catch(err => {
-        console.error(err);
-        throw err;
-      });
+      .catch(defaultCatch);
   });
 
   it('has a proper context object', done => {
@@ -94,10 +151,7 @@ describe('metrics agent', () => {
         expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
         done();
       })
-      .catch(err => {
-        console.error(err);
-        throw err;
-      });
+      .catch(defaultCatch);
   });
 
   it('allows .log functionality', done => {
@@ -129,22 +183,19 @@ describe('metrics agent', () => {
         expect(m6.n).toEqual(1);
         done();
       })
-      .catch(err => {
-        console.error(err);
-        throw err;
-      });
+      .catch(defaultCatch);
   });
 
   it('does not have metric (.log) collisions', done => {
     expect.assertions(9);
-    let function1IsComplete = false;
-    let function2IsComplete = false;
+    let f1Complete = false;
+    let f2Complete = false;
 
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction1 = iopipe.decorate((event, ctx) => {
       ctx.iopipe.log('func-1', true);
       setTimeout(() => {
-        function1IsComplete = true;
+        f1Complete = true;
         ctx.succeed(ctx.iopipe.metrics);
       }, 5);
     });
@@ -152,13 +203,13 @@ describe('metrics agent', () => {
     const wrappedFunction2 = iopipe.decorate((event, ctx) => {
       ctx.iopipe.log('func-2', true);
       setTimeout(() => {
-        function2IsComplete = true;
+        f2Complete = true;
         ctx.succeed(ctx.iopipe.metrics);
       }, 10);
     });
 
-    expect(function1IsComplete).toBe(false);
-    expect(function2IsComplete).toBe(false);
+    expect(f1Complete).toBe(false);
+    expect(f2Complete).toBe(false);
 
     Promise.all(
       [wrappedFunction1, wrappedFunction2].map(fn =>
@@ -167,7 +218,7 @@ describe('metrics agent', () => {
     )
       .then(values => {
         const [fn1, fn2] = values;
-        expect(function1IsComplete && function2IsComplete).toBe(true);
+        expect(f1Complete && f2Complete).toBe(true);
         expect(_.isArray(fn1.response)).toBe(true);
         expect(_.isArray(fn2.response)).toBe(true);
         expect(fn1.response.length).toBe(1);
@@ -176,10 +227,7 @@ describe('metrics agent', () => {
         expect(fn2.response[0].name).toEqual('func-2');
         done();
       })
-      .catch(err => {
-        console.error(err);
-        throw err;
-      });
+      .catch(defaultCatch);
   });
 });
 

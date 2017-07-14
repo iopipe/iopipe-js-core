@@ -3,22 +3,25 @@ import setConfig from './config';
 import Report from './report';
 import globals from './globals';
 
-let config = setConfig();
-let dnsPromise = undefined;
+const dnsPromises = {};
 
-function makeDnsPromise(host) {
+function getDnsPromise(host) {
+  if (dnsPromises[host]) {
+    return Promise.resolve(dnsPromises[host]);
+  }
   return new Promise((resolve, reject) => {
     dns.lookup(host, (err, address) => {
       if (err) {
         reject(err);
       }
+      dnsPromises[host] = address;
       resolve(address);
     });
   });
 }
 
 function setupTimeoutCapture(wrapperInstance) {
-  const { modifiedContext, sendReport } = wrapperInstance;
+  const { modifiedContext, sendReport, config } = wrapperInstance;
   var endTime = 599900; /* Maximum execution: 100ms short of 5 minutes */
   if (config.timeoutWindow < 1) {
     return undefined;
@@ -37,13 +40,16 @@ function setupTimeoutCapture(wrapperInstance) {
 }
 
 class IOpipeWrapperClass {
-  constructor(userFunc, originalEvent, originalContext, originalCallback) {
-    if (!globals.COLDSTART) {
-      /* Get an updated DNS record. */
-      dnsPromise = makeDnsPromise(config.host);
-    }
-
+  constructor(
+    config,
+    userFunc,
+    originalEvent,
+    originalContext,
+    originalCallback
+  ) {
+    this.config = config;
     this.metrics = [];
+    this.dnsPromise = getDnsPromise(this.config.host);
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
     this.report = new Report(
@@ -51,7 +57,7 @@ class IOpipeWrapperClass {
       this.originalContext,
       process.hrtime(),
       this.metrics,
-      dnsPromise
+      this.dnsPromise
     );
 
     // preserve original functions via a property name change
@@ -72,7 +78,9 @@ class IOpipeWrapperClass {
       iopipe: {
         log: this.log.bind(this),
         metrics: this.metrics,
-        version: globals.VERSION
+        version: globals.VERSION,
+        config: this.config,
+        dnsPromise: this.dnsPromise
       }
     });
 
@@ -132,17 +140,16 @@ class IOpipeWrapperClass {
 }
 
 module.exports = options => {
-  config = setConfig(options);
+  const config = setConfig(options);
   const fn = userFunc => {
     if (!config.clientId) {
       // No-op if user doesn't set an IOpipe token.
       return userFunc;
     }
 
-    /* resolve DNS early on coldstarts */
-    dnsPromise = makeDnsPromise(config.host);
     return (originalEvent, originalContext, originalCallback) => {
       return new IOpipeWrapperClass(
+        config,
         userFunc,
         originalEvent,
         originalContext,
