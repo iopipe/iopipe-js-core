@@ -3,13 +3,8 @@ import setConfig from './config';
 import Report from './report';
 import globals from './globals';
 
-const dnsPromises = {};
-
 function getDnsPromise(host) {
-  if (dnsPromises[host]) {
-    return dnsPromises[host];
-  }
-  const prom = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     dns.lookup(host, (err, address) => {
       if (err) {
         reject(err);
@@ -17,8 +12,6 @@ function getDnsPromise(host) {
       resolve(address);
     });
   });
-  dnsPromises[host] = prom;
-  return prom;
 }
 
 function setupTimeoutCapture(wrapperInstance) {
