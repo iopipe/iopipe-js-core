@@ -7,17 +7,18 @@ const dnsPromises = {};
 
 function getDnsPromise(host) {
   if (dnsPromises[host]) {
-    return Promise.resolve(dnsPromises[host]);
+    return dnsPromises[host];
   }
-  return new Promise((resolve, reject) => {
+  const prom = new Promise((resolve, reject) => {
     dns.lookup(host, (err, address) => {
       if (err) {
         reject(err);
       }
-      dnsPromises[host] = address;
       resolve(address);
     });
   });
+  dnsPromises[host] = prom;
+  return prom;
 }
 
 function setupTimeoutCapture(wrapperInstance) {
@@ -49,7 +50,9 @@ class IOpipeWrapperClass {
   ) {
     this.config = config;
     this.metrics = [];
-    this.dnsPromise = getDnsPromise(this.config.host);
+    if (!globals.COLDSTART) {
+      this.config.dnsPromise = getDnsPromise(this.config.host);
+    }
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
     this.report = new Report(
@@ -57,7 +60,7 @@ class IOpipeWrapperClass {
       this.originalContext,
       process.hrtime(),
       this.metrics,
-      this.dnsPromise
+      this.config.dnsPromise
     );
 
     // preserve original functions via a property name change
@@ -79,8 +82,7 @@ class IOpipeWrapperClass {
         log: this.log.bind(this),
         metrics: this.metrics,
         version: globals.VERSION,
-        config: this.config,
-        dnsPromise: this.dnsPromise
+        config: this.config
       }
     });
 
@@ -146,6 +148,8 @@ module.exports = options => {
       // No-op if user doesn't set an IOpipe token.
       return userFunc;
     }
+
+    config.dnsPromise = getDnsPromise(options.host);
 
     return (originalEvent, originalContext, originalCallback) => {
       return new IOpipeWrapperClass(

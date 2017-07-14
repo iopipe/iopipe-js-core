@@ -71,7 +71,7 @@ describe('metrics agent', () => {
     const wrappedFunction1 = iopipe(function foo(event, ctx) {
       setTimeout(() => {
         f1Complete = true;
-        ctx.succeed(ctx.iopipe);
+        ctx.succeed(ctx.iopipe.config);
       }, 10);
     });
 
@@ -82,7 +82,7 @@ describe('metrics agent', () => {
     const wrappedFunction2 = iopipe2(function foo(event, ctx) {
       setTimeout(() => {
         f2Complete = true;
-        ctx.succeed(ctx.iopipe);
+        ctx.succeed(ctx.iopipe.config);
       }, 5);
     });
 
@@ -100,8 +100,8 @@ describe('metrics agent', () => {
           .then(proms => {
             const [dns1, dns2] = proms;
             expect(f1Complete && f2Complete).toBe(true);
-            expect(fn1.response.config.clientId).toBe('number-1');
-            expect(fn2.response.config.clientId).toBe('number-2');
+            expect(fn1.response.clientId).toBe('number-1');
+            expect(fn2.response.clientId).toBe('number-2');
             expect(_.every([_.isString(dns1), _.isString(dns2)])).toBe(true);
             expect(isIp(dns1)).toBe(true);
             expect(isIp(dns2)).toBe(true);
