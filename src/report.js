@@ -45,13 +45,7 @@ function sendRequest(requestBody, config, ipAddress) {
 }
 
 class Report {
-  constructor(
-    config = {},
-    context = {},
-    startTime = process.hrtime(),
-    metrics,
-    dnsPromise = Promise.resolve()
-  ) {
+  constructor(wrapperInstance = {}) {
     this.initalPromises = {
       statPromise: system.readstat('self'),
       bootIdPromise: system.readbootid()
@@ -59,6 +53,14 @@ class Report {
 
     // flag on report sending status, reports are sent once
     this.sent = false;
+
+    const {
+      config = {},
+      context = {},
+      dnsPromise = Promise.resolve(),
+      metrics = [],
+      startTime = process.hrtime()
+    } = wrapperInstance;
 
     this.config = config;
     this.context = context;
@@ -109,7 +111,7 @@ class Report {
       },
       errors: {},
       coldstart: globals.COLDSTART,
-      custom_metrics: metrics || []
+      custom_metrics: metrics
     };
 
     // Set to false after coldstart

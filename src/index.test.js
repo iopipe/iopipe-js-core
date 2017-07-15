@@ -61,33 +61,34 @@ describe('metrics agent', () => {
 
   it('allows per-setup configuration', done => {
     expect.assertions(10);
-    let f1Complete = false;
-    let f2Complete = false;
 
-    const iopipe = IOpipe({
-      token: 'number-1',
-      url: 'https://metrics-api.us-west-1.iopipe.com'
-    });
-    const wrappedFunction1 = iopipe(function foo(event, ctx) {
-      setTimeout(() => {
-        f1Complete = true;
-        ctx.succeed(ctx.iopipe.config);
-      }, 10);
-    });
+    const completed = {
+      f1: false,
+      f2: false
+    };
 
-    const iopipe2 = IOpipe({
-      token: 'number-2',
-      url: 'https://metrics-api.us-west-2.iopipe.com'
-    });
-    const wrappedFunction2 = iopipe2(function foo(event, ctx) {
-      setTimeout(() => {
-        f2Complete = true;
-        ctx.succeed(ctx.iopipe.config);
-      }, 5);
-    });
+    function fnGenerator(token, region, timeout) {
+      const iopipe = IOpipe({
+        token,
+        url: `https://metrics-api.${region}.iopipe.com`
+      });
+      return iopipe(function Wrapper(event, ctx) {
+        const wrapperInstance = this;
+        setTimeout(() => {
+          completed[token] = true;
+          ctx.succeed({
+            config: ctx.iopipe.config,
+            dnsPromise: wrapperInstance.dnsPromise
+          });
+        }, timeout);
+      });
+    }
 
-    expect(f1Complete).toBe(false);
-    expect(f2Complete).toBe(false);
+    const wrappedFunction1 = fnGenerator('f1', 'us-west-1', 10);
+    const wrappedFunction2 = fnGenerator('f2', 'us-west-2', 5);
+
+    expect(completed.f1).toBe(false);
+    expect(completed.f2).toBe(false);
 
     Promise.all(
       [wrappedFunction1, wrappedFunction2].map(fn =>
@@ -99,9 +100,9 @@ describe('metrics agent', () => {
         Promise.all([fn1.response.dnsPromise, fn2.response.dnsPromise])
           .then(proms => {
             const [dns1, dns2] = proms;
-            expect(f1Complete && f2Complete).toBe(true);
-            expect(fn1.response.clientId).toBe('number-1');
-            expect(fn2.response.clientId).toBe('number-2');
+            expect(completed.f1 && completed.f2).toBe(true);
+            expect(fn1.response.config.clientId).toBe('f1');
+            expect(fn2.response.config.clientId).toBe('f2');
             expect(_.every([_.isString(dns1), _.isString(dns2)])).toBe(true);
             expect(isIp(dns1)).toBe(true);
             expect(isIp(dns2)).toBe(true);

@@ -10,9 +10,12 @@ const config = {
 
 describe('Report creation', () => {
   it('creates a new report object', () => {
-    expect(typeof new Report(config, context(), process.hrtime(), [])).toBe(
-      'object'
-    );
+    expect(
+      typeof new Report({
+        config,
+        context: context()
+      })
+    ).toBe('object');
   });
 
   it('can take no arguments', () => {
@@ -20,9 +23,9 @@ describe('Report creation', () => {
   });
 
   it('creates a report that matches the schema', done => {
-    const r = new Report(undefined, undefined, undefined, [
-      { name: 'foo-metric', s: 'wow-string', n: 99 }
-    ]);
+    const r = new Report({
+      metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
+    });
     r.send(new Error('Holy smokes!'), () => {
       const flatReport = _.chain(r.report).thru(flatten).keys().value();
       const flatSchema = _.chain(schema).thru(flatten).keys().value();
@@ -42,7 +45,7 @@ describe('Report creation', () => {
 
   it('keeps custom metrics references', () => {
     let myMetrics = [];
-    const r = new Report(config, context(), process.hrtime(), myMetrics);
+    const r = new Report({ config, context: context(), metrics: myMetrics });
     myMetrics.push({ n: 1, name: 'a_value' });
 
     expect(r.report.custom_metrics.length).toBe(1);

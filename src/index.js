@@ -35,26 +35,26 @@ function setupTimeoutCapture(wrapperInstance) {
 
 class IOpipeWrapperClass {
   constructor(
+    dnsPromise,
     config,
     userFunc,
     originalEvent,
     originalContext,
     originalCallback
   ) {
+    this.startTime = process.hrtime();
     this.config = config;
     this.metrics = [];
+
+    // assign a new dnsPromise if it's not a coldstart because dns could have changed
     if (!globals.COLDSTART) {
-      this.config.dnsPromise = getDnsPromise(this.config.host);
+      this.dnsPromise = getDnsPromise(this.config.host);
+    } else {
+      this.dnsPromise = dnsPromise;
     }
+
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
-    this.report = new Report(
-      config,
-      this.originalContext,
-      process.hrtime(),
-      this.metrics,
-      this.config.dnsPromise
-    );
 
     // preserve original functions via a property name change
     ['succeed', 'fail', 'done'].forEach(method => {
@@ -87,6 +87,8 @@ class IOpipeWrapperClass {
     };
 
     this.timeout = setupTimeoutCapture(this);
+
+    this.report = new Report(this);
 
     try {
       return userFunc.call(
@@ -142,10 +144,11 @@ module.exports = options => {
       return userFunc;
     }
 
-    config.dnsPromise = getDnsPromise(options.host);
+    const dnsPromise = getDnsPromise(options.host);
 
     return (originalEvent, originalContext, originalCallback) => {
       return new IOpipeWrapperClass(
+        dnsPromise,
         config,
         userFunc,
         originalEvent,
