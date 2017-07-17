@@ -3,9 +3,10 @@ import https from 'https';
 
 import globals from './globals';
 
-const system = process.platform === 'linux'
-  ? require('./system.js')
-  : require('./mockSystem.js');
+const system =
+  process.platform === 'linux'
+    ? require('./system.js')
+    : require('./mockSystem.js');
 const { log } = console;
 
 function sendRequest(requestBody, config, ipAddress) {
@@ -44,13 +45,7 @@ function sendRequest(requestBody, config, ipAddress) {
 }
 
 class Report {
-  constructor(
-    config = {},
-    context = {},
-    startTime = process.hrtime(),
-    metrics,
-    dnsPromise = Promise.resolve()
-  ) {
+  constructor(wrapperInstance = {}) {
     this.initalPromises = {
       statPromise: system.readstat('self'),
       bootIdPromise: system.readbootid()
@@ -58,6 +53,14 @@ class Report {
 
     // flag on report sending status, reports are sent once
     this.sent = false;
+
+    const {
+      config = {},
+      context = {},
+      dnsPromise = Promise.resolve(),
+      metrics = [],
+      startTime = process.hrtime()
+    } = wrapperInstance;
 
     this.config = config;
     this.context = context;
@@ -108,7 +111,7 @@ class Report {
       },
       errors: {},
       coldstart: globals.COLDSTART,
-      custom_metrics: metrics || []
+      custom_metrics: metrics
     };
 
     // Set to false after coldstart
@@ -205,7 +208,7 @@ class Report {
                 log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
               }
               self.sent = true;
-              callback();
+              callback(err);
             })
             .catch(function handleErr(collectorErr) {
               // Log errors, don't block on failed requests
@@ -213,7 +216,7 @@ class Report {
                 log('Write to IOpipe failed');
                 log(collectorErr);
               }
-              callback();
+              callback(err);
             });
         })
         .catch(dnsErr => {
@@ -222,7 +225,7 @@ class Report {
             log('Write to IOpipe failed. DNS resolution error.');
             log(dnsErr);
           }
-          callback();
+          callback(err);
         });
     });
   }

@@ -1,11 +1,9 @@
 import dns from 'dns';
 import setConfig from './config';
-import Context from './context';
-import Callback from './callback';
 import Report from './report';
 import globals from './globals';
 
-function makeDnsPromise(host) {
+function getDnsPromise(host) {
   return new Promise((resolve, reject) => {
     dns.lookup(host, (err, address) => {
       if (err) {
@@ -16,102 +14,147 @@ function makeDnsPromise(host) {
   });
 }
 
-function setupTimeoutCapture(config, report, context = {}) {
+function setupTimeoutCapture(wrapperInstance) {
+  const { modifiedContext, sendReport, config } = wrapperInstance;
   var endTime = 599900; /* Maximum execution: 100ms short of 5 minutes */
   if (config.timeoutWindow < 1) {
     return undefined;
   }
 
-  if (config.timeoutWindow > 0 && context.getRemainingTimeInMillis) {
+  if (config.timeoutWindow > 0 && modifiedContext.getRemainingTimeInMillis) {
     endTime = Math.max(
       0,
-      context.getRemainingTimeInMillis() - config.timeoutWindow
+      modifiedContext.getRemainingTimeInMillis() - config.timeoutWindow
     );
   }
 
   return setTimeout(() => {
-    report.send(new Error('Timeout Exceeded.'), function noop() {});
+    sendReport(new Error('Timeout Exceeded.'));
   }, endTime);
 }
 
-module.exports = options => {
-  const fn = func => {
-    var dnsPromise = undefined;
-    fn.metricsQueue = [];
-    const config = setConfig(options);
+class IOpipeWrapperClass {
+  constructor(dnsPromise, config, userFunc) {
+    this.config = config;
+    this.metrics = [];
+    this.userFunc = userFunc;
+    this.dnsPromise = dnsPromise;
 
-    if (!config.clientId) {
-      // No-op if user doesn't set an IOpipe token.
-      return func;
+    return this;
+  }
+  invokeSetup(originalEvent, originalContext, originalCallback) {
+    this.originalEvent = originalEvent;
+    this.originalContext = originalContext;
+    this.originalCallback = originalCallback;
+
+    // assign a new dnsPromise if it's not a coldstart because dns could have changed
+    if (!globals.COLDSTART) {
+      this.dnsPromise = getDnsPromise(this.config.host);
     }
 
-    /* resolve DNS early on coldstarts */
-    dnsPromise = makeDnsPromise(config.host);
-
-    return function IOpipeWrapper() {
-      fn.metricsQueue = [];
-      const args = [].slice.call(arguments);
-
-      if (!globals.COLDSTART) {
-        /* Get an updated DNS record. */
-        dnsPromise = makeDnsPromise(config.host);
-      }
-
-      const startTime = process.hrtime();
-      const report = new Report(
-        config,
-        args[1],
-        startTime,
-        fn.metricsQueue,
-        dnsPromise
+    // preserve original functions via a property name change
+    ['succeed', 'fail', 'done'].forEach(method => {
+      Object.defineProperty(
+        this.originalContext,
+        `original_${method}`,
+        Object.getOwnPropertyDescriptor(this.originalContext, method)
       );
+    });
 
-      const timeout = setupTimeoutCapture(config, report, args[1]);
-
-      const callback = (err, cb) => {
-        if (timeout) {
-          clearTimeout(timeout);
-        }
-        report.send(err, cb);
-      };
-
-      /* Mangle arguments, wrapping callbacks. */
-      args[1] = Context(callback, args[1]);
-      args[2] = Callback(callback, args[2]);
-
-      try {
-        return func.apply(this, args);
-      } catch (err) {
-        clearTimeout(timeout);
-        report.send(err, function noop() {});
-        return undefined;
+    // assign modified methods and objects here
+    this.modifiedContext = Object.assign(this.originalContext, {
+      // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClass
+      succeed: this.succeed.bind(this),
+      fail: this.fail.bind(this),
+      done: this.done.bind(this),
+      iopipe: {
+        log: this.log.bind(this),
+        version: globals.VERSION,
+        config: this.config
       }
+    });
+
+    this.modifiedCallback = (err, data) => {
+      this.sendReport(err, () => {
+        typeof this.originalCallback === 'function' &&
+          this.originalCallback(err, data);
+      });
     };
-  };
 
-  // Alias decorate to the wrapper function
-  fn.decorate = fn;
+    this.timeout = setupTimeoutCapture(this);
 
-  fn.log = (name, value) => {
+    this.report = new Report(this);
+  }
+  sendReport(err, cb = () => {}) {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+    this.report.send(err, cb);
+  }
+  succeed(data) {
+    this.sendReport(null, () => {
+      this.originalContext.original_succeed(data);
+    });
+  }
+  fail(err) {
+    this.sendReport(err, this.originalContext.original_fail);
+  }
+  done(err, data) {
+    this.sendReport(err, () => {
+      this.originalContext.original_done(err, data);
+    });
+  }
+  log(name, value = 1) {
     var numberValue = undefined;
     var stringValue = undefined;
     if (typeof value === 'number') {
       numberValue = value;
     } else {
-      if (typeof value === 'object') {
-        JSON.stringify(value);
-      } else {
-        stringValue = String(value);
-      }
+      stringValue = typeof value === 'string' ? value : JSON.stringify(value);
     }
-    fn.metricsQueue.push({
+    this.metrics.push({
       name,
       n: numberValue,
       s: stringValue
     });
+  }
+  invoke(originalEvent, originalContext, originalCallback) {
+    this.invokeSetup(originalEvent, originalContext, originalCallback);
+    try {
+      return this.userFunc.call(
+        this,
+        this.originalEvent,
+        this.modifiedContext,
+        this.modifiedCallback
+      );
+    } catch (err) {
+      return this.sendReport(err);
+    }
+  }
+}
 
-    fn.VERSION = globals.VERSION;
+module.exports = options => {
+  const config = setConfig(options);
+  const fn = userFunc => {
+    if (!config.clientId) {
+      // No-op if user doesn't set an IOpipe token.
+      return userFunc;
+    }
+
+    const dnsPromise = getDnsPromise(options.host);
+
+    const wrapper = new IOpipeWrapperClass(dnsPromise, config, userFunc);
+    fn.log = (...args) => {
+      console.warn(
+        'iopipe.log is deprecated and will be dropped in a future version, please use context.iopipe.log'
+      );
+      wrapper.log.apply(wrapper, args);
+    };
+
+    return wrapper.invoke.bind(wrapper);
   };
 
+  // Alias decorate to the wrapper function
+  fn.decorate = fn;
   return fn;
 };

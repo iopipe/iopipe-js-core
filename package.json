@@ -46,11 +46,12 @@
     "eslint-plugin-prettier": "^2.1.2",
     "flat": "^2.0.1",
     "iopipe-payload": "^1.4.0",
+    "is-ip": "^2.0.0",
     "istanbul": "^0.4.4",
     "jest": "^20.0.4",
     "lodash": "^4.17.4",
     "pre-commit": "^1.2.2",
-    "prettier": "^1.4.4",
+    "prettier": "^1.5.2",
     "webpack": "^3.2.0"
   },
   "dependencies": {},
