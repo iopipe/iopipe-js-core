@@ -38,13 +38,7 @@ class IOpipeWrapperClass {
     this.config = config;
     this.metrics = [];
     this.userFunc = userFunc;
-
-    // assign a new dnsPromise if it's not a coldstart because dns could have changed
-    if (!globals.COLDSTART) {
-      this.dnsPromise = getDnsPromise(this.config.host);
-    } else {
-      this.dnsPromise = dnsPromise;
-    }
+    this.dnsPromise = dnsPromise;
 
     return this;
   }
@@ -52,6 +46,11 @@ class IOpipeWrapperClass {
     this.originalEvent = originalEvent;
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
+
+    // assign a new dnsPromise if it's not a coldstart because dns could have changed
+    if (!globals.COLDSTART) {
+      this.dnsPromise = getDnsPromise(this.config.host);
+    }
 
     // preserve original functions via a property name change
     ['succeed', 'fail', 'done'].forEach(method => {
