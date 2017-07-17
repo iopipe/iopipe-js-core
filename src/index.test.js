@@ -129,9 +129,9 @@ describe('metrics agent', () => {
   });
 
   it('has a proper context object', done => {
-    expect.assertions(7);
+    expect.assertions(6);
     const iopipe = IOpipe({ token: 'testSuite' });
-    const wrappedFunction = iopipe.decorate((event, ctx) => {
+    const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
       // use json, otherwise it seems circular refs are doing bad things
       ctx.callbackWaitsForEmptyEventLoop = true;
       ctx.succeed(JSON.stringify(ctx));
@@ -146,7 +146,6 @@ describe('metrics agent', () => {
       .then(obj => {
         const ctx = JSON.parse(obj.response);
         expect(_.isObject(ctx)).toBeTruthy();
-        expect(_.isArray(ctx.iopipe.metrics)).toBeTruthy();
         expect(ctx.memoryLimitInMB).toBe('128');
         expect(ctx.callbackWaitsForEmptyEventLoop).toBe(true);
         expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
@@ -156,23 +155,24 @@ describe('metrics agent', () => {
   });
 
   it('allows .log functionality', done => {
-    expect.assertions(11);
+    expect.assertions(12);
     const iopipe = IOpipe({ token: 'testSuite' });
-    const wrappedFunction = iopipe.decorate((event, ctx) => {
+    const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
       ctx.iopipe.log('metric-1', 'foo');
       ctx.iopipe.log('metric-2', true);
       ctx.iopipe.log('metric-3', { ding: 'dong' });
       ctx.iopipe.log('metric-4', ['whoa']);
       ctx.iopipe.log('metric-5', 100);
       ctx.iopipe.log('metric-6');
-      ctx.succeed(ctx.iopipe.metrics);
+      iopipe.log('metric-7', true);
+      ctx.succeed(this.metrics);
     });
 
     runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
       .then(obj => {
         expect(_.isArray(obj.response)).toEqual(true);
-        expect(obj.response.length).toEqual(6);
-        const [m1, m2, m3, m4, m5, m6] = obj.response;
+        expect(obj.response.length).toEqual(7);
+        const [m1, m2, m3, m4, m5, m6, m7] = obj.response;
         expect(m1).toBeInstanceOf(Object);
         expect(m1.name).toEqual('metric-1');
         expect(m1.n).toEqual(undefined);
@@ -182,30 +182,36 @@ describe('metrics agent', () => {
         expect(m4.s).toEqual('["whoa"]');
         expect(m5.n).toEqual(100);
         expect(m6.n).toEqual(1);
+        expect(m7.s).toEqual('true');
         done();
       })
       .catch(defaultCatch);
   });
 
-  it('does not have metric (.log) collisions', done => {
-    expect.assertions(9);
+  it('does not have metric (.log) collisions when using context.iopipe.log, does when using iopipe.log', done => {
+    expect.assertions(12);
     let f1Complete = false;
     let f2Complete = false;
 
     const iopipe = IOpipe({ token: 'testSuite' });
-    const wrappedFunction1 = iopipe.decorate((event, ctx) => {
-      ctx.iopipe.log('func-1', true);
+    const wrappedFunction1 = iopipe.decorate(function Wrapper(event, ctx) {
+      const self = this;
+      ctx.iopipe.log('func-1-log-1', true);
+      iopipe.log('func-1-log-2', true);
+      ctx.iopipe.log('func-1-log-3', true);
       setTimeout(() => {
         f1Complete = true;
-        ctx.succeed(ctx.iopipe.metrics);
+        ctx.succeed(self.metrics);
       }, 5);
     });
 
-    const wrappedFunction2 = iopipe.decorate((event, ctx) => {
-      ctx.iopipe.log('func-2', true);
+    const wrappedFunction2 = iopipe.decorate(function Wrapper(event, ctx) {
+      const self = this;
+      ctx.iopipe.log('func-2-log-1', true);
+      iopipe.log('func-2-log-2', true);
       setTimeout(() => {
         f2Complete = true;
-        ctx.succeed(ctx.iopipe.metrics);
+        ctx.succeed(self.metrics);
       }, 10);
     });
 
@@ -222,10 +228,13 @@ describe('metrics agent', () => {
         expect(f1Complete && f2Complete).toBe(true);
         expect(_.isArray(fn1.response)).toBe(true);
         expect(_.isArray(fn2.response)).toBe(true);
-        expect(fn1.response.length).toBe(1);
-        expect(fn2.response.length).toBe(1);
-        expect(fn1.response[0].name).toEqual('func-1');
-        expect(fn2.response[0].name).toEqual('func-2');
+        expect(fn1.response.length).toBe(2);
+        expect(fn2.response.length).toBe(3);
+        expect(fn1.response[0].name).toEqual('func-1-log-1');
+        expect(fn1.response[1].name).toEqual('func-1-log-3');
+        expect(fn2.response[0].name).toEqual('func-1-log-2');
+        expect(fn2.response[1].name).toEqual('func-2-log-1');
+        expect(fn2.response[2].name).toEqual('func-2-log-2');
         done();
       })
       .catch(defaultCatch);

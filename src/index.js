@@ -34,17 +34,10 @@ function setupTimeoutCapture(wrapperInstance) {
 }
 
 class IOpipeWrapperClass {
-  constructor(
-    dnsPromise,
-    config,
-    userFunc,
-    originalEvent,
-    originalContext,
-    originalCallback
-  ) {
-    this.startTime = process.hrtime();
+  constructor(dnsPromise, config, userFunc) {
     this.config = config;
     this.metrics = [];
+    this.userFunc = userFunc;
 
     // assign a new dnsPromise if it's not a coldstart because dns could have changed
     if (!globals.COLDSTART) {
@@ -53,6 +46,10 @@ class IOpipeWrapperClass {
       this.dnsPromise = dnsPromise;
     }
 
+    return this;
+  }
+  invokeSetup(originalEvent, originalContext, originalCallback) {
+    this.originalEvent = originalEvent;
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
 
@@ -73,7 +70,6 @@ class IOpipeWrapperClass {
       done: this.done.bind(this),
       iopipe: {
         log: this.log.bind(this),
-        metrics: this.metrics,
         version: globals.VERSION,
         config: this.config
       }
@@ -89,17 +85,6 @@ class IOpipeWrapperClass {
     this.timeout = setupTimeoutCapture(this);
 
     this.report = new Report(this);
-
-    try {
-      return userFunc.call(
-        this,
-        originalEvent,
-        this.modifiedContext,
-        this.modifiedCallback
-      );
-    } catch (err) {
-      this.sendReport(err);
-    }
   }
   sendReport(err, cb = () => {}) {
     if (this.timeout) {
@@ -134,6 +119,19 @@ class IOpipeWrapperClass {
       s: stringValue
     });
   }
+  invoke(originalEvent, originalContext, originalCallback) {
+    this.invokeSetup(originalEvent, originalContext, originalCallback);
+    try {
+      return this.userFunc.call(
+        this,
+        this.originalEvent,
+        this.modifiedContext,
+        this.modifiedCallback
+      );
+    } catch (err) {
+      return this.sendReport(err);
+    }
+  }
 }
 
 module.exports = options => {
@@ -146,16 +144,15 @@ module.exports = options => {
 
     const dnsPromise = getDnsPromise(options.host);
 
-    return (originalEvent, originalContext, originalCallback) => {
-      return new IOpipeWrapperClass(
-        dnsPromise,
-        config,
-        userFunc,
-        originalEvent,
-        originalContext,
-        originalCallback
+    const wrapper = new IOpipeWrapperClass(dnsPromise, config, userFunc);
+    fn.log = (...args) => {
+      console.warn(
+        'iopipe.log is deprecated and will be dropped in a future version, please use context.iopipe.log'
       );
+      wrapper.log.apply(wrapper, args);
     };
+
+    return wrapper.invoke.bind(wrapper);
   };
 
   // Alias decorate to the wrapper function
