@@ -43,8 +43,16 @@ class IOpipeWrapperClass {
     originalContext,
     originalCallback
   ) {
-    libFn.log = this.log.bind(this);
+    // support deprecated iopipe.log
     this.startTime = process.hrtime();
+
+    libFn.log = (...logArgs) => {
+      console.warn(
+        'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.log'
+      );
+      this.log.apply(this, logArgs);
+    };
+
     this.config = config;
     this.metrics = [];
 
@@ -147,6 +155,7 @@ module.exports = options => {
       return userFunc;
     }
 
+    // Assign .log (deprecated) here to avoid type errors
     if (typeof libFn.log !== 'function') {
       libFn.log = () => {};
     }
