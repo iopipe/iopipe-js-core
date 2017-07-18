@@ -35,6 +35,7 @@ function setupTimeoutCapture(wrapperInstance) {
 
 class IOpipeWrapperClass {
   constructor(
+    libFn,
     dnsPromise,
     config,
     userFunc,
@@ -42,6 +43,7 @@ class IOpipeWrapperClass {
     originalContext,
     originalCallback
   ) {
+    libFn.log = this.log.bind(this);
     this.startTime = process.hrtime();
     this.config = config;
     this.metrics = [];
@@ -73,7 +75,6 @@ class IOpipeWrapperClass {
       done: this.done.bind(this),
       iopipe: {
         log: this.log.bind(this),
-        metrics: this.metrics,
         version: globals.VERSION,
         config: this.config
       }
@@ -91,7 +92,7 @@ class IOpipeWrapperClass {
     this.report = new Report(this);
 
     try {
-      return userFunc.call(
+      userFunc.call(
         this,
         originalEvent,
         this.modifiedContext,
@@ -100,6 +101,7 @@ class IOpipeWrapperClass {
     } catch (err) {
       this.sendReport(err);
     }
+    return this;
   }
   sendReport(err, cb = () => {}) {
     if (this.timeout) {
@@ -120,7 +122,7 @@ class IOpipeWrapperClass {
       this.originalContext.original_done(err, data);
     });
   }
-  log(name, value = 1) {
+  log(name, value) {
     var numberValue = undefined;
     var stringValue = undefined;
     if (typeof value === 'number') {
@@ -138,16 +140,20 @@ class IOpipeWrapperClass {
 
 module.exports = options => {
   const config = setConfig(options);
-  const fn = userFunc => {
+  const dnsPromise = getDnsPromise(config.host);
+  const libFn = userFunc => {
     if (!config.clientId) {
       // No-op if user doesn't set an IOpipe token.
       return userFunc;
     }
 
-    const dnsPromise = getDnsPromise(options.host);
+    if (typeof libFn.log !== 'function') {
+      libFn.log = () => {};
+    }
 
     return (originalEvent, originalContext, originalCallback) => {
       return new IOpipeWrapperClass(
+        libFn,
         dnsPromise,
         config,
         userFunc,
@@ -159,6 +165,10 @@ module.exports = options => {
   };
 
   // Alias decorate to the wrapper function
-  fn.decorate = fn;
-  return fn;
+  libFn.decorate = libFn;
+  // Used for tests
+  if (process.env.DNS_ON_LIB) {
+    libFn.dnsPromise = dnsPromise;
+  }
+  return libFn;
 };
