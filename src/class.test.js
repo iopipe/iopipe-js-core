@@ -39,7 +39,7 @@ function runWrappedFunction(fnToRun) {
 it('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', done => {
   const { promiseInstances } = dns;
   expect(promiseInstances.length).toBe(0);
-  const iopipe = IOpipe({ token: 'wow' });
+  const iopipe = IOpipe({ token: 'testSuite' });
   expect(promiseInstances.length).toBe(1);
 
   const wrappedFunction = iopipe((event, ctx) => {

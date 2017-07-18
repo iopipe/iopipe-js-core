@@ -18,10 +18,18 @@ function createContext(opts = {}) {
   );
 }
 
+function createAgent(kwargs) {
+  return IOpipe(
+    _.defaults(kwargs, {
+      token: 'testSuite'
+    })
+  );
+}
+
 function runWrappedFunction(
   ctx = createContext(),
   event = {},
-  iopipe = IOpipe(),
+  iopipe = createAgent(),
   functionArg
 ) {
   const defaultFn = (fnEvent, context) => {
@@ -49,7 +57,7 @@ function sendToRegionTest(region = 'us-east-1', done) {
   runWrappedFunction(
     createContext({ region }),
     undefined,
-    IOpipe()
+    createAgent()
   ).then(obj => {
     expect(obj.response).toEqual('Success');
     expect(obj.error).toEqual(null);
@@ -59,7 +67,7 @@ function sendToRegionTest(region = 'us-east-1', done) {
 
 describe('metrics agent', () => {
   it('should return a function', () => {
-    const agent = IOpipe();
+    const agent = createAgent();
     expect(typeof agent).toEqual('function');
   });
 
@@ -70,7 +78,7 @@ describe('metrics agent', () => {
   });
 
   it('runs the user function and returns the original value', done => {
-    const iopipe = IOpipe();
+    const iopipe = createAgent();
     const wrappedFunction = iopipe((event, ctx) => {
       ctx.succeed('Decorate');
       return 'wow';
@@ -91,7 +99,7 @@ describe('metrics agent', () => {
     };
 
     function fnGenerator(token, region, timeout) {
-      const iopipe = IOpipe({
+      const iopipe = createAgent({
         token,
         url: `https://metrics-api.${region}.iopipe.com`
       });
@@ -138,7 +146,7 @@ describe('metrics agent', () => {
   });
 
   it('allows .decorate API', done => {
-    const iopipe = IOpipe();
+    const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
     });
@@ -153,7 +161,7 @@ describe('metrics agent', () => {
 
   it('has a proper context object', done => {
     expect.assertions(6);
-    const iopipe = IOpipe();
+    const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       // use json, otherwise it seems circular refs are doing bad things
       ctx.callbackWaitsForEmptyEventLoop = true;
@@ -179,7 +187,7 @@ describe('metrics agent', () => {
 
   it('allows .log functionality', done => {
     expect.assertions(13);
-    const iopipe = IOpipe();
+    const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
       ctx.iopipe.log('metric-1', 'foo');
       ctx.iopipe.log('metric-2', true);
@@ -218,7 +226,7 @@ describe('metrics agent', () => {
     let f1Complete = false;
     let f2Complete = false;
 
-    const iopipe = IOpipe();
+    const iopipe = createAgent();
     const wrappedFunction1 = iopipe.decorate(function Wrapper(event, ctx) {
       const self = this;
       ctx.iopipe.log('func-1-log-1', true);
@@ -314,7 +322,7 @@ describe('smoke test', () => {
       runWrappedFunction(
         undefined,
         undefined,
-        IOpipe({
+        createAgent({
           url: 'https://metrics-api-staging.iopipe.com'
         })
       ).then(obj => {
