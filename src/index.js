@@ -52,8 +52,10 @@ class IOpipeWrapperClass {
       this.dnsPromise = dnsPromise;
     }
 
+    this.originalEvent = originalEvent;
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
+    this.userFunc = userFunc;
 
     // preserve original functions via a property name change
     ['succeed', 'fail', 'done'].forEach(method => {
@@ -88,17 +90,20 @@ class IOpipeWrapperClass {
 
     this.report = new Report(this);
 
+    return this;
+  }
+  invoke() {
     try {
-      this.userFuncValue = userFunc.call(
+      return this.userFunc.call(
         this,
-        originalEvent,
+        this.originalEvent,
         this.modifiedContext,
         this.modifiedCallback
       );
     } catch (err) {
       this.sendReport(err);
+      return err;
     }
-    return this;
   }
   sendReport(err, cb = () => {}) {
     if (this.timeout) {
@@ -150,7 +155,7 @@ module.exports = options => {
     }
 
     return (originalEvent, originalContext, originalCallback) => {
-      const instance = new IOpipeWrapperClass(
+      return new IOpipeWrapperClass(
         libFn,
         dnsPromise,
         config,
@@ -158,8 +163,7 @@ module.exports = options => {
         originalEvent,
         originalContext,
         originalCallback
-      );
-      return instance.userFuncValue;
+      ).invoke();
     };
   };
 

@@ -5,11 +5,6 @@ import mockContext from 'aws-lambda-mock-context';
 jest.mock('./dns');
 import * as dns from './dns';
 
-function defaultCatch(err) {
-  console.error(err);
-  throw err;
-}
-
 function createContext(opts = {}) {
   return mockContext(
     Object.assign(opts, {
@@ -36,30 +31,33 @@ function runWrappedFunction(fnToRun) {
   });
 }
 
-it('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', done => {
-  const { promiseInstances } = dns;
-  expect(promiseInstances.length).toBe(0);
-  const iopipe = IOpipe({ token: 'testSuite' });
-  expect(promiseInstances.length).toBe(1);
+test('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', async done => {
+  try {
+    const { promiseInstances } = dns;
+    expect(promiseInstances.length).toBe(0);
+    const iopipe = IOpipe({ token: 'testSuite' });
+    expect(promiseInstances.length).toBe(1);
 
-  const wrappedFunction = iopipe((event, ctx) => {
-    ctx.succeed('Decorate');
-  });
+    const runs = [];
 
-  runWrappedFunction(wrappedFunction)
-    .then(obj => {
-      expect(obj.response).toEqual('Decorate');
-      expect(promiseInstances.length).toBe(1);
-    })
-    .catch(defaultCatch);
+    const wrappedFunction = iopipe((event, ctx) => {
+      runs.push(1);
+      ctx.succeed('Decorate');
+    });
 
-  setTimeout(() => {
-    runWrappedFunction(wrappedFunction)
-      .then(obj => {
-        expect(obj.response).toEqual('Decorate');
-        expect(promiseInstances.length).toBe(2);
-        done();
-      })
-      .catch(defaultCatch);
-  }, 300);
+    const run1 = await runWrappedFunction(wrappedFunction);
+    expect(run1.response).toEqual('Decorate');
+    expect(runs.length).toEqual(1);
+    expect(promiseInstances.length).toBe(1);
+
+    const run2 = await runWrappedFunction(wrappedFunction);
+    expect(run2.response).toEqual('Decorate');
+    expect(runs.length).toEqual(2);
+    expect(promiseInstances.length).toBe(2);
+
+    done();
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
