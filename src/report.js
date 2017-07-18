@@ -56,14 +56,14 @@ class Report {
 
     const {
       config = {},
-      context = {},
+      modifiedContext = {},
       dnsPromise = Promise.resolve(),
       metrics = [],
       startTime = process.hrtime()
     } = wrapperInstance;
 
     this.config = config;
-    this.context = context;
+    this.context = modifiedContext;
     this.startTime = startTime;
     this.dnsPromise = dnsPromise;
 

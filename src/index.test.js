@@ -10,8 +10,16 @@ function defaultCatch(err) {
   throw err;
 }
 
+function createContext(opts = {}) {
+  return mockContext(
+    Object.assign(opts, {
+      functionName: 'iopipe-lib-unit-tests'
+    })
+  );
+}
+
 function runWrappedFunction(
-  ctx = mockContext(),
+  ctx = createContext(),
   event = {},
   iopipe = IOpipe({ token: 'testSuite' }),
   functionArg
@@ -37,7 +45,7 @@ function runWrappedFunction(
 function sendToRegionTest(region = 'us-east-1', done) {
   process.env.AWS_REGION = region;
   runWrappedFunction(
-    mockContext({ region: region }),
+    createContext({ region }),
     undefined,
     IOpipe({ clientId: 'testSuite' })
   ).then(obj => {
@@ -122,7 +130,7 @@ describe('metrics agent', () => {
   });
 
   it('allows .decorate API', done => {
-    const iopipe = IOpipe({ token: 'testSuite' });
+    const iopipe = IOpipe();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
     });
@@ -144,7 +152,7 @@ describe('metrics agent', () => {
       ctx.succeed(JSON.stringify(ctx));
     });
 
-    const testContext = mockContext();
+    const testContext = createContext();
     expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
     testContext.callbackWaitsForEmptyEventLoop = false;
     expect(testContext.callbackWaitsForEmptyEventLoop).toBe(false);
