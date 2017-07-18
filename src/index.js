@@ -18,7 +18,7 @@ function setupTimeoutCapture(wrapperInstance) {
   }
 
   return setTimeout(() => {
-    sendReport(new Error('Timeout Exceeded.'));
+    sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'));
   }, endTime);
 }
 
