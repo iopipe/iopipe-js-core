@@ -1,18 +1,7 @@
-import dns from 'dns';
 import setConfig from './config';
 import Report from './report';
 import globals from './globals';
-
-function getDnsPromise(host) {
-  return new Promise((resolve, reject) => {
-    dns.lookup(host, (err, address) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(address);
-    });
-  });
-}
+import { getDnsPromise } from './dns';
 
 function setupTimeoutCapture(wrapperInstance) {
   const { modifiedContext, sendReport, config } = wrapperInstance;
@@ -100,7 +89,7 @@ class IOpipeWrapperClass {
     this.report = new Report(this);
 
     try {
-      userFunc.call(
+      this.userFuncValue = userFunc.call(
         this,
         originalEvent,
         this.modifiedContext,
@@ -161,7 +150,7 @@ module.exports = options => {
     }
 
     return (originalEvent, originalContext, originalCallback) => {
-      return new IOpipeWrapperClass(
+      const instance = new IOpipeWrapperClass(
         libFn,
         dnsPromise,
         config,
@@ -170,14 +159,11 @@ module.exports = options => {
         originalContext,
         originalCallback
       );
+      return instance.userFuncValue;
     };
   };
 
   // Alias decorate to the wrapper function
   libFn.decorate = libFn;
-  // Used for tests
-  if (process.env.DNS_ON_LIB) {
-    libFn.dnsPromise = dnsPromise;
-  }
   return libFn;
 };

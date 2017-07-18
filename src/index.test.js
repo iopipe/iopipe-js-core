@@ -21,7 +21,7 @@ function createContext(opts = {}) {
 function runWrappedFunction(
   ctx = createContext(),
   event = {},
-  iopipe = IOpipe({ token: 'testSuite' }),
+  iopipe = IOpipe(),
   functionArg
 ) {
   const defaultFn = (fnEvent, context) => {
@@ -29,15 +29,17 @@ function runWrappedFunction(
   };
   const fnToRun = functionArg || iopipe(defaultFn);
   return new Promise(resolve => {
+    let userFnReturnValue = undefined;
     function fnResolver(error, response) {
       return resolve({
         ctx,
         response,
         iopipe,
-        error
+        error,
+        userFnReturnValue
       });
     }
-    fnToRun(event, ctx, fnResolver);
+    userFnReturnValue = fnToRun(event, ctx, fnResolver);
     ctx.Promise.then(success => fnResolver(null, success)).catch(fnResolver);
   });
 }
@@ -47,7 +49,7 @@ function sendToRegionTest(region = 'us-east-1', done) {
   runWrappedFunction(
     createContext({ region }),
     undefined,
-    IOpipe({ clientId: 'testSuite' })
+    IOpipe()
   ).then(obj => {
     expect(obj.response).toEqual('Success');
     expect(obj.error).toEqual(null);
@@ -61,22 +63,28 @@ describe('metrics agent', () => {
     expect(typeof agent).toEqual('function');
   });
 
-  it('should create a new dnsPromise on lib config', () => {
-    process.env.DNS_ON_LIB = true;
-    const agent = IOpipe();
-    expect(agent.dnsPromise).toBeTruthy();
-    process.env.DNS_ON_LIB = false;
-  });
-
   it('should successfully getRemainingTimeInMillis from aws context', () => {
     runWrappedFunction().then(obj => {
       expect(typeof obj.ctx.getRemainingTimeInMillis).toBe('function');
     });
   });
 
-  it('allows per-setup configuration', done => {
-    expect.assertions(10);
+  it('runs the user function and returns the original value', done => {
+    const iopipe = IOpipe();
+    const wrappedFunction = iopipe((event, ctx) => {
+      ctx.succeed('Decorate');
+      return 'wow';
+    });
 
+    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
+      .then(obj => {
+        expect(obj.userFnReturnValue).toEqual('wow');
+        done();
+      })
+      .catch(defaultCatch);
+  });
+
+  it('allows per-setup configuration', done => {
     const completed = {
       f1: false,
       f2: false
@@ -145,7 +153,7 @@ describe('metrics agent', () => {
 
   it('has a proper context object', done => {
     expect.assertions(6);
-    const iopipe = IOpipe({ token: 'testSuite' });
+    const iopipe = IOpipe();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       // use json, otherwise it seems circular refs are doing bad things
       ctx.callbackWaitsForEmptyEventLoop = true;
@@ -171,7 +179,7 @@ describe('metrics agent', () => {
 
   it('allows .log functionality', done => {
     expect.assertions(13);
-    const iopipe = IOpipe({ token: 'testSuite' });
+    const iopipe = IOpipe();
     const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
       ctx.iopipe.log('metric-1', 'foo');
       ctx.iopipe.log('metric-2', true);
@@ -210,7 +218,7 @@ describe('metrics agent', () => {
     let f1Complete = false;
     let f2Complete = false;
 
-    const iopipe = IOpipe({ token: 'testSuite' });
+    const iopipe = IOpipe();
     const wrappedFunction1 = iopipe.decorate(function Wrapper(event, ctx) {
       const self = this;
       ctx.iopipe.log('func-1-log-1', true);
@@ -307,7 +315,6 @@ describe('smoke test', () => {
         undefined,
         undefined,
         IOpipe({
-          clientId: 'testSuite',
           url: 'https://metrics-api-staging.iopipe.com'
         })
       ).then(obj => {
