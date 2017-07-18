@@ -162,7 +162,7 @@ describe('metrics agent', () => {
   });
 
   it('allows .log functionality', done => {
-    expect.assertions(12);
+    expect.assertions(13);
     const iopipe = IOpipe({ token: 'testSuite' });
     const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
       ctx.iopipe.log('metric-1', 'foo');
@@ -189,6 +189,7 @@ describe('metrics agent', () => {
         expect(m3.s).toEqual('{"ding":"dong"}');
         expect(m4.s).toEqual('["whoa"]');
         expect(m5.n).toEqual(100);
+        expect(m6.name).toEqual('metric-6');
         expect(m6.n).toEqual(undefined);
         expect(m7.s).toEqual('true');
         done();
