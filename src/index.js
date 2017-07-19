@@ -1,18 +1,7 @@
-import dns from 'dns';
 import setConfig from './config';
 import Report from './report';
 import globals from './globals';
-
-function getDnsPromise(host) {
-  return new Promise((resolve, reject) => {
-    dns.lookup(host, (err, address) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(address);
-    });
-  });
-}
+import { getDnsPromise } from './dns';
 
 function setupTimeoutCapture(wrapperInstance) {
   const { modifiedContext, sendReport, config } = wrapperInstance;
@@ -29,28 +18,44 @@ function setupTimeoutCapture(wrapperInstance) {
   }
 
   return setTimeout(() => {
-    sendReport(new Error('Timeout Exceeded.'));
+    sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'));
   }, endTime);
 }
 
 class IOpipeWrapperClass {
-  constructor(dnsPromise, config, userFunc) {
+  constructor(
+    libFn,
+    dnsPromise,
+    config,
+    userFunc,
+    originalEvent,
+    originalContext,
+    originalCallback
+  ) {
+    // support deprecated iopipe.log
+    this.startTime = process.hrtime();
+
+    libFn.log = (...logArgs) => {
+      console.warn(
+        'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.log'
+      );
+      this.log.apply(this, logArgs);
+    };
+
     this.config = config;
     this.metrics = [];
-    this.userFunc = userFunc;
-    this.dnsPromise = dnsPromise;
-
-    return this;
-  }
-  invokeSetup(originalEvent, originalContext, originalCallback) {
-    this.originalEvent = originalEvent;
-    this.originalContext = originalContext;
-    this.originalCallback = originalCallback;
 
     // assign a new dnsPromise if it's not a coldstart because dns could have changed
     if (!globals.COLDSTART) {
       this.dnsPromise = getDnsPromise(this.config.host);
+    } else {
+      this.dnsPromise = dnsPromise;
     }
+
+    this.originalEvent = originalEvent;
+    this.originalContext = originalContext;
+    this.originalCallback = originalCallback;
+    this.userFunc = userFunc;
 
     // preserve original functions via a property name change
     ['succeed', 'fail', 'done'].forEach(method => {
@@ -84,6 +89,21 @@ class IOpipeWrapperClass {
     this.timeout = setupTimeoutCapture(this);
 
     this.report = new Report(this);
+
+    return this;
+  }
+  invoke() {
+    try {
+      return this.userFunc.call(
+        this,
+        this.originalEvent,
+        this.modifiedContext,
+        this.modifiedCallback
+      );
+    } catch (err) {
+      this.sendReport(err);
+      return err;
+    }
   }
   sendReport(err, cb = () => {}) {
     if (this.timeout) {
@@ -104,7 +124,7 @@ class IOpipeWrapperClass {
       this.originalContext.original_done(err, data);
     });
   }
-  log(name, value = 1) {
+  log(name, value) {
     var numberValue = undefined;
     var stringValue = undefined;
     if (typeof value === 'number') {
@@ -118,43 +138,36 @@ class IOpipeWrapperClass {
       s: stringValue
     });
   }
-  invoke(originalEvent, originalContext, originalCallback) {
-    this.invokeSetup(originalEvent, originalContext, originalCallback);
-    try {
-      return this.userFunc.call(
-        this,
-        this.originalEvent,
-        this.modifiedContext,
-        this.modifiedCallback
-      );
-    } catch (err) {
-      return this.sendReport(err);
-    }
-  }
 }
 
 module.exports = options => {
   const config = setConfig(options);
-  const fn = userFunc => {
+  const dnsPromise = getDnsPromise(config.host);
+  const libFn = userFunc => {
     if (!config.clientId) {
       // No-op if user doesn't set an IOpipe token.
       return userFunc;
     }
 
-    const dnsPromise = getDnsPromise(options.host);
+    // Assign .log (deprecated) here to avoid type errors
+    if (typeof libFn.log !== 'function') {
+      libFn.log = () => {};
+    }
 
-    const wrapper = new IOpipeWrapperClass(dnsPromise, config, userFunc);
-    fn.log = (...args) => {
-      console.warn(
-        'iopipe.log is deprecated and will be dropped in a future version, please use context.iopipe.log'
-      );
-      wrapper.log.apply(wrapper, args);
+    return (originalEvent, originalContext, originalCallback) => {
+      return new IOpipeWrapperClass(
+        libFn,
+        dnsPromise,
+        config,
+        userFunc,
+        originalEvent,
+        originalContext,
+        originalCallback
+      ).invoke();
     };
-
-    return wrapper.invoke.bind(wrapper);
   };
 
   // Alias decorate to the wrapper function
-  fn.decorate = fn;
-  return fn;
+  libFn.decorate = libFn;
+  return libFn;
 };

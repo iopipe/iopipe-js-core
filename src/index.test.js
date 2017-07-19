@@ -10,10 +10,26 @@ function defaultCatch(err) {
   throw err;
 }
 
+function createContext(opts = {}) {
+  return mockContext(
+    Object.assign(opts, {
+      functionName: 'iopipe-lib-unit-tests'
+    })
+  );
+}
+
+function createAgent(kwargs) {
+  return IOpipe(
+    _.defaults(kwargs, {
+      token: 'testSuite'
+    })
+  );
+}
+
 function runWrappedFunction(
-  ctx = mockContext(),
+  ctx = createContext(),
   event = {},
-  iopipe = IOpipe({ token: 'testSuite' }),
+  iopipe = createAgent(),
   functionArg
 ) {
   const defaultFn = (fnEvent, context) => {
@@ -21,15 +37,17 @@ function runWrappedFunction(
   };
   const fnToRun = functionArg || iopipe(defaultFn);
   return new Promise(resolve => {
+    let userFnReturnValue = undefined;
     function fnResolver(error, response) {
       return resolve({
         ctx,
         response,
         iopipe,
-        error
+        error,
+        userFnReturnValue
       });
     }
-    fnToRun(event, ctx, fnResolver);
+    userFnReturnValue = fnToRun(event, ctx, fnResolver);
     ctx.Promise.then(success => fnResolver(null, success)).catch(fnResolver);
   });
 }
@@ -37,9 +55,9 @@ function runWrappedFunction(
 function sendToRegionTest(region = 'us-east-1', done) {
   process.env.AWS_REGION = region;
   runWrappedFunction(
-    mockContext({ region: region }),
+    createContext({ region }),
     undefined,
-    IOpipe({ clientId: 'testSuite' })
+    createAgent()
   ).then(obj => {
     expect(obj.response).toEqual('Success');
     expect(obj.error).toEqual(null);
@@ -49,7 +67,7 @@ function sendToRegionTest(region = 'us-east-1', done) {
 
 describe('metrics agent', () => {
   it('should return a function', () => {
-    const agent = IOpipe();
+    const agent = createAgent();
     expect(typeof agent).toEqual('function');
   });
 
@@ -59,16 +77,29 @@ describe('metrics agent', () => {
     });
   });
 
-  it('allows per-setup configuration', done => {
-    expect.assertions(10);
+  it('runs the user function and returns the original value', done => {
+    const iopipe = createAgent();
+    const wrappedFunction = iopipe((event, ctx) => {
+      ctx.succeed('Decorate');
+      return 'wow';
+    });
 
+    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
+      .then(obj => {
+        expect(obj.userFnReturnValue).toEqual('wow');
+        done();
+      })
+      .catch(defaultCatch);
+  });
+
+  it('allows per-setup configuration', done => {
     const completed = {
       f1: false,
       f2: false
     };
 
     function fnGenerator(token, region, timeout) {
-      const iopipe = IOpipe({
+      const iopipe = createAgent({
         token,
         url: `https://metrics-api.${region}.iopipe.com`
       });
@@ -115,7 +146,7 @@ describe('metrics agent', () => {
   });
 
   it('allows .decorate API', done => {
-    const iopipe = IOpipe({ token: 'testSuite' });
+    const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
     });
@@ -130,14 +161,14 @@ describe('metrics agent', () => {
 
   it('has a proper context object', done => {
     expect.assertions(6);
-    const iopipe = IOpipe({ token: 'testSuite' });
-    const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
+    const iopipe = createAgent();
+    const wrappedFunction = iopipe.decorate((event, ctx) => {
       // use json, otherwise it seems circular refs are doing bad things
       ctx.callbackWaitsForEmptyEventLoop = true;
       ctx.succeed(JSON.stringify(ctx));
     });
 
-    const testContext = mockContext();
+    const testContext = createContext();
     expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
     testContext.callbackWaitsForEmptyEventLoop = false;
     expect(testContext.callbackWaitsForEmptyEventLoop).toBe(false);
@@ -155,8 +186,8 @@ describe('metrics agent', () => {
   });
 
   it('allows .log functionality', done => {
-    expect.assertions(12);
-    const iopipe = IOpipe({ token: 'testSuite' });
+    expect.assertions(13);
+    const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
       ctx.iopipe.log('metric-1', 'foo');
       ctx.iopipe.log('metric-2', true);
@@ -164,6 +195,7 @@ describe('metrics agent', () => {
       ctx.iopipe.log('metric-4', ['whoa']);
       ctx.iopipe.log('metric-5', 100);
       ctx.iopipe.log('metric-6');
+      // test deprecated iopipe.log too
       iopipe.log('metric-7', true);
       ctx.succeed(this.metrics);
     });
@@ -181,25 +213,27 @@ describe('metrics agent', () => {
         expect(m3.s).toEqual('{"ding":"dong"}');
         expect(m4.s).toEqual('["whoa"]');
         expect(m5.n).toEqual(100);
-        expect(m6.n).toEqual(1);
+        expect(m6.name).toEqual('metric-6');
+        expect(m6.n).toEqual(undefined);
         expect(m7.s).toEqual('true');
         done();
       })
       .catch(defaultCatch);
   });
 
-  it('does not have metric (.log) collisions when using context.iopipe.log, does when using iopipe.log', done => {
-    expect.assertions(12);
+  it('does not have context.iopipe.log collisions, unless using iopipe.log', done => {
+    expect.assertions(6);
     let f1Complete = false;
     let f2Complete = false;
 
-    const iopipe = IOpipe({ token: 'testSuite' });
+    const iopipe = createAgent();
     const wrappedFunction1 = iopipe.decorate(function Wrapper(event, ctx) {
       const self = this;
       ctx.iopipe.log('func-1-log-1', true);
-      iopipe.log('func-1-log-2', true);
+      iopipe.log('iopipe-log-func-1-log-2', true);
       ctx.iopipe.log('func-1-log-3', true);
       setTimeout(() => {
+        iopipe.log('iopipe-log-func-1-log-4', true);
         f1Complete = true;
         ctx.succeed(self.metrics);
       }, 5);
@@ -208,7 +242,10 @@ describe('metrics agent', () => {
     const wrappedFunction2 = iopipe.decorate(function Wrapper(event, ctx) {
       const self = this;
       ctx.iopipe.log('func-2-log-1', true);
-      iopipe.log('func-2-log-2', true);
+      ctx.iopipe.log('func-2-log-2', true);
+      setTimeout(() => {
+        iopipe.log('iopipe-log-func-2-log-3', true);
+      }, 2);
       setTimeout(() => {
         f2Complete = true;
         ctx.succeed(self.metrics);
@@ -219,22 +256,16 @@ describe('metrics agent', () => {
     expect(f2Complete).toBe(false);
 
     Promise.all(
-      [wrappedFunction1, wrappedFunction2].map(fn =>
+      [wrappedFunction1, wrappedFunction2, wrappedFunction1].map(fn =>
         runWrappedFunction(undefined, undefined, undefined, fn)
       )
     )
       .then(values => {
-        const [fn1, fn2] = values;
+        const [fn1, fn2, fn3] = values;
         expect(f1Complete && f2Complete).toBe(true);
-        expect(_.isArray(fn1.response)).toBe(true);
-        expect(_.isArray(fn2.response)).toBe(true);
-        expect(fn1.response.length).toBe(2);
-        expect(fn2.response.length).toBe(3);
-        expect(fn1.response[0].name).toEqual('func-1-log-1');
-        expect(fn1.response[1].name).toEqual('func-1-log-3');
-        expect(fn2.response[0].name).toEqual('func-1-log-2');
-        expect(fn2.response[1].name).toEqual('func-2-log-1');
-        expect(fn2.response[2].name).toEqual('func-2-log-2');
+        expect(fn1.response).toMatchSnapshot();
+        expect(fn2.response).toMatchSnapshot();
+        expect(fn3.response).toMatchSnapshot();
         done();
       })
       .catch(defaultCatch);
@@ -291,8 +322,7 @@ describe('smoke test', () => {
       runWrappedFunction(
         undefined,
         undefined,
-        IOpipe({
-          clientId: 'testSuite',
+        createAgent({
           url: 'https://metrics-api-staging.iopipe.com'
         })
       ).then(obj => {
