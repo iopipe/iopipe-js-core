@@ -12,7 +12,7 @@ function setupTimeoutCapture(wrapperInstance) {
     return undefined;
   }
 
-  const maxEndTime = 299900; /* Maximum execution: 100ms short of 5 minutes */
+  const maxEndTime = 599900; /* Maximum execution: 100ms short of 10 minutes */
   const configEndTime = Math.max(
     0,
     getRemainingTimeInMillis() - config.timeoutWindow
