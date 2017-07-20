@@ -7,7 +7,15 @@
     "build": "cp ../dist/iopipe.js ./iopipe.js",
     "deploy": "serverless deploy",
     "invoke": "sls invoke -f simpleSuccess",
-    "local": "sls invoke local -f simpleSuccess",
-    "all": "npm run build && npm run local && npm run deploy"
+    "localCallback": "sls invoke local -f callback",
+    "localContextSuccess": "sls invoke local -f contextSuccess",
+    "localContextDone": "sls invoke local -f contextDone",
+    "local": "npm run localCallback && npm run localContextSuccess && npm run localContextDone",
+    "all": "npm run build && npm run deploy && npm run local && node invoke"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.87.0",
+    "lodash.every": "^4.6.0",
+    "serverless": "^1.18.0"
   }
 }

@@ -1,4 +1,4 @@
-service: qa-events-agent
+service: iopipe-lib-master-acceptance-test
 
 provider:
   name: aws
@@ -7,10 +7,27 @@ provider:
   region: us-west-2
 
 functions:
-  simpleSuccess:
-    handler: handler.simpleSuccess
+  callback:
+    handler: handler.callback
     environment:
       IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
-    role: ${env:IAM_ROLE}
+    events:
+      - schedule: rate(10 minutes)
+  contextSuccess:
+    handler: handler.succeed
+    environment:
+      IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
+    events:
+      - schedule: rate(10 minutes)
+  contextFail:
+    handler: handler.fail
+    environment:
+      IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
+    events:
+      - schedule: rate(10 minutes)
+  contextDone:
+    handler: handler.done
+    environment:
+      IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
     events:
       - schedule: rate(10 minutes)
