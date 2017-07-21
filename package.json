@@ -5,7 +5,7 @@
   "main": "dist/iopipe.js",
   "scripts": {
     "build": "npm run webpack",
-    "eslint": "eslint src spec",
+    "eslint": "eslint src spec acceptance",
     "jest": "jest",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",

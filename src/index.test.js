@@ -159,6 +159,58 @@ describe('metrics agent', () => {
       .catch(defaultCatch);
   });
 
+  it('Returns a value from context.succeed', done => {
+    const iopipe = createAgent({ debug: true });
+    const wrappedFunction = iopipe((event, ctx) => {
+      ctx.succeed('my-val');
+    });
+
+    let val = undefined;
+
+    wrappedFunction(
+      {},
+      {
+        succeed: function funtimes(data) {
+          val = data;
+        },
+        fail: _.noop,
+        done: _.noop
+      },
+      _.noop
+    );
+    setTimeout(() => {
+      expect(val).toEqual('my-val');
+      done();
+      // 1000 is a magic number until the collector uses a mock for testing
+    }, 1000);
+  });
+
+  it('Returns a value from callback', done => {
+    const iopipe = createAgent({ debug: true });
+    const wrappedFunction = iopipe((event, ctx, cb) => {
+      cb(null, 'my-val');
+    });
+
+    let val = undefined;
+
+    wrappedFunction(
+      {},
+      {
+        succeed: _.noop,
+        fail: _.noop,
+        done: _.noop
+      },
+      (err, data) => {
+        val = data;
+      }
+    );
+    setTimeout(() => {
+      expect(val).toEqual('my-val');
+      done();
+      // 1000 is a magic number until the collector uses a mock for testing
+    }, 1000);
+  });
+
   it('has a proper context object', done => {
     expect.assertions(6);
     const iopipe = createAgent();

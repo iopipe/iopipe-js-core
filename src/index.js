@@ -5,20 +5,23 @@ import { getDnsPromise } from './dns';
 
 function setupTimeoutCapture(wrapperInstance) {
   const { modifiedContext, sendReport, config } = wrapperInstance;
-  var endTime = 599900; /* Maximum execution: 100ms short of 5 minutes */
-  if (config.timeoutWindow < 1) {
+  const { getRemainingTimeInMillis = () => 0 } = modifiedContext;
+
+  // if getRemainingTimeInMillis returns a very small number, it's probably a local invoke (sls framework perhaps)
+  if (config.timeoutWindow < 1 || getRemainingTimeInMillis() < 10) {
     return undefined;
   }
 
-  if (config.timeoutWindow > 0 && modifiedContext.getRemainingTimeInMillis) {
-    endTime = Math.max(
-      0,
-      modifiedContext.getRemainingTimeInMillis() - config.timeoutWindow
-    );
-  }
+  const maxEndTime = 599900; /* Maximum execution: 100ms short of 10 minutes */
+  const configEndTime = Math.max(
+    0,
+    getRemainingTimeInMillis() - config.timeoutWindow
+  );
+
+  const endTime = Math.min(configEndTime, maxEndTime);
 
   return setTimeout(() => {
-    sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'));
+    sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'), () => {});
   }, endTime);
 }
 
@@ -57,14 +60,7 @@ class IOpipeWrapperClass {
     this.originalCallback = originalCallback;
     this.userFunc = userFunc;
 
-    // preserve original functions via a property name change
-    ['succeed', 'fail', 'done'].forEach(method => {
-      Object.defineProperty(
-        this.originalContext,
-        `original_${method}`,
-        Object.getOwnPropertyDescriptor(this.originalContext, method)
-      );
-    });
+    this.setupContext();
 
     // assign modified methods and objects here
     this.modifiedContext = Object.assign(this.originalContext, {
@@ -92,6 +88,20 @@ class IOpipeWrapperClass {
 
     return this;
   }
+  setupContext(reset) {
+    // preserve original functions via a property name change
+    ['succeed', 'fail', 'done'].forEach(method => {
+      Object.defineProperty(
+        this.originalContext,
+        reset ? method : `original_${method}`,
+        Object.getOwnPropertyDescriptor(
+          this.originalContext,
+          reset ? `original_${method}` : method
+        )
+      );
+      delete this.originalContext[reset ? `original_${method}` : method];
+    });
+  }
   invoke() {
     try {
       return this.userFunc.call(
@@ -112,16 +122,19 @@ class IOpipeWrapperClass {
     this.report.send(err, cb);
   }
   succeed(data) {
+    this.setupContext(true);
     this.sendReport(null, () => {
-      this.originalContext.original_succeed(data);
+      this.originalContext.succeed(data);
     });
   }
   fail(err) {
-    this.sendReport(err, this.originalContext.original_fail);
+    this.setupContext(true);
+    this.sendReport(err, this.originalContext.fail);
   }
   done(err, data) {
+    this.setupContext(true);
     this.sendReport(err, () => {
-      this.originalContext.original_done(err, data);
+      this.originalContext.done(err, data);
     });
   }
   log(name, value) {
@@ -145,6 +158,9 @@ module.exports = options => {
   const dnsPromise = getDnsPromise(config.host);
   const libFn = userFunc => {
     if (!config.clientId) {
+      console.warn(
+        'Your function is wrapped with iopipe, but a valid token was not found. Methods such as iopipe.context.log will fail.'
+      );
       // No-op if user doesn't set an IOpipe token.
       return userFunc;
     }

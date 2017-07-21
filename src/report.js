@@ -207,7 +207,6 @@ class Report {
                 log(`API STATUS FROM ${config.host}: ${res.status}`);
                 log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
               }
-              self.sent = true;
               callback(err);
             })
             .catch(function handleErr(collectorErr) {
