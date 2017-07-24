@@ -9,7 +9,8 @@ module.exports = function setConfig(configObject) {
     debug: process.env.IOPIPE_DEBUG || false,
     networkTimeout: 5000,
     timeoutWindow: Number(process.env.IOPIPE_TIMEOUT_WINDOW) || 150,
-    installMethod: 'manual'
+    installMethod: 'manual',
+    plugins: []
   };
 
   const config = Object.assign({}, defaults);
@@ -29,6 +30,7 @@ module.exports = function setConfig(configObject) {
       configObject.installMethod ||
       process.env.IOPIPE_INSTALL_METHOD ||
       defaults.installMethod;
+    config.plugins = configObject.plugins || defaults.plugins;
 
     return config;
   }

@@ -1,6 +1,7 @@
 import setConfig from './config';
 import Report from './report';
 import globals from './globals';
+import { runAllPluginHooks } from './pluginLoader';
 import { getDnsPromise } from './dns';
 
 function setupTimeoutCapture(wrapperInstance) {
@@ -28,6 +29,7 @@ function setupTimeoutCapture(wrapperInstance) {
 class IOpipeWrapperClass {
   constructor(
     libFn,
+    plugins,
     dnsPromise,
     config,
     userFunc,
@@ -35,6 +37,8 @@ class IOpipeWrapperClass {
     originalContext,
     originalCallback
   ) {
+    this.plugins = plugins;
+    runAllPluginHooks(this, 'pre-setup');
     // support deprecated iopipe.log
     this.startTime = process.hrtime();
 
@@ -155,6 +159,10 @@ class IOpipeWrapperClass {
 
 module.exports = options => {
   const config = setConfig(options);
+  const { plugins } = config;
+  pluginLoader(plugins);
+  // presetup?
+
   const dnsPromise = getDnsPromise(config.host);
   const libFn = userFunc => {
     if (!config.clientId) {
@@ -169,10 +177,10 @@ module.exports = options => {
     if (typeof libFn.log !== 'function') {
       libFn.log = () => {};
     }
-
     return (originalEvent, originalContext, originalCallback) => {
       return new IOpipeWrapperClass(
         libFn,
+        plugins,
         dnsPromise,
         config,
         userFunc,
