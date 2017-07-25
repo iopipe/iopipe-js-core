@@ -44,8 +44,12 @@ class IOpipeWrapperClass {
 
     // setup any included plugins
     this.plugins = plugins.map((pluginFn = noop) => {
-      return pluginFn(this);
+      if (typeof pluginFn === 'function') {
+        return pluginFn(this);
+      }
+      return {};
     });
+
     this.runHook('pre:setup');
 
     // support deprecated iopipe.log
