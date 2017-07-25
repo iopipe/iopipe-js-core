@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`All hooks are called successfully when a plugin uses them all 1`] = `
+Array [
+  "context.hasRun:pre:setup",
+  "context.hasRun:post:setup",
+  "context.hasRun:pre:invoke",
+  "context.hasRun:post:invoke",
+  "context.hasRun:pre:report",
+  "context.hasRun:post:report",
+]
+`;
+
 exports[`Hooks have not changed 1`] = `
 Array [
   "pre:setup",
@@ -21,16 +32,5 @@ Array [
     "name": "trace-foo",
     "s": "bar",
   },
-]
-`;
-
-exports[`The AllHooks plugin works 1`] = `
-Array [
-  "context.hasRun:pre:setup",
-  "context.hasRun:post:setup",
-  "context.hasRun:pre:invoke",
-  "context.hasRun:post:invoke",
-  "context.hasRun:pre:report",
-  "context.hasRun:post:report",
 ]
 `;

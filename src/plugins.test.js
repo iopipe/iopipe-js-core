@@ -172,7 +172,7 @@ test('Multiple plugins can be loaded and work', async () => {
   }
 });
 
-test('The AllHooks plugin works', async () => {
+test('All hooks are called successfully when a plugin uses them all', async () => {
   try {
     const iopipe = IOpipe({
       token: 'single-plugin',
