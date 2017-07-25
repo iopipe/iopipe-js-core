@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Hooks have not changed 1`] = `
+Array [
+  "pre:setup",
+  "post:setup",
+  "pre:invoke",
+  "post:invoke",
+  "pre:report",
+  "post:report",
+]
+`;
+
+exports[`Multiple plugins can be loaded and work 1`] = `
+Array [
+  Object {
+    "name": "trace-ok",
+    "s": "neat",
+  },
+  Object {
+    "name": "trace-foo",
+    "s": "bar",
+  },
+]
+`;
+
+exports[`The AllHooks plugin works 1`] = `
+Array [
+  "context.hasRun:pre:setup",
+  "context.hasRun:post:setup",
+  "context.hasRun:pre:invoke",
+  "context.hasRun:post:invoke",
+  "context.hasRun:pre:report",
+  "context.hasRun:post:report",
+]
+`;

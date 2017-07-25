@@ -1,5 +1,5 @@
 import os from 'os';
-import https from 'https';
+import { sendReport } from './sendReport';
 
 import globals from './globals';
 
@@ -8,41 +8,6 @@ const system =
     ? require('./system.js')
     : require('./mockSystem.js');
 const { log } = console;
-
-function sendRequest(requestBody, config, ipAddress) {
-  return new Promise((resolve, reject) => {
-    const req = https
-      .request(
-        {
-          hostname: ipAddress,
-          servername: config.host,
-          path: config.path,
-          port: 443,
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          agent: globals.httpsAgent,
-          timeout: config.networkTimeout
-        },
-        res => {
-          var apiResponse = '';
-
-          res.on('data', chunk => {
-            apiResponse += chunk;
-          });
-
-          res.on('end', () => {
-            resolve({ status: res.statusCode, apiResponse });
-          });
-        }
-      )
-      .on('error', err => {
-        reject(err);
-      });
-
-    req.write(JSON.stringify(requestBody));
-    req.end();
-  });
-}
 
 class Report {
   constructor(wrapperInstance = {}) {
@@ -56,14 +21,14 @@ class Report {
 
     const {
       config = {},
-      modifiedContext = {},
+      context = {},
       dnsPromise = Promise.resolve(),
       metrics = [],
       startTime = process.hrtime()
     } = wrapperInstance;
 
     this.config = config;
-    this.context = modifiedContext;
+    this.context = context;
     this.startTime = startTime;
     this.dnsPromise = dnsPromise;
 
@@ -201,7 +166,7 @@ class Report {
 
       this.dnsPromise
         .then(ipAddress => {
-          sendRequest(self.report, config, ipAddress)
+          sendReport(self.report, config, ipAddress)
             .then(function afterRequest(res) {
               if (config.debug) {
                 log(`API STATUS FROM ${config.host}: ${res.status}`);
