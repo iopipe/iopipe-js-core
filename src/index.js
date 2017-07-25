@@ -4,7 +4,9 @@ import globals from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
 
-const noop = () => {};
+const defaultPluginFunction = () => {
+  return {};
+};
 
 function setupTimeoutCapture(wrapperInstance) {
   const { context, sendReport, config } = wrapperInstance;
@@ -43,7 +45,7 @@ class IOpipeWrapperClass {
     this.startTime = process.hrtime();
 
     // setup any included plugins
-    this.plugins = plugins.map((pluginFn = noop) => {
+    this.plugins = plugins.map((pluginFn = defaultPluginFunction) => {
       if (typeof pluginFn === 'function') {
         return pluginFn(this);
       }
