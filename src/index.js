@@ -138,6 +138,7 @@ class IOpipeWrapperClass {
   sendReport(err, cb = () => {}) {
     this.runHook('post:invoke');
     this.runHook('pre:report');
+    // reset the context back to its original state
     this.setupContext(true);
     if (this.timeout) {
       clearTimeout(this.timeout);
@@ -157,6 +158,8 @@ class IOpipeWrapperClass {
           fn(this);
         }
       } catch (err) {
+        // if this.config is undefined, the hook is probably pre:setup
+        // lets error out if that is the case
         if (this.config === undefined || this.config.debug) {
           console.error(err);
         }

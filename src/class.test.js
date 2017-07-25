@@ -56,6 +56,16 @@ function runWrappedFunction(fnToRun) {
   });
 }
 
+function runWrappedFunctionArray(arr) {
+  return Promise.all(
+    arr.map(fn => {
+      const ctx = mockContext();
+      fn({}, ctx);
+      return ctx.Promise;
+    })
+  );
+}
+
 // this test should run first in this file due to the nature of testing the dns promises
 test('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', async done => {
   try {
@@ -194,13 +204,11 @@ test('Does not have context.iopipe.log collisions', async () => {
       }, 20);
     });
 
-    const [fn1, fn2, fn3] = await Promise.all(
-      [wrappedFunction1, wrappedFunction2, wrappedFunction1].map(fn => {
-        const ctx = mockContext();
-        fn({}, ctx);
-        return ctx.Promise;
-      })
-    );
+    const [fn1, fn2, fn3] = await runWrappedFunctionArray([
+      wrappedFunction1,
+      wrappedFunction2,
+      wrappedFunction1
+    ]);
     expect(fn1).toEqual('wow');
     expect(fn2).toEqual('neat');
     expect(fn3).toEqual('wow');
@@ -242,13 +250,11 @@ test('iopipe.log works, but has collisions', async () => {
       }, 10);
     });
 
-    const [fn1, fn2, fn3] = await Promise.all(
-      [wrappedFunction1, wrappedFunction2, wrappedFunction1].map(fn => {
-        const ctx = mockContext();
-        fn({}, ctx);
-        return ctx.Promise;
-      })
-    );
+    const [fn1, fn2, fn3] = await runWrappedFunctionArray([
+      wrappedFunction1,
+      wrappedFunction2,
+      wrappedFunction1
+    ]);
     expect(fn1).toEqual('wow');
     expect(fn2).toEqual('neat');
     expect(fn3).toEqual('wow');
