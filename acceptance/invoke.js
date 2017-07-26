@@ -44,7 +44,7 @@ function executeUploaded() {
         return process.exit(0);
       }
       console.error('Acceptance test failed.');
-      console.error('Results: ', JSON.stringify([fn1, fn2]));
+      console.error('Results: ', JSON.stringify([fn1, fn2, fn3, fn4]));
       return process.exit(1);
     })
     .catch(err => {

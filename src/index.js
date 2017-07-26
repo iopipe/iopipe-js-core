@@ -172,7 +172,9 @@ class IOpipeWrapperClass {
     });
   }
   fail(err) {
-    this.sendReport(err, this.originalContext.fail);
+    this.sendReport(err, () => {
+      this.originalContext.fail(err);
+    });
   }
   done(err, data) {
     this.sendReport(err, () => {
