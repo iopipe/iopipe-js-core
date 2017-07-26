@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import IOpipe from '../dist/iopipe.js';
 import mockContext from 'aws-lambda-mock-context';
-import isIp from 'is-ip';
 // default region for testing
 process.env.AWS_REGION = 'us-east-1';
 
@@ -104,13 +103,9 @@ describe('metrics agent', () => {
         url: `https://metrics-api.${region}.iopipe.com`
       });
       return iopipe(function Wrapper(event, ctx) {
-        const wrapperInstance = this;
         setTimeout(() => {
           completed[token] = true;
-          ctx.succeed({
-            config: ctx.iopipe.config,
-            dnsPromise: wrapperInstance.dnsPromise
-          });
+          ctx.succeed(ctx.iopipe);
         }, timeout);
       });
     }
@@ -128,19 +123,10 @@ describe('metrics agent', () => {
     )
       .then(values => {
         const [fn1, fn2] = values;
-        Promise.all([fn1.response.dnsPromise, fn2.response.dnsPromise])
-          .then(proms => {
-            const [dns1, dns2] = proms;
-            expect(completed.f1 && completed.f2).toBe(true);
-            expect(fn1.response.config.clientId).toBe('f1');
-            expect(fn2.response.config.clientId).toBe('f2');
-            expect(_.every([_.isString(dns1), _.isString(dns2)])).toBe(true);
-            expect(isIp(dns1)).toBe(true);
-            expect(isIp(dns2)).toBe(true);
-            expect(dns1).not.toEqual(dns2);
-            done();
-          })
-          .catch(defaultCatch);
+        expect(completed.f1 && completed.f2).toBe(true);
+        expect(fn1.response.config.clientId).toBe('f1');
+        expect(fn2.response.config.clientId).toBe('f2');
+        done();
       })
       .catch(defaultCatch);
   });
@@ -232,92 +218,6 @@ describe('metrics agent', () => {
         expect(ctx.memoryLimitInMB).toBe('128');
         expect(ctx.callbackWaitsForEmptyEventLoop).toBe(true);
         expect(testContext.callbackWaitsForEmptyEventLoop).toBe(true);
-        done();
-      })
-      .catch(defaultCatch);
-  });
-
-  it('allows .log functionality', done => {
-    expect.assertions(13);
-    const iopipe = createAgent();
-    const wrappedFunction = iopipe.decorate(function Wrapper(event, ctx) {
-      ctx.iopipe.log('metric-1', 'foo');
-      ctx.iopipe.log('metric-2', true);
-      ctx.iopipe.log('metric-3', { ding: 'dong' });
-      ctx.iopipe.log('metric-4', ['whoa']);
-      ctx.iopipe.log('metric-5', 100);
-      ctx.iopipe.log('metric-6');
-      // test deprecated iopipe.log too
-      iopipe.log('metric-7', true);
-      ctx.succeed(this.metrics);
-    });
-
-    runWrappedFunction(undefined, undefined, undefined, wrappedFunction)
-      .then(obj => {
-        expect(_.isArray(obj.response)).toEqual(true);
-        expect(obj.response.length).toEqual(7);
-        const [m1, m2, m3, m4, m5, m6, m7] = obj.response;
-        expect(m1).toBeInstanceOf(Object);
-        expect(m1.name).toEqual('metric-1');
-        expect(m1.n).toEqual(undefined);
-        expect(m1.s).toEqual('foo');
-        expect(m2.s).toEqual('true');
-        expect(m3.s).toEqual('{"ding":"dong"}');
-        expect(m4.s).toEqual('["whoa"]');
-        expect(m5.n).toEqual(100);
-        expect(m6.name).toEqual('metric-6');
-        expect(m6.n).toEqual(undefined);
-        expect(m7.s).toEqual('true');
-        done();
-      })
-      .catch(defaultCatch);
-  });
-
-  it('does not have context.iopipe.log collisions, unless using iopipe.log', done => {
-    expect.assertions(6);
-    let f1Complete = false;
-    let f2Complete = false;
-
-    const iopipe = createAgent();
-    const wrappedFunction1 = iopipe.decorate(function Wrapper(event, ctx) {
-      const self = this;
-      ctx.iopipe.log('func-1-log-1', true);
-      iopipe.log('iopipe-log-func-1-log-2', true);
-      ctx.iopipe.log('func-1-log-3', true);
-      setTimeout(() => {
-        iopipe.log('iopipe-log-func-1-log-4', true);
-        f1Complete = true;
-        ctx.succeed(self.metrics);
-      }, 5);
-    });
-
-    const wrappedFunction2 = iopipe.decorate(function Wrapper(event, ctx) {
-      const self = this;
-      ctx.iopipe.log('func-2-log-1', true);
-      ctx.iopipe.log('func-2-log-2', true);
-      setTimeout(() => {
-        iopipe.log('iopipe-log-func-2-log-3', true);
-      }, 2);
-      setTimeout(() => {
-        f2Complete = true;
-        ctx.succeed(self.metrics);
-      }, 10);
-    });
-
-    expect(f1Complete).toBe(false);
-    expect(f2Complete).toBe(false);
-
-    Promise.all(
-      [wrappedFunction1, wrappedFunction2, wrappedFunction1].map(fn =>
-        runWrappedFunction(undefined, undefined, undefined, fn)
-      )
-    )
-      .then(values => {
-        const [fn1, fn2, fn3] = values;
-        expect(f1Complete && f2Complete).toBe(true);
-        expect(fn1.response).toMatchSnapshot();
-        expect(fn2.response).toMatchSnapshot();
-        expect(fn3.response).toMatchSnapshot();
         done();
       })
       .catch(defaultCatch);

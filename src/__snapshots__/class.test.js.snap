@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Allows ctx.iopipe.log and iopipe.log functionality 1`] = `
+Array [
+  Object {
+    "n": undefined,
+    "name": "metric-1",
+    "s": "foo",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-2",
+    "s": "true",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-3",
+    "s": "{\\"ding\\":\\"dong\\"}",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-4",
+    "s": "[\\"whoa\\"]",
+  },
+  Object {
+    "n": 100,
+    "name": "metric-5",
+    "s": undefined,
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-6",
+    "s": undefined,
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-7",
+    "s": "true",
+  },
+]
+`;
+
+exports[`Does not have context.iopipe.log collisions 1`] = `
+Array [
+  Array [
+    Object {
+      "n": undefined,
+      "name": "func-1-log-1",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-2",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-3",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-4",
+      "s": "true",
+    },
+  ],
+  Array [
+    Object {
+      "n": undefined,
+      "name": "func-1-log-1",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-2",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-3",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-4",
+      "s": "true",
+    },
+  ],
+  Array [
+    Object {
+      "n": undefined,
+      "name": "func-2-log-1",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-2-log-2",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-2-log-3",
+      "s": "true",
+    },
+  ],
+]
+`;
+
+exports[`iopipe.log works, but has collisions 1`] = `
+Array [
+  Array [
+    Object {
+      "n": undefined,
+      "name": "func-1-log-1",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "iopipe-log-func-1-log-2",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-3",
+      "s": "true",
+    },
+  ],
+  Array [
+    Object {
+      "n": undefined,
+      "name": "func-1-log-1",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "iopipe-log-func-1-log-2",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-1-log-3",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "iopipe-log-func-2-log-3",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "iopipe-log-func-1-log-4",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "iopipe-log-func-1-log-4",
+      "s": "true",
+    },
+  ],
+  Array [
+    Object {
+      "n": undefined,
+      "name": "func-2-log-1",
+      "s": "true",
+    },
+    Object {
+      "n": undefined,
+      "name": "func-2-log-2",
+      "s": "true",
+    },
+  ],
+]
+`;

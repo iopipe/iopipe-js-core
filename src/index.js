@@ -2,10 +2,15 @@ import setConfig from './config';
 import Report from './report';
 import globals from './globals';
 import { getDnsPromise } from './dns';
+import { getHook } from './hooks';
+
+const defaultPluginFunction = () => {
+  return {};
+};
 
 function setupTimeoutCapture(wrapperInstance) {
-  const { modifiedContext, sendReport, config } = wrapperInstance;
-  const { getRemainingTimeInMillis = () => 0 } = modifiedContext;
+  const { context, sendReport, config } = wrapperInstance;
+  const { getRemainingTimeInMillis = () => 0 } = context;
 
   // if getRemainingTimeInMillis returns a very small number, it's probably a local invoke (sls framework perhaps)
   if (config.timeoutWindow < 1 || getRemainingTimeInMillis() < 10) {
@@ -27,7 +32,9 @@ function setupTimeoutCapture(wrapperInstance) {
 
 class IOpipeWrapperClass {
   constructor(
+    originalIdentity,
     libFn,
+    plugins = [],
     dnsPromise,
     config,
     userFunc,
@@ -35,9 +42,19 @@ class IOpipeWrapperClass {
     originalContext,
     originalCallback
   ) {
-    // support deprecated iopipe.log
     this.startTime = process.hrtime();
 
+    // setup any included plugins
+    this.plugins = plugins.map((pluginFn = defaultPluginFunction) => {
+      if (typeof pluginFn === 'function') {
+        return pluginFn(this);
+      }
+      return {};
+    });
+
+    this.runHook('pre:setup');
+
+    // support deprecated iopipe.log
     libFn.log = (...logArgs) => {
       console.warn(
         'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.log'
@@ -55,7 +72,8 @@ class IOpipeWrapperClass {
       this.dnsPromise = dnsPromise;
     }
 
-    this.originalEvent = originalEvent;
+    this.originalIdentity = originalIdentity;
+    this.event = originalEvent;
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
     this.userFunc = userFunc;
@@ -63,7 +81,7 @@ class IOpipeWrapperClass {
     this.setupContext();
 
     // assign modified methods and objects here
-    this.modifiedContext = Object.assign(this.originalContext, {
+    this.context = Object.assign(this.originalContext, {
       // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClass
       succeed: this.succeed.bind(this),
       fail: this.fail.bind(this),
@@ -75,7 +93,7 @@ class IOpipeWrapperClass {
       }
     });
 
-    this.modifiedCallback = (err, data) => {
+    this.callback = (err, data) => {
       this.sendReport(err, () => {
         typeof this.originalCallback === 'function' &&
           this.originalCallback(err, data);
@@ -83,8 +101,9 @@ class IOpipeWrapperClass {
     };
 
     this.timeout = setupTimeoutCapture(this);
-
     this.report = new Report(this);
+
+    this.runHook('post:setup');
 
     return this;
   }
@@ -103,12 +122,13 @@ class IOpipeWrapperClass {
     });
   }
   invoke() {
+    this.runHook('pre:invoke');
     try {
       return this.userFunc.call(
-        this,
-        this.originalEvent,
-        this.modifiedContext,
-        this.modifiedCallback
+        this.originalIdentity,
+        this.event,
+        this.context,
+        this.callback
       );
     } catch (err) {
       this.sendReport(err);
@@ -116,23 +136,45 @@ class IOpipeWrapperClass {
     }
   }
   sendReport(err, cb = () => {}) {
+    this.runHook('post:invoke');
+    this.runHook('pre:report');
+    // reset the context back to its original state
+    this.setupContext(true);
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
-    this.report.send(err, cb);
+    this.report.send(err, (...args) => {
+      this.runHook('post:report');
+      cb(...args);
+    });
+  }
+  runHook(hook) {
+    const hookString = getHook(hook);
+    const { plugins = [] } = this;
+    plugins.forEach(plugin => {
+      try {
+        const fn = plugin.hooks && plugin.hooks[hookString];
+        if (typeof fn === 'function') {
+          fn(this);
+        }
+      } catch (err) {
+        // if this.config is undefined, the hook is probably pre:setup
+        // lets error out if that is the case
+        if (this.config === undefined || this.config.debug) {
+          console.error(err);
+        }
+      }
+    });
   }
   succeed(data) {
-    this.setupContext(true);
     this.sendReport(null, () => {
       this.originalContext.succeed(data);
     });
   }
   fail(err) {
-    this.setupContext(true);
     this.sendReport(err, this.originalContext.fail);
   }
   done(err, data) {
-    this.setupContext(true);
     this.sendReport(err, () => {
       this.originalContext.done(err, data);
     });
@@ -155,6 +197,8 @@ class IOpipeWrapperClass {
 
 module.exports = options => {
   const config = setConfig(options);
+  const { plugins } = config;
+
   const dnsPromise = getDnsPromise(config.host);
   const libFn = userFunc => {
     if (!config.clientId) {
@@ -169,10 +213,16 @@ module.exports = options => {
     if (typeof libFn.log !== 'function') {
       libFn.log = () => {};
     }
-
-    return (originalEvent, originalContext, originalCallback) => {
+    return function OriginalCaller(
+      originalEvent,
+      originalContext,
+      originalCallback
+    ) {
+      const originalIdentity = this;
       return new IOpipeWrapperClass(
+        originalIdentity,
         libFn,
+        plugins,
         dnsPromise,
         config,
         userFunc,

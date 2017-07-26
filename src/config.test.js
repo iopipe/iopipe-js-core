@@ -16,7 +16,8 @@ describe('setting up config object', () => {
       debug: false,
       networkTimeout: 5000,
       timeoutWindow: 150,
-      installMethod: 'manual'
+      installMethod: 'manual',
+      plugins: []
     });
   });
 
