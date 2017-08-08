@@ -15,7 +15,7 @@ If you are using the Serverless Framework to deploy your lambdas, check out our 
 Example:
 
 ```js
-var iopipe = require('iopipe')({ token: 'PROJECT_TOKEN' });
+const iopipe = require('iopipe')({ token: 'PROJECT_TOKEN' });
 
 exports.handler = iopipe((event, context) => {
   context.succeed('This is my serverless function!');
@@ -32,8 +32,8 @@ If not supplied, the environment variable `$IOPIPE_TOKEN` will be used if presen
 
 By default, IOpipe will capture timeouts by exiting your function 150ms early from the AWS configured timeout, to allow time for reporting. You can disable this feature by setting `timeoutWindow` to `0` in your configuration. If not supplied, the environment variable `$IOPIPE_TIMEOUT_WINDOW` will be used if present.
 
-```javascript
-var iopipe = require('iopipe')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
+```js
+const iopipe = require('iopipe')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
 ```
 
 #### `debug` (bool: optional = false)
@@ -41,10 +41,12 @@ var iopipe = require('iopipe')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
 Debug mode will log all data sent to IOpipe servers to STDOUT. This is also a good way to evaluate the sort of data that IOpipe is receiving from your application. If not supplied, the environment variable `$IOPIPE_DEBUG` will be used if present.
 
 ```js
-exports.handler = require('iopipe')({
+const iopipe = require('iopipe')({
   token: 'PROJECT_TOKEN',
   debug: true
-})((event, context, callback) => {
+});
+
+exports.handler = iopipe((event, context, callback) => {
   // Do things here. We'll log info to STDOUT.
 });
 ```
@@ -60,10 +62,12 @@ Example:
 ```js
 const tracePlugin = require('iopipe-plugin-trace');
 
-exports.handler = require('iopipe')({
+const iopipe = require('iopipe')({
   token: 'PROJECT_TOKEN',
   plugins: [tracePlugin()]
-})((event, context, callback) => {
+});
+
+exports.handler = iopipe((event, context, callback) => {
   // Run your fn here
 });
 ```
