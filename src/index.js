@@ -110,14 +110,17 @@ class IOpipeWrapperClass {
   setupContext(reset) {
     // preserve original functions via a property name change
     ['succeed', 'fail', 'done'].forEach(method => {
-      Object.defineProperty(
+      const descriptor = Object.getOwnPropertyDescriptor(
         this.originalContext,
-        reset ? method : `original_${method}`,
-        Object.getOwnPropertyDescriptor(
-          this.originalContext,
-          reset ? `original_${method}` : method
-        )
+        reset ? `original_${method}` : method
       );
+      if (descriptor) {
+        Object.defineProperty(
+          this.originalContext,
+          reset ? method : `original_${method}`,
+          descriptor
+        );
+      }
       delete this.originalContext[reset ? `original_${method}` : method];
     });
   }
