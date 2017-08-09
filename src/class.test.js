@@ -269,3 +269,24 @@ test('iopipe.log works, but has collisions', async () => {
     throw err;
   }
 });
+
+test('Defining original context properties does not error if descriptors are undefined', async done => {
+  try {
+    let doneData = undefined;
+
+    const iopipe = createAgent({
+      token: 'context-props'
+    });
+    const func = iopipe((event, ctx, callback) => {
+      callback(null, 'woot');
+    });
+
+    func({}, { success: () => {} }, (err, data) => {
+      doneData = data;
+      expect(doneData).toBe('woot');
+      done();
+    });
+  } catch (err) {
+    throw err;
+  }
+});
