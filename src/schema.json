@@ -1,0 +1,107 @@
+{
+  "client_id": "s",
+  "projectId": "s",
+  "installMethod": "s",
+  "duration": "i",
+  "processId": "s",
+  "timestamp": "n",
+  "aws": {
+    "functionName": "s",
+    "functionVersion": "s",
+    "awsRequestId": "s",
+    "invokedFunctionArn": "s",
+    "logGroupName": "s",
+    "logStreamName": "s",
+    "memoryLimitInMB": "n",
+    "getRemainingTimeInMillis": "n",
+    "traceId": "s"
+  },
+  "memory": {
+    "rssMiB": "n",
+    "totalMiB": "n",
+    "rssTotalPercentage": "n"
+  },
+  "environment": {
+    "agent": {
+      "runtime": "s",
+      "version": "s",
+      "load_time": "n"
+    },
+    "nodejs": {
+      "version": "s",
+      "memoryUsage": {
+        "rss": "n"
+      }
+    },
+    "python": {
+      "version": "s"
+    },
+    "host": {
+      "boot_id": "s"
+    },
+    "os": {
+      "hostname": "s",
+      "totalmem": "n",
+      "freemem": "n",
+      "usedmem": "n",
+      "cpus": [
+        {
+          "times": {
+            "idle": "n",
+            "irq": "n",
+            "sys": "n",
+            "user": "n",
+            "nice": "n"
+          }
+        }
+      ],
+      "linux": {
+        "pid": {
+          "self": {
+            "stat": {
+              "utime": "n",
+              "stime": "n",
+              "cutime": "n",
+              "cstime": "n"
+            },
+            "stat_start": {
+              "utime": "n",
+              "stime": "n",
+              "cutime": "n",
+              "cstime": "n"
+            },
+            "status": {
+              "VmRSS": "n",
+              "Threads": "n",
+              "FDSize": "n"
+            }
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "stack": "s",
+    "name": "s",
+    "message": "s",
+    "stackHash": "s",
+    "count": "n"
+  },
+  "coldstart": "b",
+  "custom_metrics": [
+    {
+      "name": "s",
+      "s": "s",
+      "n": "n"
+    }
+  ],
+  "performanceEntries": [
+    {
+      "name": "s",
+      "startTime": "n",
+      "duration": "n",
+      "entryType": "s",
+      "timestamp": "n"
+    }
+  ]
+}

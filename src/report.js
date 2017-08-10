@@ -24,7 +24,8 @@ class Report {
       context = {},
       dnsPromise = Promise.resolve(),
       metrics = [],
-      startTime = process.hrtime()
+      startTime = process.hrtime(),
+      startTimestamp = Date.now()
     } = wrapperInstance;
 
     this.config = config;
@@ -48,6 +49,7 @@ class Report {
       installMethod: this.config.installMethod,
       duration: undefined,
       processId: globals.PROCESS_ID,
+      timestamp: startTimestamp,
       aws: {
         functionName,
         functionVersion,

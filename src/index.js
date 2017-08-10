@@ -43,6 +43,7 @@ class IOpipeWrapperClass {
     originalCallback
   ) {
     this.startTime = process.hrtime();
+    this.startTimestamp = Date.now();
 
     // setup any included plugins
     this.plugins = plugins.map((pluginFn = defaultPluginFunction) => {
