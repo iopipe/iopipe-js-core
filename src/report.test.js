@@ -2,7 +2,7 @@ import _ from 'lodash';
 import flatten from 'flat';
 import Report from './report';
 import context from 'aws-lambda-mock-context';
-import { PAYLOAD_SCHEMA as schema } from 'iopipe-payload';
+const schema = require('./schema.json');
 
 const config = {
   clientId: 'foo'
@@ -31,12 +31,18 @@ describe('Report creation', () => {
       const flatSchema = _.chain(schema).thru(flatten).keys().value();
       const diff = _.difference(flatSchema, flatReport);
       const allowedMissingFields = [
+        'projectId',
         'memory.rssMiB',
         'memory.totalMiB',
         'memory.rssTotalPercentage',
         'environment.python.version',
         'errors.stackHash',
-        'errors.count'
+        'errors.count',
+        'performanceEntries.0.name',
+        'performanceEntries.0.startTime',
+        'performanceEntries.0.duration',
+        'performanceEntries.0.entryType',
+        'performanceEntries.0.timestamp'
       ];
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
       done();
