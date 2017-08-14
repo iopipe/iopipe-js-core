@@ -20,6 +20,7 @@ function getHostname(configUrl) {
     return url.parse(configUrl).hostname;
   }
   const supportedRegions = [
+    'ap-northeast-1'
     'ap-southeast-2',
     'eu-west-1',
     'us-east-2',
