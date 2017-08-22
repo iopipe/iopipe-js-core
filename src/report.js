@@ -45,7 +45,9 @@ class Report {
       memoryLimitInMB
     } = this.context;
 
-    const pluginConfigss = plugins.map(pluginFn => pluginFn.config);
+    const pluginConfigss = plugins.map(pluginFn => {
+      return { name: pluginFn.config.functionName };
+    });
 
     this.report = {
       client_id: this.config.clientId || undefined,

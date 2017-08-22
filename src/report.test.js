@@ -62,7 +62,7 @@ describe('Report creation', () => {
     const mockPlugin = () => {
       return {
         config: {
-          name: 'mockPlugin'
+          functionName: 'mockPlugin'
         }
       };
     };
@@ -70,5 +70,7 @@ describe('Report creation', () => {
     const r = new Report({ config, context: context(), plugins: myPlugins });
 
     expect(r.report.plugins.length).toBe(1);
+
+    expect(r.report.plugins[0].name).toBe('mockPlugin');
   });
 });
