@@ -24,6 +24,7 @@ class Report {
       context = {},
       dnsPromise = Promise.resolve(),
       metrics = [],
+      plugins = [],
       startTime = process.hrtime(),
       startTimestamp = Date.now()
     } = wrapperInstance;
@@ -43,6 +44,8 @@ class Report {
       logStreamName,
       memoryLimitInMB
     } = this.context;
+
+    const pluginConfigss = plugins.map(pluginFn => pluginFn.config);
 
     this.report = {
       client_id: this.config.clientId || undefined,
@@ -78,7 +81,8 @@ class Report {
       },
       errors: {},
       coldstart: globals.COLDSTART,
-      custom_metrics: metrics
+      custom_metrics: metrics,
+      plugins: pluginConfigss
     };
 
     // Set to false after coldstart

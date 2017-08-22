@@ -103,5 +103,10 @@
       "entryType": "s",
       "timestamp": "n"
     }
+  ],
+  "plugins": [
+    {
+      "name": "s"
+    }
   ]
 }

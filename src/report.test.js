@@ -44,6 +44,7 @@ describe('Report creation', () => {
         'performanceEntries.0.entryType',
         'performanceEntries.0.timestamp'
       ];
+
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
       done();
     });
@@ -55,5 +56,19 @@ describe('Report creation', () => {
     myMetrics.push({ n: 1, name: 'a_value' });
 
     expect(r.report.custom_metrics.length).toBe(1);
+  });
+
+  it('tracks plugins in use', () => {
+    const mockPlugin = () => {
+      return {
+        config: {
+          name: 'mockPlugin'
+        }
+      };
+    };
+    const myPlugins = [mockPlugin()];
+    const r = new Report({ config, context: context(), plugins: myPlugins });
+
+    expect(r.report.plugins.length).toBe(1);
   });
 });
