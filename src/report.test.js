@@ -42,7 +42,8 @@ describe('Report creation', () => {
         'performanceEntries.0.startTime',
         'performanceEntries.0.duration',
         'performanceEntries.0.entryType',
-        'performanceEntries.0.timestamp'
+        'performanceEntries.0.timestamp',
+        'plugins.0.name'
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
