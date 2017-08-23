@@ -45,7 +45,7 @@ class Report {
       memoryLimitInMB
     } = this.context;
 
-    const pluginConfigss = plugins.map(pluginFn => {
+    const pluginConfigs = plugins.map(pluginFn => {
       return { name: pluginFn.config.functionName };
     });
 
@@ -84,7 +84,7 @@ class Report {
       errors: {},
       coldstart: globals.COLDSTART,
       custom_metrics: metrics,
-      plugins: pluginConfigss
+      plugins: pluginConfigs
     };
 
     // Set to false after coldstart
