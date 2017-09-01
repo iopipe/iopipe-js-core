@@ -45,7 +45,22 @@ class Report {
       memoryLimitInMB
     } = this.context;
 
-    const pluginMetas = plugins.map(plugin => plugin.meta);
+    const pluginMetas = plugins
+      .map(plugin => {
+        if (typeof plugin === 'function') {
+          return plugin().meta;
+        }
+
+        return plugin.meta;
+      })
+      .filter(meta => typeof meta !== 'undefined')
+      .map(meta => {
+        return {
+          name: meta.name,
+          version: meta.version,
+          homepage: meta.homepage
+        };
+      });
 
     this.report = {
       client_id: this.config.clientId || undefined,

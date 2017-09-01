@@ -63,9 +63,17 @@ describe('Report creation', () => {
   });
 
   it('tracks plugins in use', () => {
-    const plugins = [DummyPlugin()];
-    const r = new Report({ config, context: context(), plugins: plugins });
+    const plugin = DummyPlugin();
+    const r = new Report({ plugins: [plugin] });
 
     expect(r.report.plugins.length).toBe(1);
+
+    expect(r.report.plugins[0].name).toBe('dummy');
+
+    expect(r.report.plugins[0].version).toBe('0.0.1');
+
+    expect(r.report.plugins[0].homepage).toBe(
+      'https://github.com/not/a/real/plugin'
+    );
   });
 });
