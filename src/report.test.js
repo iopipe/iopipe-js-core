@@ -2,6 +2,7 @@ import _ from 'lodash';
 import flatten from 'flat';
 import Report from './report';
 import context from 'aws-lambda-mock-context';
+import DummyPlugin from './plugins/dummy';
 const schema = require('./schema.json');
 
 const config = {
@@ -43,7 +44,9 @@ describe('Report creation', () => {
         'performanceEntries.0.duration',
         'performanceEntries.0.entryType',
         'performanceEntries.0.timestamp',
-        'plugins.0.name'
+        'plugins.0.name',
+        'plugins.0.version',
+        'plugins.0.homepage'
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
@@ -60,18 +63,9 @@ describe('Report creation', () => {
   });
 
   it('tracks plugins in use', () => {
-    const mockPlugin = () => {
-      return {
-        config: {
-          functionName: 'mockPlugin'
-        }
-      };
-    };
-    const myPlugins = [mockPlugin()];
-    const r = new Report({ config, context: context(), plugins: myPlugins });
+    const plugins = [DummyPlugin()];
+    const r = new Report({ config, context: context(), plugins: plugins });
 
     expect(r.report.plugins.length).toBe(1);
-
-    expect(r.report.plugins[0].name).toBe('mockPlugin');
   });
 });

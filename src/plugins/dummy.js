@@ -1,14 +1,19 @@
 import _ from 'lodash';
 
-class TracePlugin {
+class DummyPlugin {
   constructor(pluginConfig = {}, invocationInstance) {
     this.invocationInstance = invocationInstance;
     this.config = _.defaults({}, pluginConfig, {
-      functionName: 'trace'
+      functionName: 'dummy'
     });
     this.hasSetup = false;
     this.hooks = {
       'post:setup': this.postSetup.bind(this)
+    };
+    this.meta = {
+      name: 'dummy',
+      version: '0.0.1',
+      homepage: 'https://github.com/not/a/real/plugin'
     };
     return this;
   }
@@ -16,13 +21,13 @@ class TracePlugin {
     this.hasSetup = true;
     this.invocationInstance.context.iopipe[
       this.config.functionName
-    ] = this.trace.bind(this);
+    ] = this.dummy.bind(this);
     return this.config;
   }
-  trace(name, s) {
+  dummy(name, s) {
     const { metrics = [] } = this.invocationInstance;
     metrics.push({
-      name: `trace-${name}`,
+      name: `dummy-${name}`,
       s
     });
   }
@@ -30,6 +35,6 @@ class TracePlugin {
 
 export default function instantiate(pluginOpts) {
   return invocationInstance => {
-    return new TracePlugin(pluginOpts, invocationInstance);
+    return new DummyPlugin(pluginOpts, invocationInstance);
   };
 }

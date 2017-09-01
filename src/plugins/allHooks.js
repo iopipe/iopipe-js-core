@@ -7,7 +7,7 @@ class AllHooksPlugin {
   constructor(pluginConfig = {}, invocationInstance) {
     this.invocationInstance = invocationInstance;
     this.config = _.defaults({}, pluginConfig, {
-      functionName: 'trace'
+      functionName: 'allHooks'
     });
     this.hasSetup = false;
     this.hooks = _.chain(hooks)
@@ -16,6 +16,11 @@ class AllHooksPlugin {
       })
       .fromPairs()
       .value();
+    this.meta = {
+      name: 'allHooks',
+      version: '0.0.1',
+      homepage: 'https://github.com/not/a/real/plugin'
+    };
     return this;
   }
   runHook(hook) {
