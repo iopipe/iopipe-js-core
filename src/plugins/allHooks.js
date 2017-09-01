@@ -23,6 +23,13 @@ class AllHooksPlugin {
     };
     return this;
   }
+  meta() {
+    return {
+      name: 'allHooks',
+      version: '0.0.1',
+      homepage: 'https://github.com/not/a/real/plugin'
+    };
+  }
   runHook(hook) {
     const str = `context.hasRun:${hook}`;
     _.set(this.invocationInstance, str, true);

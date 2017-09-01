@@ -64,7 +64,8 @@ describe('Report creation', () => {
 
   it('tracks plugins in use', () => {
     const plugin = DummyPlugin();
-    const r = new Report({ plugins: [plugin] });
+
+    const r = new Report({ plugins: [plugin()] });
 
     expect(r.report.plugins.length).toBe(1);
 

@@ -128,6 +128,18 @@ test('A single plugin can be loaded and work', async () => {
       .find({ name: 'dummy-ok', s: 'neat' })
       .value();
     expect(_.isObject(metric)).toBe(true);
+
+    const plugin = _.chain(reports)
+      .find(obj => obj.client_id === 'single-plugin')
+      .get('plugins')
+      .find({
+        name: 'dummy',
+        version: '0.0.1',
+        homepage: 'https://github.com/not/a/real/plugin'
+      })
+      .value();
+
+    expect(_.isObject(plugin)).toBe(true);
   } catch (err) {
     console.error(err);
     throw err;

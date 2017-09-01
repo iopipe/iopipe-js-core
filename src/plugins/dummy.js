@@ -10,12 +10,14 @@ class DummyPlugin {
     this.hooks = {
       'post:setup': this.postSetup.bind(this)
     };
-    this.meta = {
+    return this;
+  }
+  meta() {
+    return {
       name: 'dummy',
       version: '0.0.1',
       homepage: 'https://github.com/not/a/real/plugin'
     };
-    return this;
   }
   postSetup() {
     this.hasSetup = true;
