@@ -12,7 +12,7 @@ class DummyPlugin {
     };
     return this;
   }
-  meta() {
+  get meta() {
     return {
       name: 'dummy',
       version: '0.0.1',

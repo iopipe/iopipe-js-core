@@ -46,11 +46,8 @@ class Report {
     } = this.context;
 
     const pluginMetas = plugins
-      .filter(
-        plugin =>
-          typeof plugin !== 'undefined' && typeof plugin.meta === 'function'
-      )
-      .map(plugin => plugin.meta());
+      .filter(plugin => typeof plugin !== 'undefined')
+      .map(plugin => plugin.meta || {});
 
     this.report = {
       client_id: this.config.clientId || undefined,

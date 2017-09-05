@@ -16,14 +16,9 @@ class AllHooksPlugin {
       })
       .fromPairs()
       .value();
-    this.meta = {
-      name: 'allHooks',
-      version: '0.0.1',
-      homepage: 'https://github.com/not/a/real/plugin'
-    };
     return this;
   }
-  meta() {
+  get meta() {
     return {
       name: 'allHooks',
       version: '0.0.1',
