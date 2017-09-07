@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
-class DummyPlugin {
+class MockPlugin {
   constructor(pluginConfig = {}, invocationInstance) {
     this.invocationInstance = invocationInstance;
     this.config = _.defaults({}, pluginConfig, {
-      functionName: 'dummy'
+      functionName: 'mock'
     });
     this.hasSetup = false;
     this.hooks = {
@@ -14,7 +14,7 @@ class DummyPlugin {
   }
   get meta() {
     return {
-      name: 'dummy',
+      name: 'mock',
       version: '0.0.1',
       homepage: 'https://github.com/not/a/real/plugin'
     };
@@ -23,13 +23,13 @@ class DummyPlugin {
     this.hasSetup = true;
     this.invocationInstance.context.iopipe[
       this.config.functionName
-    ] = this.dummy.bind(this);
+    ] = this.mock.bind(this);
     return this.config;
   }
-  dummy(name, s) {
+  mock(name, s) {
     const { metrics = [] } = this.invocationInstance;
     metrics.push({
-      name: `dummy-${name}`,
+      name: `mock-${name}`,
       s
     });
   }
@@ -37,6 +37,6 @@ class DummyPlugin {
 
 export default function instantiate(pluginOpts) {
   return invocationInstance => {
-    return new DummyPlugin(pluginOpts, invocationInstance);
+    return new MockPlugin(pluginOpts, invocationInstance);
   };
 }

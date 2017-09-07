@@ -25,11 +25,11 @@ Array [
 exports[`Multiple plugins can be loaded and work 1`] = `
 Array [
   Object {
-    "name": "dummy-ok",
+    "name": "mock-ok",
     "s": "neat",
   },
   Object {
-    "name": "dummy-foo",
+    "name": "mock-foo",
     "s": "bar",
   },
 ]

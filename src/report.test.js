@@ -2,7 +2,7 @@ import _ from 'lodash';
 import flatten from 'flat';
 import Report from './report';
 import context from 'aws-lambda-mock-context';
-import DummyPlugin from './plugins/dummy';
+import MockPlugin from './plugins/mock';
 const schema = require('./schema.json');
 
 const config = {
@@ -63,13 +63,13 @@ describe('Report creation', () => {
   });
 
   it('tracks plugins in use', () => {
-    const plugin = DummyPlugin();
+    const plugin = MockPlugin();
 
     const r = new Report({ plugins: [plugin()] });
 
     expect(r.report.plugins.length).toBe(1);
 
-    expect(r.report.plugins[0].name).toBe('dummy');
+    expect(r.report.plugins[0].name).toBe('mock');
 
     expect(r.report.plugins[0].version).toBe('0.0.1');
 

@@ -7,7 +7,7 @@ jest.mock('./sendReport');
 import { reports } from './sendReport';
 import { hooks } from './hooks';
 
-import DummyPlugin from './plugins/dummy';
+import MockPlugin from './plugins/mock';
 import {
   instantiate as AllHooksPlugin,
   data as allHooksData
@@ -19,7 +19,7 @@ test('Hooks have not changed', () => {
 });
 
 test('Can instantiate a test plugin', done => {
-  const plugin = DummyPlugin();
+  const plugin = MockPlugin();
 
   const invocationInstance = {};
   const pluginInstance = plugin(invocationInstance);
@@ -30,7 +30,7 @@ test('Can instantiate a test plugin', done => {
 });
 
 test('Can instantiate a test plugin with config', done => {
-  const plugin = DummyPlugin({
+  const plugin = MockPlugin({
     foo: 'bar'
   });
 
@@ -43,7 +43,7 @@ test('Can instantiate a test plugin with config', done => {
 });
 
 test('Can call a plugin hook function', done => {
-  const plugin = DummyPlugin();
+  const plugin = MockPlugin();
 
   const invocationInstance = {
     context: {
@@ -60,21 +60,21 @@ test('Can call a plugin hook function', done => {
 });
 
 test('Can run a test plugin hook that modifies a invocation instance', done => {
-  const plugin = DummyPlugin();
+  const plugin = MockPlugin();
 
   const invocationInstance = { context: { iopipe: { log: _.noop } } };
   const pluginInstance = plugin(invocationInstance);
 
-  expect(_.isFunction(invocationInstance.context.iopipe.dummy)).toBe(false);
+  expect(_.isFunction(invocationInstance.context.iopipe.mock)).toBe(false);
   pluginInstance.hooks['post:setup']();
   expect(pluginInstance.hasSetup).toEqual(true);
-  expect(_.isFunction(invocationInstance.context.iopipe.dummy)).toBe(true);
+  expect(_.isFunction(invocationInstance.context.iopipe.mock)).toBe(true);
 
   done();
 });
 
 test('Can run a test plugin hook directly', done => {
-  const plugin = DummyPlugin();
+  const plugin = MockPlugin();
 
   const invocationInstance = {
     metrics: [
@@ -90,14 +90,14 @@ test('Can run a test plugin hook directly', done => {
   const pluginInstance = plugin(invocationInstance);
 
   pluginInstance.hooks['post:setup']();
-  invocationInstance.context.iopipe.dummy('metric-2', 'baz');
+  invocationInstance.context.iopipe.mock('metric-2', 'baz');
   const { metrics } = invocationInstance;
   expect(metrics.length).toBe(2);
   expect(
     _.find(metrics, m => m.name === 'ding' && m.s === 'dong')
   ).toBeTruthy();
   expect(
-    _.find(metrics, m => m.name === 'dummy-metric-2' && m.s === 'baz')
+    _.find(metrics, m => m.name === 'mock-metric-2' && m.s === 'baz')
   ).toBeTruthy();
 
   done();
@@ -107,12 +107,12 @@ test('A single plugin can be loaded and work', async () => {
   try {
     const iopipe = IOpipe({
       token: 'single-plugin',
-      plugins: [DummyPlugin()]
+      plugins: [MockPlugin()]
     });
 
     const wrapped = iopipe((event, ctx) => {
-      ctx.iopipe.dummy('ok', 'neat');
-      ctx.succeed(ctx.iopipe.dummy);
+      ctx.iopipe.mock('ok', 'neat');
+      ctx.succeed(ctx.iopipe.mock);
     });
 
     const context = mockContext();
@@ -125,7 +125,7 @@ test('A single plugin can be loaded and work', async () => {
     const metric = _.chain(reports)
       .find(obj => obj.client_id === 'single-plugin')
       .get('custom_metrics')
-      .find({ name: 'dummy-ok', s: 'neat' })
+      .find({ name: 'mock-ok', s: 'neat' })
       .value();
     expect(_.isObject(metric)).toBe(true);
 
@@ -133,7 +133,7 @@ test('A single plugin can be loaded and work', async () => {
       .find(obj => obj.client_id === 'single-plugin')
       .get('plugins')
       .find({
-        name: 'dummy',
+        name: 'mock',
         version: '0.0.1',
         homepage: 'https://github.com/not/a/real/plugin'
       })
@@ -151,16 +151,16 @@ test('Multiple plugins can be loaded and work', async () => {
     const iopipe = IOpipe({
       token: 'multiple-plugins',
       plugins: [
-        DummyPlugin(),
-        DummyPlugin({
-          functionName: 'secondDummy'
+        MockPlugin(),
+        MockPlugin({
+          functionName: 'secondmock'
         })
       ]
     });
 
     const wrapped = iopipe((event, ctx) => {
-      ctx.iopipe.dummy('ok', 'neat');
-      ctx.iopipe.secondDummy('foo', 'bar');
+      ctx.iopipe.mock('ok', 'neat');
+      ctx.iopipe.secondmock('foo', 'bar');
       ctx.succeed('indeed');
     });
 
