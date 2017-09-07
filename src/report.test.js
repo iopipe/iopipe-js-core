@@ -2,6 +2,7 @@ import _ from 'lodash';
 import flatten from 'flat';
 import Report from './report';
 import context from 'aws-lambda-mock-context';
+import MockPlugin from './plugins/mock';
 const schema = require('./schema.json');
 
 const config = {
@@ -42,8 +43,12 @@ describe('Report creation', () => {
         'performanceEntries.0.startTime',
         'performanceEntries.0.duration',
         'performanceEntries.0.entryType',
-        'performanceEntries.0.timestamp'
+        'performanceEntries.0.timestamp',
+        'plugins.0.name',
+        'plugins.0.version',
+        'plugins.0.homepage'
       ];
+
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
       done();
     });
@@ -55,5 +60,21 @@ describe('Report creation', () => {
     myMetrics.push({ n: 1, name: 'a_value' });
 
     expect(r.report.custom_metrics.length).toBe(1);
+  });
+
+  it('tracks plugins in use', () => {
+    const plugin = MockPlugin();
+
+    const r = new Report({ plugins: [plugin()] });
+
+    expect(r.report.plugins.length).toBe(1);
+
+    expect(r.report.plugins[0].name).toBe('mock');
+
+    expect(r.report.plugins[0].version).toBe('0.0.1');
+
+    expect(r.report.plugins[0].homepage).toBe(
+      'https://github.com/not/a/real/plugin'
+    );
   });
 });

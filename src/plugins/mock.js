@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
-class TracePlugin {
+class MockPlugin {
   constructor(pluginConfig = {}, invocationInstance) {
     this.invocationInstance = invocationInstance;
     this.config = _.defaults({}, pluginConfig, {
-      functionName: 'trace'
+      functionName: 'mock'
     });
     this.hasSetup = false;
     this.hooks = {
@@ -12,17 +12,24 @@ class TracePlugin {
     };
     return this;
   }
+  get meta() {
+    return {
+      name: 'mock',
+      version: '0.0.1',
+      homepage: 'https://github.com/not/a/real/plugin'
+    };
+  }
   postSetup() {
     this.hasSetup = true;
     this.invocationInstance.context.iopipe[
       this.config.functionName
-    ] = this.trace.bind(this);
+    ] = this.mock.bind(this);
     return this.config;
   }
-  trace(name, s) {
+  mock(name, s) {
     const { metrics = [] } = this.invocationInstance;
     metrics.push({
-      name: `trace-${name}`,
+      name: `mock-${name}`,
       s
     });
   }
@@ -30,6 +37,6 @@ class TracePlugin {
 
 export default function instantiate(pluginOpts) {
   return invocationInstance => {
-    return new TracePlugin(pluginOpts, invocationInstance);
+    return new MockPlugin(pluginOpts, invocationInstance);
   };
 }
