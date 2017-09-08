@@ -125,8 +125,8 @@ class IOpipeWrapperClass {
       delete this.originalContext[reset ? `original_${method}` : method];
     });
   }
-  async invoke() {
-    await this.runHook('pre:invoke');
+  invoke() {
+    this.runHook('pre:invoke');
     try {
       return this.userFunc.call(
         this.originalIdentity,
