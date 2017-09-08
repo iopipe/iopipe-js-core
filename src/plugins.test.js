@@ -73,7 +73,7 @@ test('Can run a test plugin hook that modifies a invocation instance', done => {
   done();
 });
 
-test('Can run a test plugin hook directly', done => {
+test('Can run a test plugin hook directly', async done => {
   const plugin = MockPlugin();
 
   const invocationInstance = {
@@ -85,12 +85,17 @@ test('Can run a test plugin hook directly', done => {
     ],
     context: {
       iopipe: {}
+    },
+    report: {
+      report: {}
     }
   };
   const pluginInstance = plugin(invocationInstance);
 
   pluginInstance.hooks['post:setup']();
   invocationInstance.context.iopipe.mock('metric-2', 'baz');
+  await pluginInstance.hooks['pre:invoke']();
+  await pluginInstance.hooks['post:invoke']();
   const { metrics } = invocationInstance;
   expect(metrics.length).toBe(2);
   expect(
@@ -98,6 +103,12 @@ test('Can run a test plugin hook directly', done => {
   ).toBeTruthy();
   expect(
     _.find(metrics, m => m.name === 'mock-metric-2' && m.s === 'baz')
+  ).toBeTruthy();
+  expect(
+    _.get(invocationInstance, 'report.report.asyncHookFired')
+  ).toBeTruthy();
+  expect(
+    _.get(invocationInstance, 'report.report.promiseHookFired')
   ).toBeTruthy();
 
   done();
@@ -128,6 +139,12 @@ test('A single plugin can be loaded and work', async () => {
       .find({ name: 'mock-ok', s: 'neat' })
       .value();
     expect(_.isObject(metric)).toBe(true);
+
+    const asyncHookFired = _.chain(reports)
+      .find(obj => obj.client_id === 'single-plugin')
+      .get('asyncHookFired')
+      .value();
+    expect(asyncHookFired).toBeTruthy();
 
     const plugin = _.chain(reports)
       .find(obj => obj.client_id === 'single-plugin')

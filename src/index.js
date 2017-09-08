@@ -125,8 +125,8 @@ class IOpipeWrapperClass {
       delete this.originalContext[reset ? `original_${method}` : method];
     });
   }
-  invoke() {
-    this.runHook('pre:invoke');
+  async invoke() {
+    await this.runHook('pre:invoke');
     try {
       return this.userFunc.call(
         this.originalIdentity,
@@ -139,36 +139,45 @@ class IOpipeWrapperClass {
       return err;
     }
   }
-  sendReport(err, cb = () => {}) {
-    this.runHook('post:invoke');
-    this.runHook('pre:report');
+  async sendReport(err, cb = () => {}) {
+    await this.runHook('post:invoke');
+    await this.runHook('pre:report');
     // reset the context back to its original state
     this.setupContext(true);
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
-    this.report.send(err, (...args) => {
-      this.runHook('post:report');
+    this.report.send(err, async (...args) => {
+      await this.runHook('post:report');
       cb(...args);
     });
   }
-  runHook(hook) {
+  async runHook(hook) {
     const hookString = getHook(hook);
     const { plugins = [] } = this;
-    plugins.forEach(plugin => {
-      try {
-        const fn = plugin.hooks && plugin.hooks[hookString];
-        if (typeof fn === 'function') {
-          fn(this);
-        }
-      } catch (err) {
-        // if this.config is undefined, the hook is probably pre:setup
-        // lets error out if that is the case
-        if (this.config === undefined || this.config.debug) {
-          console.error(err);
-        }
+    try {
+      await Promise.all(
+        plugins.map(plugin => {
+          try {
+            const fn = plugin.hooks && plugin.hooks[hookString];
+            if (typeof fn === 'function') {
+              return fn(this);
+            }
+          } catch (err) {
+            // if this.config is undefined, the hook is probably pre:setup
+            // lets error out if that is the case
+            if (this.config === undefined || this.config.debug) {
+              console.error(err);
+            }
+          }
+          return Promise.resolve();
+        })
+      );
+    } catch (error) {
+      if (this.config === undefined || this.config.debug) {
+        console.error(error);
       }
-    });
+    }
   }
   succeed(data) {
     this.sendReport(null, () => {
