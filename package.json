@@ -40,6 +40,7 @@
     "babel-core": "^6.25.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "coveralls": "^2.11.12",
     "delay": "^2.0.0",
@@ -56,9 +57,7 @@
     "prettier": "^1.5.2",
     "webpack": "^3.2.0"
   },
-  "dependencies": {
-    "babel-plugin-transform-runtime": "^6.23.0"
-  },
+  "dependencies": {},
   "pre-commit": ["test"],
   "jest": {
     "coveragePathIgnorePatterns": ["/node_modules/", "dist"]
