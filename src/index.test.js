@@ -1,6 +1,5 @@
 import _ from 'lodash';
-//import IOpipe from '../dist/iopipe.js';
-import IOpipe from './index.js';
+import IOpipe from '../dist/iopipe.js';
 import mockContext from 'aws-lambda-mock-context';
 // default region for testing
 process.env.AWS_REGION = 'us-east-1';
