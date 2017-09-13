@@ -28,8 +28,14 @@ describe('Report creation', () => {
       metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
     });
     r.send(new Error('Holy smokes!'), () => {
-      const flatReport = _.chain(r.report).thru(flatten).keys().value();
-      const flatSchema = _.chain(schema).thru(flatten).keys().value();
+      const flatReport = _.chain(r.report)
+        .thru(flatten)
+        .keys()
+        .value();
+      const flatSchema = _.chain(schema)
+        .thru(flatten)
+        .keys()
+        .value();
       const diff = _.difference(flatSchema, flatReport);
       const allowedMissingFields = [
         'projectId',

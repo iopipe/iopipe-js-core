@@ -56,7 +56,9 @@
     "prettier": "^1.5.2",
     "webpack": "^3.2.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0"
+  },
   "pre-commit": ["test"],
   "jest": {
     "coveragePathIgnorePatterns": ["/node_modules/", "dist"]
