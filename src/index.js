@@ -44,6 +44,13 @@ class IOpipeWrapperClass {
   ) {
     this.startTime = process.hrtime();
     this.startTimestamp = Date.now();
+    this.config = config;
+    this.metrics = [];
+    this.originalIdentity = originalIdentity;
+    this.event = originalEvent;
+    this.originalContext = originalContext;
+    this.originalCallback = originalCallback;
+    this.userFunc = userFunc;
 
     // setup any included plugins
     this.plugins = plugins.map((pluginFn = defaultPluginFunction) => {
@@ -63,21 +70,12 @@ class IOpipeWrapperClass {
       this.log.apply(this, logArgs);
     };
 
-    this.config = config;
-    this.metrics = [];
-
     // assign a new dnsPromise if it's not a coldstart because dns could have changed
     if (!globals.COLDSTART) {
       this.dnsPromise = getDnsPromise(this.config.host);
     } else {
       this.dnsPromise = dnsPromise;
     }
-
-    this.originalIdentity = originalIdentity;
-    this.event = originalEvent;
-    this.originalContext = originalContext;
-    this.originalCallback = originalCallback;
-    this.userFunc = userFunc;
 
     this.setupContext();
 
