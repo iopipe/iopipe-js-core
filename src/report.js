@@ -158,15 +158,16 @@ class Report {
       this.report.environment.host.boot_id = bootId;
       this.report.environment.nodejs.memoryUsage = process.memoryUsage();
 
-      const timeSecNano = process.hrtime(this.startTime);
-
-      this.report.duration = Math.ceil(
-        timeSecNano[0] * 1000000000.0 + timeSecNano[1]
-      );
-
       if (context.getRemainingTimeInMillis) {
         this.report.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis();
       }
+
+      this.report.timestampEnd = Date.now();
+
+      const durationHrTime = process.hrtime(this.startTime);
+      this.report.duration = Math.ceil(
+        durationHrTime[0] * 1e9 + durationHrTime[1]
+      );
 
       if (config.debug) {
         log('IOPIPE-DEBUG: ', JSON.stringify(this.report));

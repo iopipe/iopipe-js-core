@@ -5,6 +5,7 @@
   "duration": "i",
   "processId": "s",
   "timestamp": "n",
+  "timestampEnd": "n",
   "aws": {
     "functionName": "s",
     "functionVersion": "s",
