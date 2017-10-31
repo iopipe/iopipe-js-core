@@ -109,7 +109,8 @@
     {
       "name": "s",
       "version": "s",
-      "homepage": "s"
+      "homepage": "s",
+      "enabled": "b"
     }
   ]
 }
