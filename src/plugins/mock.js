@@ -19,7 +19,8 @@ class MockPlugin {
     return {
       name: 'mock',
       version: '0.0.1',
-      homepage: 'https://github.com/not/a/real/plugin'
+      homepage: 'https://github.com/not/a/real/plugin',
+      enabled: true
     };
   }
   postSetup() {
