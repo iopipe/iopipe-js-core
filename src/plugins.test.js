@@ -192,7 +192,7 @@ test('Multiple plugins can be loaded and work', async () => {
       .find(obj => obj.client_id === 'multiple-plugins')
       .get('custom_metrics')
       .value();
-    expect(_.isArray(metrics));
+    expect(_.isArray(metrics)).toBe(true);
     expect(metrics.length).toBe(2);
     expect(metrics).toMatchSnapshot();
   } catch (err) {
