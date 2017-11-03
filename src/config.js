@@ -14,6 +14,24 @@ module.exports = function setConfig(configObject) {
   };
 
   const config = Object.assign({}, defaults);
+
+  try {
+    const packageConfig = require.main.require('./package');
+
+    if (
+      typeof packageConfig === 'object' &&
+      typeof packageConfig.iopipe === 'object'
+    ) {
+      Object.keys(config).forEach(key => {
+        if (typeof packageConfig.iopipe[key] !== 'undefined') {
+          config[key] = packageConfig.iopipe[key];
+        }
+      });
+    }
+  } catch (err) {
+    Function.prototype; // noop
+  }
+
   if (configObject) {
     if (configObject.url) {
       config.host = getHostname(configObject.url);
@@ -31,9 +49,7 @@ module.exports = function setConfig(configObject) {
       process.env.IOPIPE_INSTALL_METHOD ||
       defaults.installMethod;
     config.plugins = configObject.plugins || defaults.plugins;
-
-    return config;
   }
 
-  return defaults;
+  return config;
 };
