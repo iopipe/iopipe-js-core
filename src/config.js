@@ -1,4 +1,6 @@
 import collector from './collector';
+import { getConfig as getPackageConfig } from './packageConfig';
+
 const { getHostname, getCollectorPath } = collector;
 
 module.exports = function setConfig(configObject) {
@@ -15,21 +17,13 @@ module.exports = function setConfig(configObject) {
 
   const config = Object.assign({}, defaults);
 
-  try {
-    const packageConfig = require.main.require('./package');
-
-    if (
-      typeof packageConfig === 'object' &&
-      typeof packageConfig.iopipe === 'object'
-    ) {
-      Object.keys(config).forEach(key => {
-        if (typeof packageConfig.iopipe[key] !== 'undefined') {
-          config[key] = packageConfig.iopipe[key];
-        }
-      });
-    }
-  } catch (err) {
-    Function.prototype; // noop
+  const packageConfig = getPackageConfig();
+  if (packageConfig) {
+    Object.keys(config).forEach(key => {
+      if (typeof packageConfig[key] !== 'undefined') {
+        config[key] = packageConfig[key];
+      }
+    });
   }
 
   if (configObject) {
