@@ -1,5 +1,9 @@
 import setConfig from './config';
 
+jest.mock('./packageConfig');
+
+import { setConfig as setPackageConfig } from './packageConfig';
+
 describe('setting up config object', () => {
   beforeEach(() => {
     delete process.env.IOPIPE_TOKEN;
@@ -47,5 +51,19 @@ describe('setting up config object', () => {
     expect(setConfig().timeoutWindow).toEqual(100);
     // prefers configuration over environment variables
     expect(setConfig({ timeoutWindow: 0 }).timeoutWindow).toEqual(0);
+  });
+
+  it('can be configured via package.json', () => {
+    setPackageConfig({ clientId: 'foobar' });
+
+    expect(setConfig().clientId).toBe('foobar');
+
+    // instantiation config overrides package.json config
+    expect(setConfig({ clientId: 'barbaz' }).clientId).toBe('barbaz');
+
+    process.env.IOPIPE_TOKEN = 'barbaz';
+
+    // package.json overrides env vars?
+    expect(setConfig().clientId).toBe('foobar');
   });
 });
