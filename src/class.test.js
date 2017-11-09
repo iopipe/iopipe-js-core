@@ -224,52 +224,6 @@ test('Does not have context.iopipe.log collisions', async () => {
   }
 });
 
-test('iopipe.log works, but has collisions', async () => {
-  try {
-    const iopipe = createAgent({
-      token: 'log-collisions'
-    });
-    const wrappedFunction1 = iopipe((event, ctx) => {
-      ctx.iopipe.log('func-1-log-1', true);
-      iopipe.log('iopipe-log-func-1-log-2', true);
-      ctx.iopipe.log('func-1-log-3', true);
-      setTimeout(() => {
-        iopipe.log('iopipe-log-func-1-log-4', true);
-        ctx.succeed('wow');
-      }, 6);
-    });
-
-    const wrappedFunction2 = iopipe((event, ctx) => {
-      ctx.iopipe.log('func-2-log-1', true);
-      ctx.iopipe.log('func-2-log-2', true);
-      setTimeout(() => {
-        iopipe.log('iopipe-log-func-2-log-3', true);
-      }, 2);
-      setTimeout(() => {
-        ctx.succeed('neat');
-      }, 10);
-    });
-
-    const [fn1, fn2, fn3] = await runWrappedFunctionArray([
-      wrappedFunction1,
-      wrappedFunction2,
-      wrappedFunction1
-    ]);
-    expect(fn1).toEqual('wow');
-    expect(fn2).toEqual('neat');
-    expect(fn3).toEqual('wow');
-    const metrics = _.chain(reports)
-      .filter(r => r.client_id === 'log-collisions')
-      .map('custom_metrics')
-      .value();
-    expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toEqual(3);
-    expect(metrics).toMatchSnapshot();
-  } catch (err) {
-    throw err;
-  }
-});
-
 test('Defining original context properties does not error if descriptors are undefined', async done => {
   try {
     let doneData = undefined;
