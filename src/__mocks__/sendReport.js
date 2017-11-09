@@ -3,15 +3,19 @@ import _ from 'lodash';
 const reports = [];
 
 function sendReport(requestBody, config, ipAddress) {
-  const data = _.assign({}, requestBody, {
-    _meta: {
-      config,
-      ipAddress
-    }
-  });
-  reports.push(data);
-  return Promise.resolve({
-    status: 200
+  return new Promise(resolve => {
+    const data = _.assign({}, requestBody, {
+      _meta: {
+        config,
+        ipAddress
+      }
+    });
+    setTimeout(() => {
+      reports.push(data);
+      resolve({
+        status: 200
+      });
+    }, 10);
   });
 }
 

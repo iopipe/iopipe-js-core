@@ -244,3 +244,35 @@ test('Defining original context properties does not error if descriptors are und
     throw err;
   }
 });
+
+test('When timing out, the lambda reports to iopipe, does not succeed, and reports timeout in aws', async () => {
+  expect.assertions(3);
+  let returnValue = undefined;
+  try {
+    const iopipe = createAgent({
+      timeoutWindow: 25
+    });
+    const wrappedFunction = iopipe((event, ctx) => {
+      setTimeout(() => {
+        ctx.succeed('all done');
+      }, 30);
+    });
+
+    const lambdaTimeoutMillis = 50;
+    const context = mockContext({
+      functionName: 'timeout-test',
+      timeout: lambdaTimeoutMillis / 1000
+    });
+    wrappedFunction({}, context);
+    returnValue = await context.Promise;
+  } catch (err) {
+    // the report made it to iopipe
+    expect(
+      _.find(reports, obj => obj.aws.functionName === 'timeout-test')
+    ).toBeTruthy();
+    // the lambda did not succeed
+    expect(returnValue).toBe(undefined);
+    // the lambda timed out
+    expect(err.message).toMatch('Task timed out');
+  }
+});

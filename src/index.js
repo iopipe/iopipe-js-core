@@ -140,13 +140,13 @@ class IOpipeWrapperClass {
   async sendReport(err, cb = () => {}) {
     await this.runHook('post:invoke');
     await this.runHook('pre:report');
-    // reset the context back to its original state
-    this.setupContext(true);
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
     this.report.send(err, async (...args) => {
       await this.runHook('post:report');
+      // reset the context back to its original state, otherwise aws gets unhappy
+      this.setupContext(true);
       cb(...args);
     });
   }
