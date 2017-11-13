@@ -1,5 +1,8 @@
 import collector from './collector';
-import { getConfig as getPackageConfig } from './packageConfig';
+import {
+  getConfig as getPackageConfig,
+  requireFromString
+} from './packageConfig';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -20,7 +23,18 @@ module.exports = function setConfig(configObject) {
   const packageConfig = getPackageConfig();
   if (packageConfig) {
     Object.keys(config).forEach(key => {
-      if (typeof packageConfig[key] !== 'undefined') {
+      if (typeof packageConfig[key] === 'undefined') return;
+
+      if (key === 'url') {
+        config.host = getHostname(packageConfig[key]);
+        config.path = getCollectorPath(packageConfig[key]);
+      } else if (key === 'plugins') {
+        if (packageConfig[key].constructor !== Array) return;
+
+        config[key] = packageConfig[key]
+          .map(requireFromString)
+          .filter(plugin => typeof plugin !== 'undefined');
+      } else {
         config[key] = packageConfig[key];
       }
     });
