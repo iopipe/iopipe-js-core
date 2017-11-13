@@ -15,4 +15,14 @@ function getConfig() {
   return {};
 }
 
-export { getConfig };
+function requireFromString(src) {
+  try {
+    return require(src)();
+  } catch (err) {
+    Function.prototype; // noop
+  }
+
+  return undefined;
+}
+
+export { getConfig, requireFromString };
