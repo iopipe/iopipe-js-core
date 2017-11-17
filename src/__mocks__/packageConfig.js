@@ -9,7 +9,7 @@ function getConfig() {
 }
 
 function requireFromString() {
-  return undefined;
+  return {};
 }
 
 module.exports = { getConfig, setConfig, requireFromString };

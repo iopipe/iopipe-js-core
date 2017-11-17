@@ -2,7 +2,7 @@ import setConfig from './config';
 
 jest.mock('./packageConfig');
 
-import { setConfig as setPackageConfig } from './packageConfig';
+import packageConfig from './packageConfig';
 
 describe('setting up config object', () => {
   beforeEach(() => {
@@ -27,6 +27,7 @@ describe('setting up config object', () => {
 
   it('configures a client id', () => {
     expect(setConfig({ token: 'foo' }).clientId).toEqual('foo');
+
     expect(setConfig({ clientId: 'bar' }).clientId).toEqual('bar');
   });
 
@@ -37,10 +38,12 @@ describe('setting up config object', () => {
     );
 
     process.env['IOPIPE_CLIENTID'] = 'qux';
+
     expect(setConfig().clientId).toEqual('qux');
 
     // takes IOPIPE_TOKEN over IOPIPE_CLIENTID
     process.env['IOPIPE_TOKEN'] = 'baz';
+
     expect(setConfig().clientId).toEqual('baz');
   });
 
@@ -48,13 +51,14 @@ describe('setting up config object', () => {
     expect(setConfig({ timeoutWindow: 0 }).timeoutWindow).toEqual(0);
 
     process.env.IOPIPE_TIMEOUT_WINDOW = 100;
+
     expect(setConfig().timeoutWindow).toEqual(100);
     // prefers configuration over environment variables
     expect(setConfig({ timeoutWindow: 0 }).timeoutWindow).toEqual(0);
   });
 
   it('can be configured via package.json', () => {
-    setPackageConfig({ clientId: 'foobar' });
+    packageConfig.setConfig({ clientId: 'foobar' });
 
     expect(setConfig().clientId).toBe('foobar');
 
@@ -63,7 +67,24 @@ describe('setting up config object', () => {
 
     process.env.IOPIPE_TOKEN = 'barbaz';
 
-    // Env vars override package config
+    // Environment variables override package config
     expect(setConfig().clientId).toBe('barbaz');
+
+    packageConfig.setConfig({ debug: 'not-a-boolean' });
+
+    expect(setConfig().debug).toBe(false);
+
+    packageConfig.setConfig({ timeoutWindow: 'not-a-integer' });
+
+    expect(setConfig().timeoutWindow).toEqual(150);
+
+    packageConfig.requireFromString = jest.fn();
+    packageConfig.setConfig({ plugins: ['iopipe-plugin-trace'] });
+
+    expect(setConfig().plugins.length).toBe(1);
+
+    expect(packageConfig.requireFromString).toBeCalledWith(
+      'iopipe-plugin-trace'
+    );
   });
 });

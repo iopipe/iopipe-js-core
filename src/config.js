@@ -42,14 +42,14 @@ module.exports = function setConfig(configObject) {
           config[key] =
             packageConf[key].constructor === Array
               ? packageConf[key]
-                  .map(packageConfig.requireFromString)
-                  .filter(plugin => typeof plugin !== 'undefined')
+                  .map(src => packageConfig.requireFromString(src))
+                  .filter(plugin => typeof plugin === 'undefined')
               : config[key];
           // Loads {"plugins": {"plugin1": ["arg1", "arg2"]}}
           config[key] =
             typeof packageConf[key] === 'object'
               ? Object.keys(packageConf[key])
-                  .forEach(pluginKey => {
+                  .map(pluginKey => {
                     if (
                       typeof packageConf[key][pluginKey] === 'undefined' ||
                       packageConf[key][pluginKey].constructor === Array
@@ -60,13 +60,13 @@ module.exports = function setConfig(configObject) {
                       );
                     return undefined;
                   })
-                  .filter(plugin => typeof plugin !== 'undefined')
+                  .filter(plugin => typeof plugin === 'undefined')
               : config[key];
           break;
 
         case 'timeoutWindow':
-          config[key] = !Number.isInteger(packageConf[key])
-            ? packageConfig[key]
+          config[key] = Number.isInteger(packageConf[key])
+            ? packageConf[key]
             : config[key];
           break;
 
