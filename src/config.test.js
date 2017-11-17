@@ -63,7 +63,7 @@ describe('setting up config object', () => {
 
     process.env.IOPIPE_TOKEN = 'barbaz';
 
-    // package.json overrides env vars?
-    expect(setConfig().clientId).toBe('foobar');
+    // Env vars override package config
+    expect(setConfig().clientId).toBe('barbaz');
   });
 });
