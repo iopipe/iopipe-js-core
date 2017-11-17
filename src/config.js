@@ -1,8 +1,5 @@
 import collector from './collector';
-import {
-  getConfig as getPackageConfig,
-  requireFromString
-} from './packageConfig';
+import packageConfig from './packageConfig';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -20,22 +17,22 @@ module.exports = function setConfig(configObject) {
 
   const config = Object.assign({}, defaults);
 
-  const packageConfig = getPackageConfig();
-  if (packageConfig) {
+  const packageConf = packageConfig.getConfig();
+  if (packageConf) {
     Object.keys(config).forEach(key => {
-      if (typeof packageConfig[key] === 'undefined') return;
+      if (typeof packageConf[key] === 'undefined') return;
 
       if (key === 'url') {
-        config.host = getHostname(packageConfig[key]);
-        config.path = getCollectorPath(packageConfig[key]);
+        config.host = getHostname(packageConf[key]);
+        config.path = getCollectorPath(packageConf[key]);
       } else if (key === 'plugins') {
-        if (packageConfig[key].constructor !== Array) return;
+        if (packageConf[key].constructor !== Array) return;
 
-        config[key] = packageConfig[key]
-          .map(requireFromString)
+        config[key] = packageConf[key]
+          .map(packageConfig.requireFromString)
           .filter(plugin => typeof plugin !== 'undefined');
       } else {
-        config[key] = packageConfig[key];
+        config[key] = packageConf[key];
       }
     });
   }

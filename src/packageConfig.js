@@ -1,3 +1,6 @@
+/*
+ * Returns the `iopipe` object from main's `package.json` if it exists.
+ */
 function getConfig() {
   try {
     const packageConfig = require.main.require('./package');
@@ -12,9 +15,12 @@ function getConfig() {
     Function.prototype; // noop
   }
 
-  return {};
+  return undefined;
 }
 
+/*
+ * Attempts a require and instantiation from a given string.
+ */
 function requireFromString(src) {
   try {
     return require(src)();
@@ -25,4 +31,4 @@ function requireFromString(src) {
   return undefined;
 }
 
-export { getConfig, requireFromString };
+module.exports = { getConfig, requireFromString };

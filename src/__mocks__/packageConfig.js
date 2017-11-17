@@ -8,4 +8,8 @@ function getConfig() {
   return mockConfig;
 }
 
-export { getConfig, setConfig };
+function requireFromString() {
+  return undefined;
+}
+
+module.exports = { getConfig, setConfig, requireFromString };
