@@ -21,9 +21,13 @@ function getConfig() {
 /*
  * Attempts a require and instantiation from a given string.
  */
-function requireFromString(src) {
+function requireFromString(src, args) {
   try {
-    return require(src)();
+    const mod = require(src);
+
+    if (args && args.constructor === Array) return mod.apply(null, args);
+
+    return mod();
   } catch (err) {
     Function.prototype; // noop
   }

@@ -29,25 +29,47 @@ module.exports = function setConfig(configObject) {
           config.host = getHostname(packageConf[key]);
           config.path = getCollectorPath(packageConf[key]);
           break;
+
         case 'debug':
           config[key] =
             typeof packageConf[key] === 'boolean'
               ? packageConf[key]
               : config[key];
           break;
+
         case 'plugins':
+          // Loads {"plugins": ["plugin1", "plugin2"]}
           config[key] =
             packageConf[key].constructor === Array
               ? packageConf[key]
                   .map(packageConfig.requireFromString)
                   .filter(plugin => typeof plugin !== 'undefined')
               : config[key];
+          // Loads {"plugins": {"plugin1": ["arg1", "arg2"]}}
+          config[key] =
+            typeof packageConf[key] === 'object'
+              ? Object.keys(packageConf[key])
+                  .forEach(pluginKey => {
+                    if (
+                      typeof packageConf[key][pluginKey] === 'undefined' ||
+                      packageConf[key][pluginKey].constructor === Array
+                    )
+                      return packageConfig.requireFromString(
+                        pluginKey,
+                        packageConf[key][pluginKey]
+                      );
+                    return undefined;
+                  })
+                  .filter(plugin => typeof plugin !== 'undefined')
+              : config[key];
           break;
+
         case 'timeoutWindow':
           config[key] = !Number.isInteger(packageConf[key])
             ? packageConfig[key]
             : config[key];
           break;
+
         default:
           config[key] = packageConf[key];
       }
