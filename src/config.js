@@ -43,24 +43,21 @@ module.exports = function setConfig(configObject) {
             packageConf[key].constructor === Array
               ? packageConf[key]
                   .map(src => packageConfig.requireFromString(src))
-                  .filter(plugin => typeof plugin === 'undefined')
+                  .filter(plugin => typeof plugin !== 'undefined')
               : config[key];
           // Loads {"plugins": {"plugin1": ["arg1", "arg2"]}}
           config[key] =
             typeof packageConf[key] === 'object'
               ? Object.keys(packageConf[key])
                   .map(pluginKey => {
-                    if (
-                      typeof packageConf[key][pluginKey] === 'undefined' ||
-                      packageConf[key][pluginKey].constructor === Array
-                    )
+                    if (packageConf[key][pluginKey].constructor === Array)
                       return packageConfig.requireFromString(
                         pluginKey,
                         packageConf[key][pluginKey]
                       );
-                    return undefined;
+                    return packageConfig.requireFromString(pluginKey);
                   })
-                  .filter(plugin => typeof plugin === 'undefined')
+                  .filter(plugin => typeof plugin !== 'undefined')
               : config[key];
           break;
 

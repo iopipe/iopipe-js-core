@@ -78,13 +78,13 @@ describe('setting up config object', () => {
 
     expect(setConfig().timeoutWindow).toEqual(150);
 
-    packageConfig.requireFromString = jest.fn();
-    packageConfig.setConfig({ plugins: ['iopipe-plugin-trace'] });
+    packageConfig.requireFromString = jest
+      .fn()
+      .mockReturnValue({ name: 'iopipe' });
+    packageConfig.setConfig({ plugins: ['iopipe'] });
 
     expect(setConfig().plugins.length).toBe(1);
 
-    expect(packageConfig.requireFromString).toBeCalledWith(
-      'iopipe-plugin-trace'
-    );
+    expect(packageConfig.requireFromString).toBeCalledWith('iopipe');
   });
 });
