@@ -13,16 +13,23 @@ describe('setting up config object', () => {
   });
 
   it('can accept 0 arguments and returns default config', () => {
-    expect(setConfig()).toEqual({
-      host: 'metrics-api.iopipe.com',
-      path: '/v0/event',
-      clientId: '',
-      debug: false,
-      networkTimeout: 5000,
-      timeoutWindow: 150,
-      installMethod: 'manual',
-      plugins: []
-    });
+    const config = setConfig();
+
+    expect(config.clientId).toEqual('');
+
+    expect(config.debug).toEqual(false);
+
+    expect(config.host).toEqual('metrics-api.iopipe.com');
+
+    expect(config.installMethod).toEqual('manual');
+
+    expect(config.networkTimeout).toEqual(5000);
+
+    expect(config.path).toEqual('/v0/event');
+
+    expect(config.plugins).toEqual([]);
+
+    expect(config.timeoutWindow).toEqual(150);
   });
 
   it('configures a client id', () => {
