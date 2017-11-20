@@ -15,7 +15,7 @@ function getConfig() {
     Function.prototype; // noop
   }
 
-  return undefined;
+  return {};
 }
 
 /*
