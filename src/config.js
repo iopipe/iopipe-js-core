@@ -3,7 +3,29 @@ import packageConfig from './packageConfig';
 
 const { getHostname, getCollectorPath } = collector;
 
+/**
+ * Config Loader
+ *
+ * These classes load the agent config from a number of sources. They use
+ * class inheritance to determine precedence of config values.
+ *
+ * Precedence Order:
+ *
+ * 1. Agent instantiation object.
+ * 2. IOPIPE_* environment variables.
+ * 3. An IOpipe RC file.
+ * 4. A package.json with an "iopipe" object.
+ * 5. The default values set in DefaultConfig.
+ */
+
 class DefaultConfig {
+  /**
+   * Default configuration
+   *
+   * This class should define sensible defaults for any supported config
+   * values.
+   */
+
   get clientId() {
     return '';
   }
@@ -38,6 +60,13 @@ class DefaultConfig {
 }
 
 class PackageConfig extends DefaultConfig {
+  /**
+   * Package.json configuration
+   *
+   * This class will attempt to load config values from an "iopipe" object if
+   * found within the main package's package.json file.
+   */
+
   constructor() {
     super();
 
@@ -87,7 +116,7 @@ class PackageConfig extends DefaultConfig {
 
     return this._packageConfig.plugins
       .map(plugin => {
-        if (plugin.constructor === Array) {
+        if (Array.isArray(plugin)) {
           // The array should have at least one item, which should be the
           // plugin package name.
           if (!plugin[0]) return undefined;
@@ -111,6 +140,13 @@ class PackageConfig extends DefaultConfig {
 class RcConfig extends PackageConfig {}
 
 class EnvironmentConfig extends RcConfig {
+  /**
+   * Environment variable configuration
+   *
+   * This class will look for IOPIPE_* environment variables and will atempt
+   * to load them if present.
+   */
+
   get clientId() {
     return (
       process.env.IOPIPE_TOKEN || process.env.IOPIPE_CLIENTID || super.clientId
@@ -135,6 +171,13 @@ class EnvironmentConfig extends RcConfig {
 }
 
 class Config extends EnvironmentConfig {
+  /**
+   * Config object configuration
+   *
+   * This class will accept a config object provided via agent instantiation
+   * and will use any values that are present.
+   */
+
   constructor(config = {}) {
     super();
 
@@ -166,8 +209,7 @@ class Config extends EnvironmentConfig {
   }
 
   get plugins() {
-    return typeof this._config.plugins === 'object' &&
-    this._config.plugins.constructor === Array
+    return Array.isArray(this._config.plugins)
       ? this._config.plugins
       : super.plugins;
   }
