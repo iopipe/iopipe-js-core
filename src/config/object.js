@@ -4,7 +4,7 @@ import EnvironmentConfig from './environment';
 
 const { getHostname, getCollectorPath } = collector;
 
-export default class Config extends EnvironmentConfig {
+export default class ObjectConfig extends EnvironmentConfig {
   /**
    * Config object configuration
    *

@@ -1,4 +1,4 @@
-import Config from './config';
+import ObjectConfig from './object';
 
 /**
  * Config Loader
@@ -16,5 +16,5 @@ import Config from './config';
  */
 
 export default function setConfig(configObject) {
-  return new Config(configObject);
+  return new ObjectConfig(configObject);
 }
