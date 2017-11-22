@@ -1,13 +1,38 @@
-let mockConfig = {};
+let packageJsonPath = undefined;
 
 function getPackageConfig() {
-  return mockConfig;
+  try {
+    const packageConfig = require(packageJsonPath);
+
+    if (
+      typeof packageConfig === 'object' &&
+      typeof packageConfig.iopipe === 'object'
+    ) {
+      return packageConfig.iopipe;
+    }
+  } catch (err) {
+    Function.prototype; // noop
+  }
+
+  return {};
 }
 
-const requireFromString = jest.fn().mockReturnValue({ name: 'iopipe' });
+function requireFromString(src, args) {
+  try {
+    const mod = require(src);
 
-function setPackageConfig(config) {
-  mockConfig = config;
+    if (args && args.constructor === Array) return mod.apply(null, args);
+
+    return mod();
+  } catch (err) {
+    Function.prototype; // noop
+  }
+
+  return undefined;
 }
 
-export { getPackageConfig, requireFromString, setPackageConfig };
+function setPackageJsonPath(path) {
+  packageJsonPath = path;
+}
+
+export { getPackageConfig, requireFromString, setPackageJsonPath };

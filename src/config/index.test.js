@@ -2,7 +2,7 @@ import setConfig from './index';
 
 jest.mock('./util');
 
-import { requireFromString, setPackageConfig } from './util';
+import { setPackageJsonPath } from './util';
 
 describe('setting up config object', () => {
   beforeEach(() => {
@@ -65,9 +65,21 @@ describe('setting up config object', () => {
   });
 
   it('can be configured via package.json', () => {
-    setPackageConfig({ clientId: 'foobar' });
+    setPackageJsonPath('./package');
 
-    expect(setConfig().clientId).toBe('foobar');
+    const config = setConfig();
+
+    expect(config.clientId).toBe('foobar123');
+
+    expect(config.debug).toBe(true);
+
+    expect(config.host).toBe('foo.bar.baz.iopipe.com');
+
+    expect(config.plugins.length).toBe(1);
+
+    expect(config.path).toBe('/foo/bar/v0/event');
+
+    expect(config.timeoutWindow).toBe(100);
 
     // instantiation config overrides package.json config
     expect(setConfig({ clientId: 'barbaz' }).clientId).toBe('barbaz');
@@ -76,19 +88,5 @@ describe('setting up config object', () => {
 
     // Environment variables override package config
     expect(setConfig().clientId).toBe('barbaz');
-
-    setPackageConfig({ debug: 'not-a-boolean' });
-
-    expect(setConfig().debug).toBe(false);
-
-    setPackageConfig({ timeoutWindow: 'not-a-integer' });
-
-    expect(setConfig().timeoutWindow).toEqual(150);
-
-    setPackageConfig({ plugins: ['iopipe'] });
-
-    expect(setConfig().plugins.length).toBe(1);
-
-    expect(requireFromString).toBeCalledWith('iopipe');
   });
 });
