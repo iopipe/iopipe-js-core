@@ -1,6 +1,7 @@
 import collector from './../collector';
 
 import DefaultConfig from './default';
+import { getPackageConfig, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -15,7 +16,7 @@ export default class PackageConfig extends DefaultConfig {
   constructor() {
     super();
 
-    this._packageConfig = PackageConfig.getConfig();
+    this._packageConfig = getPackageConfig();
   }
 
   get clientId() {
@@ -66,10 +67,10 @@ export default class PackageConfig extends DefaultConfig {
           // plugin package name.
           if (!plugin[0]) return undefined;
 
-          return PackageConfig.requireFromString(plugin[0], plugin.slice(1));
+          return requireFromString(plugin[0], plugin.slice(1));
         }
 
-        return PackageConfig.requireFromString(plugin);
+        return requireFromString(plugin);
       })
       .filter(plugin => typeof plugin !== 'undefined');
   }
@@ -79,42 +80,5 @@ export default class PackageConfig extends DefaultConfig {
     Number.isInteger(this._packageConfig.timeoutWindow)
       ? this._packageConfig.timeoutWindow
       : super.timeoutWindow;
-  }
-
-  /*
-   * Returns the `iopipe` object from main's `package.json` if it exists.
-   */
-  static getConfig() {
-    try {
-      const packageConfig = require.main.require('./package');
-
-      if (
-        typeof packageConfig === 'object' &&
-        typeof packageConfig.iopipe === 'object'
-      ) {
-        return packageConfig.iopipe;
-      }
-    } catch (err) {
-      Function.prototype; // noop
-    }
-
-    return {};
-  }
-
-  /*
-   * Attempts a require and instantiation from a given string.
-   */
-  static requireFromString(src, args) {
-    try {
-      const mod = require(src);
-
-      if (args && args.constructor === Array) return mod.apply(null, args);
-
-      return mod();
-    } catch (err) {
-      Function.prototype; // noop
-    }
-
-    return undefined;
   }
 }
