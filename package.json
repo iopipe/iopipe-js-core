@@ -9,14 +9,18 @@
     "jest": "jest",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
-    "test": "npm run eslint && npm run build && npm run jest",
+    "test": "npm run eslint && npm run build && npm run jest && npm run testIndividualProjects",
+    "testIndividualProjects": "npm run projectTestPackageJsonConfig",
+    "projectTestPackageJsonConfig": "npm run test --prefix testProjects/packageJsonConfig",
     "webpack": "webpack --progress --profile --colors"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iopipe/iopipe.git"
   },
-  "files": ["dist/"],
+  "files": [
+    "dist/"
+  ],
   "keywords": [
     "serverless",
     "agent",
@@ -55,11 +59,21 @@
     "lodash": "^4.17.4",
     "pre-commit": "^1.2.2",
     "prettier": "^1.5.2",
-    "webpack": "^3.2.0"
+    "webpack": "^3.2.0",
+    "webpack-bundle-analyzer": "^2.9.1",
+    "webpack-node-externals": "^1.6.0"
   },
-  "dependencies": {},
-  "pre-commit": ["test"],
+  "pre-commit": [
+    "test"
+  ],
   "jest": {
-    "coveragePathIgnorePatterns": ["/node_modules/", "dist"]
+    "testPathIgnorePatterns": [
+      "node_modules/",
+      "dist/",
+      "testProjects/"
+    ]
+  },
+  "dependencies": {
+    "pkg-conf": "^2.0.0"
   }
 }

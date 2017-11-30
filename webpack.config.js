@@ -1,4 +1,8 @@
 const path = require('path');
+const _ = require('lodash');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   target: 'node',
@@ -9,6 +13,8 @@ module.exports = {
     libraryTarget: 'commonjs2',
     library: 'iopipe'
   },
+  plugins: _.compact([process.env.ANALYZE && new BundleAnalyzerPlugin()]),
+  externals: [nodeExternals()],
   module: {
     rules: [
       {
