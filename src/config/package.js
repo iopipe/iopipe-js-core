@@ -20,7 +20,11 @@ export default class PackageConfig extends DefaultConfig {
   }
 
   get clientId() {
-    return this._packageConfig.clientId || super.clientId;
+    return (
+      this._packageConfig.token ||
+      this._packageConfig.clientId ||
+      super.clientId
+    );
   }
 
   get debug() {
