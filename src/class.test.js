@@ -224,52 +224,6 @@ test('Does not have context.iopipe.log collisions', async () => {
   }
 });
 
-test('iopipe.log works, but has collisions', async () => {
-  try {
-    const iopipe = createAgent({
-      token: 'log-collisions'
-    });
-    const wrappedFunction1 = iopipe((event, ctx) => {
-      ctx.iopipe.log('func-1-log-1', true);
-      iopipe.log('iopipe-log-func-1-log-2', true);
-      ctx.iopipe.log('func-1-log-3', true);
-      setTimeout(() => {
-        iopipe.log('iopipe-log-func-1-log-4', true);
-        ctx.succeed('wow');
-      }, 6);
-    });
-
-    const wrappedFunction2 = iopipe((event, ctx) => {
-      ctx.iopipe.log('func-2-log-1', true);
-      ctx.iopipe.log('func-2-log-2', true);
-      setTimeout(() => {
-        iopipe.log('iopipe-log-func-2-log-3', true);
-      }, 2);
-      setTimeout(() => {
-        ctx.succeed('neat');
-      }, 10);
-    });
-
-    const [fn1, fn2, fn3] = await runWrappedFunctionArray([
-      wrappedFunction1,
-      wrappedFunction2,
-      wrappedFunction1
-    ]);
-    expect(fn1).toEqual('wow');
-    expect(fn2).toEqual('neat');
-    expect(fn3).toEqual('wow');
-    const metrics = _.chain(reports)
-      .filter(r => r.client_id === 'log-collisions')
-      .map('custom_metrics')
-      .value();
-    expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toEqual(3);
-    expect(metrics).toMatchSnapshot();
-  } catch (err) {
-    throw err;
-  }
-});
-
 test('Defining original context properties does not error if descriptors are undefined', async done => {
   try {
     let doneData = undefined;
@@ -288,5 +242,37 @@ test('Defining original context properties does not error if descriptors are und
     });
   } catch (err) {
     throw err;
+  }
+});
+
+test('When timing out, the lambda reports to iopipe, does not succeed, and reports timeout in aws', async () => {
+  expect.assertions(3);
+  let returnValue = undefined;
+  try {
+    const iopipe = createAgent({
+      timeoutWindow: 25
+    });
+    const wrappedFunction = iopipe((event, ctx) => {
+      setTimeout(() => {
+        ctx.succeed('all done');
+      }, 30);
+    });
+
+    const lambdaTimeoutMillis = 50;
+    const context = mockContext({
+      functionName: 'timeout-test',
+      timeout: lambdaTimeoutMillis / 1000
+    });
+    wrappedFunction({}, context);
+    returnValue = await context.Promise;
+  } catch (err) {
+    // the report made it to iopipe
+    expect(
+      _.find(reports, obj => obj.aws.functionName === 'timeout-test')
+    ).toBeTruthy();
+    // the lambda did not succeed
+    expect(returnValue).toBe(undefined);
+    // the lambda timed out
+    expect(err.message).toMatch('Task timed out');
   }
 });

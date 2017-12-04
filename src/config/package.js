@@ -5,6 +5,8 @@ import { getPackageConfig, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
+const classConfig = Symbol('package');
+
 export default class PackageConfig extends DefaultConfig {
   /**
    * Package.json configuration
@@ -15,56 +17,53 @@ export default class PackageConfig extends DefaultConfig {
 
   constructor() {
     super();
-
-    this._packageConfig = getPackageConfig();
+    this[classConfig] = getPackageConfig();
   }
 
   get clientId() {
     return (
-      this._packageConfig.token ||
-      this._packageConfig.clientId ||
-      super.clientId
+      this[classConfig].token || this[classConfig].clientId || super.clientId
     );
   }
 
   get debug() {
-    return this._packageConfig.debug &&
-    typeof this._packageConfig.debug === 'boolean'
-      ? this._packageConfig.debug
+    return this[classConfig].debug &&
+    typeof this[classConfig].debug === 'boolean'
+      ? this[classConfig].debug
       : super.debug;
   }
 
   get host() {
-    return this._packageConfig.url
-      ? getHostname(this._packageConfig.url)
+    return this[classConfig].url
+      ? getHostname(this[classConfig].url)
       : super.host;
   }
 
   get installMethod() {
-    return this._packageConfig.installMethod || super.installMethod;
+    return this[classConfig].installMethod || super.installMethod;
   }
 
   get networkTimeout() {
-    return this._packageConfig.networkTimeout &&
-    Number.isInteger(this._packageConfig.networkTimeout)
-      ? this._packageConfig.networkTimeout
+    return this[classConfig].networkTimeout &&
+    Number.isInteger(this[classConfig].networkTimeout)
+      ? this[classConfig].networkTimeout
       : super.networkTimeout;
   }
 
   get path() {
-    return this._packageConfig.url
-      ? getCollectorPath(this._packageConfig.url)
+    return this[classConfig].url
+      ? getCollectorPath(this[classConfig].url)
       : super.path;
   }
 
   get plugins() {
     if (
-      typeof this._packageConfig.plugins !== 'object' ||
-      this._packageConfig.plugins.constructor !== Array
+      typeof this[classConfig].plugins !== 'object' ||
+      this[classConfig].plugins.constructor !== Array
     )
       return super.plugins;
 
-    return this._packageConfig.plugins
+    return this[classConfig].plugins
       .map(plugin => {
         if (Array.isArray(plugin)) {
           // The array should have at least one item, which should be the
@@ -80,9 +79,9 @@ export default class PackageConfig extends DefaultConfig {
   }
 
   get timeoutWindow() {
-    return this._packageConfig.timeoutWindow &&
-    Number.isInteger(this._packageConfig.timeoutWindow)
-      ? this._packageConfig.timeoutWindow
+    return this[classConfig].timeoutWindow &&
+    Number.isInteger(this[classConfig].timeoutWindow)
+      ? this[classConfig].timeoutWindow
       : super.timeoutWindow;
   }
 }

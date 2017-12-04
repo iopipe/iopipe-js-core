@@ -2100,6 +2100,17 @@ invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
 
+iopipe-plugin-trace@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/iopipe-plugin-trace/-/iopipe-plugin-trace-0.2.0.tgz#0d20d626a209e2bbbf6fdcaf188b1e96eda33fb6"
+  dependencies:
+    iopipe "^1.0.0"
+    performance-node "^0.2.0"
+
+iopipe@^1.0.0:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/iopipe/-/iopipe-1.2.1.tgz#3e5c7c3d6fc8271c824093813cd59f9612171b8a"
+
 ip-regex@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
@@ -3171,6 +3182,10 @@ pbkdf2@^3.0.3:
     ripemd160 "^2.0.1"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
+
+performance-node@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/performance-node/-/performance-node-0.2.0.tgz#03abf74ac0c455f333be505165dacab9110ef5b3"
 
 performance-now@^0.2.0:
   version "0.2.0"

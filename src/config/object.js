@@ -4,6 +4,8 @@ import EnvironmentConfig from './environment';
 
 const { getHostname, getCollectorPath } = collector;
 
+const classConfig = Symbol('object');
+
 export default class ObjectConfig extends EnvironmentConfig {
   /**
    * Config object configuration
@@ -12,45 +14,51 @@ export default class ObjectConfig extends EnvironmentConfig {
    * and will use any values that are present.
    */
 
-  constructor(config = {}) {
+  constructor(opts = {}) {
     super();
 
-    this._config = config;
+    this[classConfig] = opts;
   }
 
   get clientId() {
-    return this._config.token || this._config.clientId || super.clientId;
+    return (
+      this[classConfig].token || this[classConfig].clientId || super.clientId
+    );
   }
 
   get debug() {
-    return this._config.debug || super.debug;
+    return this[classConfig].debug || super.debug;
   }
 
   get host() {
-    return this._config.url ? getHostname(this._config.url) : super.host;
+    return this[classConfig].url
+      ? getHostname(this[classConfig].url)
+      : super.host;
   }
 
   get installMethod() {
-    return this._config.installMethod || super.installMethod;
+    return this[classConfig].installMethod || super.installMethod;
   }
 
   get networkTimeout() {
-    return this._config.networkTimeout || super.networkTimeout;
+    return this[classConfig].networkTimeout || super.networkTimeout;
   }
 
   get path() {
-    return this._config.url ? getCollectorPath(this._config.url) : super.path;
+    return this[classConfig].url
+      ? getCollectorPath(this[classConfig].url)
+      : super.path;
   }
 
   get plugins() {
-    return Array.isArray(this._config.plugins)
-      ? this._config.plugins
+    return Array.isArray(this[classConfig].plugins)
+      ? this[classConfig].plugins
       : super.plugins;
   }
 
   get timeoutWindow() {
-    return Number.isInteger(this._config.timeoutWindow)
-      ? this._config.timeoutWindow
+    return Number.isInteger(this[classConfig].timeoutWindow)
+      ? this[classConfig].timeoutWindow
       : super.timeoutWindow;
   }
 }

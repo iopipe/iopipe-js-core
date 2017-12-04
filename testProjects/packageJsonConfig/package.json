@@ -1,8 +1,8 @@
 {
   "name": "packageJsonConfigTest",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
-  "main": "handler.js",
+  "main": "handler.test.js",
   "scripts": {
     "build": "cp ../../dist/iopipe.js ./iopipe.js",
     "test": "npm run build && jest"
@@ -12,8 +12,5 @@
     "plugins": [
       "iopipe-plugin-trace"
     ]
-  },
-  "dependencies": {
-    "iopipe-plugin-trace": "^0.2.0"
   }
 }
