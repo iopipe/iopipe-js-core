@@ -64,7 +64,9 @@ class Report {
         logStreamName,
         memoryLimitInMB,
         getRemainingTimeInMillis: undefined,
+        /*eslint-disable no-underscore-dangle*/
         traceId: process.env._X_AMZN_TRACE_ID
+        /*eslint-enable no-underscore-dangle*/
       },
       environment: {
         agent: {

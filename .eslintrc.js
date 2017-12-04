@@ -135,6 +135,7 @@ module.exports = {
     ],
     'keyword-spacing': 2, // http://eslint.org/docs/rules/keyword-spacing
     'space-before-function-paren': [2, 'never'], // http://eslint.org/docs/rules/space-before-function-paren
-    'space-infix-ops': 2 // http://eslint.org/docs/rules/space-infix-ops
+    'space-infix-ops': 2, // http://eslint.org/docs/rules/space-infix-ops,
+    'no-underscore-dangle': 2 //https://eslint.org/docs/rules/no-underscore-dangle
   }
 };
