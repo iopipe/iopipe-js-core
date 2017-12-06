@@ -14,7 +14,11 @@ module.exports = {
     library: 'iopipe'
   },
   plugins: _.compact([process.env.ANALYZE && new BundleAnalyzerPlugin()]),
-  externals: [nodeExternals()],
+  externals: [
+    nodeExternals({
+      whitelist: [/babel-runtime/, /regenerator-runtime/, /core-js/]
+    })
+  ],
   module: {
     rules: [
       {
