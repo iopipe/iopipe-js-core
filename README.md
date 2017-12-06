@@ -15,7 +15,9 @@ If you are using the Serverless Framework to deploy your lambdas, check out our 
 Example:
 
 ```js
-const iopipe = require('iopipe')({ token: 'PROJECT_TOKEN' });
+const iopipeLib = require('iopipe');
+
+const iopipe = iopipeLib({ token: 'PROJECT_TOKEN' });
 
 exports.handler = iopipe((event, context) => {
   context.succeed('This is my serverless function!');
