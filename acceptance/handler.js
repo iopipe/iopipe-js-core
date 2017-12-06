@@ -1,6 +1,6 @@
 'use strict';
 
-const iopipe = require('./iopipe')({
+const iopipe = require('../dist/iopipe')({
   debug: true,
   token: process.env.IOPIPE_TOKEN || 'testSuite'
 });
