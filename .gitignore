@@ -3,4 +3,5 @@
 node_modules
 coverage
 dist
-acceptance/iopipe.js
+iopipe.js
+stats.json

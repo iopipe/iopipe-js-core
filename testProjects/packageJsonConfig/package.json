@@ -1,0 +1,16 @@
+{
+  "name": "packageJsonConfigTest",
+  "version": "0.0.0",
+  "description": "",
+  "main": "handler.test.js",
+  "scripts": {
+    "build": "cp ../../dist/iopipe.js ./iopipe.js",
+    "test": "npm run build && jest"
+  },
+  "iopipe": {
+    "token": "package_json_config_token_wow",
+    "plugins": [
+      "iopipe-plugin-trace"
+    ]
+  }
+}
