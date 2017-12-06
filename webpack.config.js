@@ -16,7 +16,7 @@ module.exports = {
   plugins: _.compact([process.env.ANALYZE && new BundleAnalyzerPlugin()]),
   externals: [
     nodeExternals({
-      whitelist: [/babel\-runtime/, /regenerator\-runtime/, /core\-js/]
+      whitelist: [/babel-runtime/, /regenerator-runtime/, /core-js/]
     })
   ],
   module: {
