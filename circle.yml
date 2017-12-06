@@ -27,4 +27,4 @@ deployment:
     owner: iopipe
     commands:
       - npm run build
-      - cd acceptance && yarn && yarn run all
+      - npm run acceptance

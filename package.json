@@ -4,6 +4,12 @@
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
   "scripts": {
+    "acceptance": "npm run acceptanceDeploy && npm run acceptanceLocal && node acceptance/invoke",
+    "acceptanceDeploy": "sls deploy",
+    "acceptanceLocalCallback": "sls invoke local -f callback",
+    "acceptanceLocalContextSuccess": "sls invoke local -f contextSuccess",
+    "acceptanceLocalContextDone": "sls invoke local -f contextDone",
+    "acceptanceLocal": "npm run acceptanceLocalCallback && npm run acceptanceLocalContextSuccess && npm run acceptanceLocalContextDone",
     "build": "npm run webpack",
     "eslint": "eslint src spec acceptance",
     "jest": "jest",
@@ -41,6 +47,7 @@
   },
   "devDependencies": {
     "aws-lambda-mock-context": "^3.0.0",
+    "aws-sdk": "^2.164.0",
     "babel-core": "^6.25.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
@@ -59,8 +66,10 @@
     "istanbul": "^0.4.4",
     "jest": "^20.0.4",
     "lodash": "^4.17.4",
+    "lodash.every": "^4.6.0",
     "pre-commit": "^1.2.2",
     "prettier": "^1.5.2",
+    "serverless": "^1.24.1",
     "webpack": "^3.2.0",
     "webpack-bundle-analyzer": "^2.9.1",
     "webpack-node-externals": "^1.6.0"

@@ -9,25 +9,25 @@ provider:
 
 functions:
   callback:
-    handler: handler.callback
+    handler: acceptance/handler.callback
     environment:
       IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
     events:
       - schedule: rate(10 minutes)
   contextSuccess:
-    handler: handler.succeed
+    handler: acceptance/handler.succeed
     environment:
       IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
     events:
       - schedule: rate(10 minutes)
   contextFail:
-    handler: handler.fail
+    handler: acceptance/handler.fail
     environment:
       IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
     events:
       - schedule: rate(10 minutes)
   contextDone:
-    handler: handler.done
+    handler: acceptance/handler.done
     environment:
       IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
     events:
