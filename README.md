@@ -24,6 +24,17 @@ exports.handler = iopipe((event, context) => {
 
 # Configuration
 
+## Methods
+
+You can configure your iopipe setup through one or more different methods - that can be mixed, providing a config chain. The current methods are listed below, in order of precendence. The module instantiation object overrides all other config values (if values are provided).
+
+1. Module instantiation object
+2. IOPIPE_* environment variables
+3. [An iopipe package.json entry](#packagejson-configuration)
+4. Default values
+
+## Options
+
 #### `token` (string: required)
 
 If not supplied, the environment variable `$IOPIPE_TOKEN` will be used if present. [Find your project token](https://dashboard.iopipe.com/install)
@@ -71,6 +82,31 @@ exports.handler = iopipe((event, context, callback) => {
   // Run your fn here
 });
 ```
+
+## package.json Configuration
+
+You can configure iopipe within a package.json entry. [An example of that is here](https://github.com/iopipe/iopipe/blob/master/testProjects/packageJsonConfig/package.json#L10). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
+- String that is the name of the plugin
+- Or an array with plugin name first, and plugin options second
+
+```json
+{
+  "name": "my-great-package",
+  "dependencies": {
+    "iopipe-plugin-trace": "^0.2.0",
+    "@iopipe/profiler": "^0.1.0"
+  },
+  "iopipe": {
+    "token": "wow_token",
+    "plugins": [
+      "iopipe-plugin-trace",
+      ["@iopipe/profiler", {"enabled": true}]
+    ]
+  }
+}
+```
+
+**IMPORTANT**: You must install the plugins as dependencies for them to load properly in your environment.
 
 # License
 
