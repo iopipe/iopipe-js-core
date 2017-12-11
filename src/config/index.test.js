@@ -2,7 +2,7 @@ import setConfig from './index';
 
 jest.mock('./util');
 
-import { setPackageJsonPath } from './util';
+import { setPackageJsonPath, setRcFilePath } from './util';
 
 describe('setting up config object', () => {
   beforeEach(() => {
@@ -66,6 +66,32 @@ describe('setting up config object', () => {
 
   it('can be configured via package.json', () => {
     setPackageJsonPath('./package');
+
+    const config = setConfig();
+
+    expect(config.clientId).toBe('foobar123');
+
+    expect(config.debug).toBe(true);
+
+    expect(config.host).toBe('foo.bar.baz.iopipe.com');
+
+    expect(config.plugins.length).toBe(1);
+
+    expect(config.path).toBe('/foo/bar/v0/event');
+
+    expect(config.timeoutWindow).toBe(100);
+
+    // instantiation config overrides package.json config
+    expect(setConfig({ clientId: 'barbaz' }).clientId).toBe('barbaz');
+
+    process.env.IOPIPE_TOKEN = 'barbaz';
+
+    // Environment variables override package config
+    expect(setConfig().clientId).toBe('barbaz');
+  });
+
+  it('can be configured via .iopiperc', () => {
+    setRcFilePath('./.iopiperc');
 
     const config = setConfig();
 

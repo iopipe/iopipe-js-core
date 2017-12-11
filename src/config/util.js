@@ -1,13 +1,42 @@
-import pkgConf from 'pkg-conf';
+import cosmiconfig from 'cosmiconfig';
 
 /**
  * Returns the `iopipe` object from main's `package.json` if it exists.
  */
 function getPackageConfig() {
   try {
-    const packageConfig = pkgConf.sync('iopipe');
-    if (typeof packageConfig === 'object') {
+    const packageConfig = cosmiconfig('iopipe', {
+      cache: false,
+      js: false,
+      sync: true,
+      rc: false
+    }).load(process.cwd());
+
+    if (packageConfig !== null) {
       return packageConfig;
+    }
+  } catch (err) {
+    void 0; // noop
+  }
+
+  return {};
+}
+
+/**
+ * Returns the rc config if it exists.
+ */
+function getRcConfig() {
+  try {
+    const rcConfig = cosmiconfig('iopipe', {
+      cache: false,
+      js: false,
+      packageProp: false,
+      sync: true,
+      rcExtensions: true
+    }).load(process.cwd());
+
+    if (rcConfig !== null) {
+      return rcConfig;
     }
   } catch (err) {
     void 0; // noop
@@ -41,4 +70,4 @@ function requireFromString(src, args) {
   return undefined;
 }
 
-export { getPackageConfig, requireFromString };
+export { getPackageConfig, getRcConfig, requireFromString };

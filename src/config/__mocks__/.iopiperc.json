@@ -1,0 +1,10 @@
+{
+  "clientId": "foobar123",
+  "debug": true,
+  "installMethod": "package",
+  "plugins": [
+    "iopipe"
+  ],
+  "timeoutWindow": 100,
+  "url": "https://foo.bar.baz.iopipe.com/foo/bar"
+}

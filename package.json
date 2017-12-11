@@ -85,6 +85,6 @@
     ]
   },
   "dependencies": {
-    "pkg-conf": "^2.0.0"
+    "cosmiconfig": "^3.1.0"
   }
 }

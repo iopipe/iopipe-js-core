@@ -1,4 +1,5 @@
 let packageJsonPath = undefined;
+let rcFilePath = undefined;
 
 function getPackageConfig() {
   try {
@@ -9,6 +10,20 @@ function getPackageConfig() {
       typeof packageConfig.iopipe === 'object'
     ) {
       return packageConfig.iopipe;
+    }
+  } catch (err) {
+    Function.prototype; // noop
+  }
+
+  return {};
+}
+
+function getRcConfig() {
+  try {
+    const rcConfig = require(rcFilePath);
+
+    if (typeof rcConfig === 'object') {
+      return rcConfig;
     }
   } catch (err) {
     Function.prototype; // noop
@@ -35,4 +50,14 @@ function setPackageJsonPath(path) {
   packageJsonPath = path;
 }
 
-export { getPackageConfig, requireFromString, setPackageJsonPath };
+function setRcFilePath(path) {
+  rcFilePath = path;
+}
+
+export {
+  getPackageConfig,
+  getRcConfig,
+  requireFromString,
+  setPackageJsonPath,
+  setRcFilePath
+};
