@@ -46,6 +46,7 @@
     "node": ">=4.3.2"
   },
   "devDependencies": {
+    "@iopipe/trace": "^0.3.0",
     "aws-lambda-mock-context": "^3.0.0",
     "aws-sdk": "^2.164.0",
     "babel-core": "^6.25.0",
@@ -61,7 +62,6 @@
     "eslint-plugin-jest": "^20.0.3",
     "eslint-plugin-prettier": "^2.1.2",
     "flat": "^2.0.1",
-    "iopipe-plugin-trace": "^0.2.0",
     "is-ip": "^2.0.0",
     "istanbul": "^0.4.4",
     "jest": "^20.0.4",

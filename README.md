@@ -71,7 +71,7 @@ Plugins can extend the functionality of IOpipe in ways that best work for you. J
 Example:
 
 ```js
-const tracePlugin = require('iopipe-plugin-trace');
+const tracePlugin = require('@iopipe/trace');
 
 const iopipe = require('iopipe')({
   token: 'PROJECT_TOKEN',
@@ -93,13 +93,13 @@ You can configure iopipe within a package.json entry. [An example of that is her
 {
   "name": "my-great-package",
   "dependencies": {
-    "iopipe-plugin-trace": "^0.2.0",
+    "@iopipe/trace": "^0.2.0",
     "@iopipe/profiler": "^0.1.0"
   },
   "iopipe": {
     "token": "wow_token",
     "plugins": [
-      "iopipe-plugin-trace",
+      "@iopipe/trace",
       ["@iopipe/profiler", {"enabled": true}]
     ]
   }
