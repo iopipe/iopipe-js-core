@@ -1,29 +1,11 @@
-let packageJsonPath = undefined;
-let rcFilePath = undefined;
+let configPath = undefined;
 
-function getPackageConfig() {
+function getCosmiConfig() {
   try {
-    const packageConfig = require(packageJsonPath);
+    const config = require(configPath);
 
-    if (
-      typeof packageConfig === 'object' &&
-      typeof packageConfig.iopipe === 'object'
-    ) {
-      return packageConfig.iopipe;
-    }
-  } catch (err) {
-    Function.prototype; // noop
-  }
-
-  return {};
-}
-
-function getRcConfig() {
-  try {
-    const rcConfig = require(rcFilePath);
-
-    if (typeof rcConfig === 'object') {
-      return rcConfig;
+    if (typeof config === 'object' && typeof config.iopipe === 'object') {
+      return config.iopipe;
     }
   } catch (err) {
     Function.prototype; // noop
@@ -46,18 +28,8 @@ function requireFromString(src, args) {
   return undefined;
 }
 
-function setPackageJsonPath(path) {
-  packageJsonPath = path;
+function setConfigPath(path) {
+  configPath = path;
 }
 
-function setRcFilePath(path) {
-  rcFilePath = path;
-}
-
-export {
-  getPackageConfig,
-  getRcConfig,
-  requireFromString,
-  setPackageJsonPath,
-  setRcFilePath
-};
+export { getCosmiConfig, requireFromString, setConfigPath };

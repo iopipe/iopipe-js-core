@@ -1,23 +1,24 @@
 import collector from './../collector';
 
-import PackageConfig from './package';
-import { getRcConfig, requireFromString } from './util';
+import DefaultConfig from './default';
+import { getCosmiConfig, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
-const classConfig = Symbol('rc');
+const classConfig = Symbol('cosmi');
 
-export default class RCConfig extends PackageConfig {
+export default class CosmiConfig extends DefaultConfig {
   /**
-   * RC file configuration
+   * CosmiConfig configuration
    *
-   * This class will attempt to load config values from an rc file if it
-   * exists.
+   * This class will attempt to load config values from an "iopipe" object if
+   * found within the main package's package.json file. It will also attempt
+   * to load values from an rc file if it exists.
    */
 
   constructor() {
     super();
-    this[classConfig] = getRcConfig();
+    this[classConfig] = getCosmiConfig();
   }
 
   get clientId() {

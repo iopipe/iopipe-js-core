@@ -1,42 +1,18 @@
 import cosmiconfig from 'cosmiconfig';
 
 /**
- * Returns the `iopipe` object from main's `package.json` if it exists.
+ * Returns the `iopipe` object from main's `package.json` if it exists. Or returns values from an rc file if it exists.
  */
-function getPackageConfig() {
+function getCosmiConfig() {
   try {
-    const packageConfig = cosmiconfig('iopipe', {
+    const config = cosmiconfig('iopipe', {
       cache: false,
-      js: false,
-      sync: true,
-      rc: false
-    }).load(process.cwd());
-
-    if (packageConfig !== null) {
-      return packageConfig.config;
-    }
-  } catch (err) {
-    void 0; // noop
-  }
-
-  return {};
-}
-
-/**
- * Returns the rc config if it exists.
- */
-function getRcConfig() {
-  try {
-    const rcConfig = cosmiconfig('iopipe', {
-      cache: false,
-      js: false,
-      packageProp: false,
       sync: true,
       rcExtensions: true
     }).load(process.cwd());
 
-    if (rcConfig !== null) {
-      return rcConfig.config;
+    if (config !== null) {
+      return config.config;
     }
   } catch (err) {
     void 0; // noop
@@ -70,4 +46,4 @@ function requireFromString(src, args) {
   return undefined;
 }
 
-export { getPackageConfig, getRcConfig, requireFromString };
+export { getCosmiConfig, requireFromString };
