@@ -10,7 +10,7 @@
   "iopipe": {
     "token": "package_json_config_token_wow",
     "plugins": [
-      "iopipe-plugin-trace"
+      "@iopipe/trace"
     ]
   }
 }

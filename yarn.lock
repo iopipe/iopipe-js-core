@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@iopipe/trace@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@iopipe/trace/-/trace-0.3.0.tgz#42a558da9c7d310d15f09fddb490fbb7ebbbf399"
+  dependencies:
+    iopipe "^1.0.0"
+    performance-node "^0.2.0"
+
 "@serverless/fdk@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@serverless/fdk/-/fdk-0.5.1.tgz#9d420568bfb291d73f8a8a9b35ba68a974f7d0b7"
@@ -2648,13 +2655,6 @@ invariant@^2.2.0, invariant@^2.2.2:
 invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
-
-iopipe-plugin-trace@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/iopipe-plugin-trace/-/iopipe-plugin-trace-0.2.0.tgz#0d20d626a209e2bbbf6fdcaf188b1e96eda33fb6"
-  dependencies:
-    iopipe "^1.0.0"
-    performance-node "^0.2.0"
 
 iopipe@^1.0.0:
   version "1.2.1"
