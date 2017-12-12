@@ -1,6 +1,8 @@
 {
-    "token": "package_json_config_token_wow",
+  "iopipe": {
+    "token": "rc_file_config_token_wow",
     "plugins": [
       "iopipe-plugin-trace"
     ]
+  }
 }

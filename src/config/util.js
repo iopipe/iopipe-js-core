@@ -13,7 +13,7 @@ function getPackageConfig() {
     }).load(process.cwd());
 
     if (packageConfig !== null) {
-      return packageConfig;
+      return packageConfig.config;
     }
   } catch (err) {
     void 0; // noop
@@ -36,7 +36,7 @@ function getRcConfig() {
     }).load(process.cwd());
 
     if (rcConfig !== null) {
-      return rcConfig;
+      return rcConfig.config;
     }
   } catch (err) {
     void 0; // noop

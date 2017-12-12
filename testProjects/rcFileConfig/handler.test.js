@@ -11,7 +11,8 @@ describe('Using rc file iopipe configuration', () => {
     iopipe({ networkTimeout: 345 })((event, context) => {
       try {
         const { clientId, networkTimeout, plugins } = context.iopipe.config;
-        expect(clientId).toBe('package_json_config_token_wow');
+
+        expect(clientId).toBe('rc_file_config_token_wow');
         expect(networkTimeout).toBe(345);
         expect(plugins.length).toBe(1);
         expect(_.isFunction(plugins[0])).toBe(true);
@@ -26,7 +27,7 @@ describe('Using rc file iopipe configuration', () => {
           .fromPairs()
           .value();
         expect(configs['Symbol(package)'].token).toBe(
-          'package_json_config_token_wow'
+          'rc_file_config_token_wow'
         );
         done();
       } catch (err) {
