@@ -25,7 +25,7 @@ describe('Using package.json iopipe configuration', () => {
           .map(o => [o.toString(), context.iopipe.config[o]])
           .fromPairs()
           .value();
-        expect(configs['Symbol(package)'].token).toBe(
+        expect(configs['Symbol(cosmi)'].token).toBe(
           'package_json_config_token_wow'
         );
         done();
