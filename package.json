@@ -16,9 +16,8 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "npm run eslint && npm run build && npm run jest && npm run testIndividualProjects",
-    "testIndividualProjects": "npm run projectTestPackageJsonConfig && npm run projectTestRcFileConfig",
+    "testIndividualProjects": "npm run projectTestPackageJsonConfig",
     "projectTestPackageJsonConfig": "npm run test --prefix testProjects/packageJsonConfig",
-    "projectTestRcFileConfig": "npm run test --prefix testProjects/rcFileConfig",
     "webpack": "webpack --progress --profile --colors"
   },
   "repository": {
