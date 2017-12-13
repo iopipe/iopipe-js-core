@@ -1,0 +1,10 @@
+{
+  "name": "rcFileConfigTest",
+  "version": "0.0.0",
+  "description": "",
+  "main": "handler.test.js",
+  "scripts": {
+    "build": "cp ../../dist/iopipe.js ./iopipe.js",
+    "test": "npm run build && jest"
+  }
+}
