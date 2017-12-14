@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 const iopipe = require('./iopipe');
 
-describe('Using package.json iopipe configuration', () => {
+describe('Using rc file iopipe configuration', () => {
   beforeEach(() => {
     delete process.env.IOPIPE_TOKEN;
   });
@@ -11,10 +11,15 @@ describe('Using package.json iopipe configuration', () => {
     iopipe({ networkTimeout: 345 })((event, context) => {
       try {
         const { clientId, networkTimeout, plugins } = context.iopipe.config;
-        expect(clientId).toBe('package_json_config_token_wow');
+
+        expect(clientId).toBe('rc_file_config_token_wow');
+
         expect(networkTimeout).toBe(345);
+
         expect(plugins.length).toBe(1);
+
         expect(_.isFunction(plugins[0])).toBe(true);
+
         expect(_.isFunction(context.iopipe.mark.start)).toBe(true);
         // the config should be "empty"...
         expect(_.isEmpty(context.iopipe.config)).toBe(true);
@@ -25,9 +30,8 @@ describe('Using package.json iopipe configuration', () => {
           .map(o => [o.toString(), context.iopipe.config[o]])
           .fromPairs()
           .value();
-        expect(configs['Symbol(cosmi)'].token).toBe(
-          'package_json_config_token_wow'
-        );
+
+        expect(configs['Symbol(cosmi)'].token).toBe('rc_file_config_token_wow');
         done();
       } catch (err) {
         console.log(err);

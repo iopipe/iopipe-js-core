@@ -1,6 +1,6 @@
-import RcConfig from './rc';
+import CosmiConfig from './cosmi';
 
-export default class EnvironmentConfig extends RcConfig {
+export default class EnvironmentConfig extends CosmiConfig {
   /**
    * Environment variable configuration
    *

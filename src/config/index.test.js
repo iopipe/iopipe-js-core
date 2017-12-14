@@ -2,7 +2,7 @@ import setConfig from './index';
 
 jest.mock('./util');
 
-import { setPackageJsonPath } from './util';
+import { setConfigPath } from './util';
 
 describe('setting up config object', () => {
   beforeEach(() => {
@@ -64,8 +64,8 @@ describe('setting up config object', () => {
     expect(setConfig({ timeoutWindow: 0 }).timeoutWindow).toEqual(0);
   });
 
-  it('can be configured via package.json', () => {
-    setPackageJsonPath('./package');
+  it('can be configured via config file', () => {
+    setConfigPath('./package');
 
     const config = setConfig();
 

@@ -1,14 +1,11 @@
-let packageJsonPath = undefined;
+let configPath = undefined;
 
-function getPackageConfig() {
+function getCosmiConfig() {
   try {
-    const packageConfig = require(packageJsonPath);
+    const config = require(configPath);
 
-    if (
-      typeof packageConfig === 'object' &&
-      typeof packageConfig.iopipe === 'object'
-    ) {
-      return packageConfig.iopipe;
+    if (typeof config === 'object' && typeof config.iopipe === 'object') {
+      return config.iopipe;
     }
   } catch (err) {
     Function.prototype; // noop
@@ -31,8 +28,8 @@ function requireFromString(src, args) {
   return undefined;
 }
 
-function setPackageJsonPath(path) {
-  packageJsonPath = path;
+function setConfigPath(path) {
+  configPath = path;
 }
 
-export { getPackageConfig, requireFromString, setPackageJsonPath };
+export { getCosmiConfig, requireFromString, setConfigPath };
