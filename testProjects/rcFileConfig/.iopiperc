@@ -1,6 +1,6 @@
 {
     "token": "rc_file_config_token_wow",
     "plugins": [
-      "iopipe-plugin-trace"
+      "@iopipe/trace"
     ]
 }
