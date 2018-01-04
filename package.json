@@ -1,5 +1,5 @@
 {
-  "name": "iopipe",
+  "name": "@iopipe/core",
   "version": "1.3.0",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
