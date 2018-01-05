@@ -9,10 +9,18 @@ function getCosmiConfig() {
       cache: false,
       sync: true,
       rcExtensions: true
-    }).load(process.cwd());
+    });
 
-    if (config !== null) {
-      return config.config;
+    const localConfig = config.load(process.cwd());
+
+    if (localConfig && localConfig.config) {
+      return localConfig.config;
+    }
+
+    const globalConfig = config.load(__dirname);
+
+    if (globalConfig && globalConfig.config) {
+      return globalConfig.config;
     }
   } catch (err) {
     void 0; // noop
