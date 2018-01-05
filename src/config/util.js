@@ -13,13 +13,13 @@ function getCosmiConfig() {
 
     const localConfig = config.load(process.cwd());
 
-    if (localConfig !== null) {
+    if (localConfig && localConfig.config) {
       return localConfig.config;
     }
 
     const globalConfig = config.load(__dirname);
 
-    if (globalConfig !== null) {
+    if (globalConfig && globalConfig.config) {
       return globalConfig.config;
     }
   } catch (err) {
