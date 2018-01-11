@@ -1,41 +1,22 @@
 import collector from './../collector';
 
-import ExtendConfig from './extend';
-import { getCosmiConfig, requireFromString } from './util';
+import DefaultConfig from './default';
+import { requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
-const classConfig = Symbol('cosmi');
+const classConfig = Symbol('extend');
 
-export default class CosmiConfig extends ExtendConfig {
+export default class ExtendConfig extends DefaultConfig {
   /**
-   * CosmiConfig configuration
+   * Extend Configuration
    *
-   * This class will attempt to load config values from an "iopipe" object if
-   * found within the main package's package.json file. It will also attempt
-   * to load values from an rc file if it exists.
+   * This loader allows defaults to be extended from a specified package.
    */
 
   constructor() {
     super();
-    this[classConfig] = getCosmiConfig();
-  }
-
-  get clientId() {
-    return (
-      this[classConfig].token || this[classConfig].clientId || super.clientId
-    );
-  }
-
-  get debug() {
-    return this[classConfig].debug &&
-    typeof this[classConfig].debug === 'boolean'
-      ? this[classConfig].debug
-      : super.debug;
-  }
-
-  get extends() {
-    return this[classConfig].extends || super.extends;
+    this[classConfig] = requireFromString(this.extends) || {};
   }
 
   get host() {

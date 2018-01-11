@@ -30,6 +30,10 @@ export default class ObjectConfig extends EnvironmentConfig {
     return this[classConfig].debug || super.debug;
   }
 
+  get extends() {
+    return this[classConfig].extends || super.extends;
+  }
+
   get host() {
     return this[classConfig].url
       ? getHostname(this[classConfig].url)
