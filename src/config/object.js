@@ -31,7 +31,9 @@ export default class ObjectConfig extends EnvironmentConfig {
   }
 
   get extends() {
-    return this[classConfig].extends || super.extends;
+    return this[classConfig] && this[classConfig].extends
+      ? this[classConfig].extends
+      : super.extends;
   }
 
   get host() {

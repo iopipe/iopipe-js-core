@@ -18,6 +18,7 @@ export default class CosmiConfig extends ExtendConfig {
 
   constructor() {
     super();
+
     this[classConfig] = getCosmiConfig();
   }
 
@@ -35,7 +36,9 @@ export default class CosmiConfig extends ExtendConfig {
   }
 
   get extends() {
-    return this[classConfig].extends || super.extends;
+    return this[classConfig] && this[classConfig].extends
+      ? this[classConfig].extends
+      : super.extends;
   }
 
   get host() {

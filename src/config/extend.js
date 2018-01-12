@@ -16,6 +16,7 @@ export default class ExtendConfig extends DefaultConfig {
 
   constructor() {
     super();
+
     this[classConfig] = requireFromString(this.extends) || {};
   }
 
