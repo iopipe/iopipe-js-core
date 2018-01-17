@@ -51,6 +51,7 @@ class IOpipeWrapperClass {
     this.originalContext = originalContext;
     this.originalCallback = originalCallback;
     this.userFunc = userFunc;
+    this.hasSentReport = false;
 
     // setup any included plugins
     this.plugins = plugins.map((pluginFn = defaultPluginFunction) => {
@@ -138,17 +139,20 @@ class IOpipeWrapperClass {
     }
   }
   async sendReport(err, cb = () => {}) {
-    await this.runHook('post:invoke');
-    await this.runHook('pre:report');
-    if (this.timeout) {
-      clearTimeout(this.timeout);
+    if (!this.hasSentReport) {
+      this.hasSentReport = true;
+      await this.runHook('post:invoke');
+      await this.runHook('pre:report');
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
+      this.report.send(err, async (...args) => {
+        await this.runHook('post:report');
+        // reset the context back to its original state, otherwise aws gets unhappy
+        this.setupContext(true);
+        cb(...args);
+      });
     }
-    this.report.send(err, async (...args) => {
-      await this.runHook('post:report');
-      // reset the context back to its original state, otherwise aws gets unhappy
-      this.setupContext(true);
-      cb(...args);
-    });
   }
   async runHook(hook) {
     const hookString = getHook(hook);

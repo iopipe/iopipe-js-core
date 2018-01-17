@@ -245,12 +245,27 @@ test('Defining original context properties does not error if descriptors are und
   }
 });
 
+class TimeoutTestPlugin {
+  constructor(state) {
+    this.hooks = {
+      ['post:invoke']: () => {
+        state.postInvokeCalls++;
+      }
+    };
+    return this;
+  }
+}
+
 test('When timing out, the lambda reports to iopipe, does not succeed, and reports timeout in aws', async () => {
-  expect.assertions(3);
+  expect.assertions(4);
   let returnValue = undefined;
+  const testState = {
+    postInvokeCalls: 0
+  };
   try {
     const iopipe = createAgent({
-      timeoutWindow: 25
+      timeoutWindow: 25,
+      plugins: [() => new TimeoutTestPlugin(testState)]
     });
     const wrappedFunction = iopipe((event, ctx) => {
       setTimeout(() => {
@@ -267,12 +282,18 @@ test('When timing out, the lambda reports to iopipe, does not succeed, and repor
     returnValue = await context.Promise;
   } catch (err) {
     // the report made it to iopipe
-    expect(
-      _.find(reports, obj => obj.aws.functionName === 'timeout-test')
-    ).toBeTruthy();
-    // the lambda did not succeed
-    expect(returnValue).toBe(undefined);
-    // the lambda timed out
-    expect(err.message).toMatch('Task timed out');
+    try {
+      expect(
+        _.filter(reports, obj => obj.aws.functionName === 'timeout-test')
+      ).toHaveLength(1);
+      // the lambda did not succeed
+      expect(returnValue).toBe(undefined);
+      // the lambda timed out
+      expect(err.message).toMatch('Task timed out');
+      expect(testState.postInvokeCalls).toBe(1);
+    } catch (err2) {
+      console.error(err2);
+      throw err;
+    }
   }
 });
