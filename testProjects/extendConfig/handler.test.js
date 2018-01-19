@@ -10,11 +10,13 @@ describe('Using extend iopipe configuration', () => {
   it('Has configuration', done => {
     iopipe({ clientId: 'foobar' })((event, context) => {
       try {
-        const { plugins } = context.iopipe.config;
+        const { config } = context.iopipe;
 
-        expect(plugins.length).toBe(1);
+        expect(config.extends).toBe('@iopipe/config');
 
-        expect(_.isFunction(plugins[0])).toBe(true);
+        expect(config.plugins.length).toBe(1);
+
+        expect(_.isFunction(config.plugins[0])).toBe(true);
 
         expect(_.isFunction(context.iopipe.mark.start)).toBe(true);
 

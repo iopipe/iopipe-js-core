@@ -1,13 +1,14 @@
 import collector from './../collector';
 
-import ExtendConfig from './extend';
-import { getCosmiConfig, getPlugins } from './util';
+import DefaultConfig from './default';
+import { getCosmiConfig, getPlugins, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
 const classConfig = Symbol('cosmi');
+const extendConfig = Symbol('extend');
 
-export default class CosmiConfig extends ExtendConfig {
+export default class CosmiConfig extends DefaultConfig {
   /**
    * CosmiConfig configuration
    *
@@ -20,6 +21,9 @@ export default class CosmiConfig extends ExtendConfig {
     super();
 
     this[classConfig] = getCosmiConfig();
+
+    // This is used by the parent class
+    this[extendConfig] = requireFromString(this.extends) || {};
   }
 
   get clientId() {
@@ -42,36 +46,68 @@ export default class CosmiConfig extends ExtendConfig {
   }
 
   get host() {
-    return this[classConfig].url
-      ? getHostname(this[classConfig].url)
-      : super.host;
+    if (this[classConfig].url) return getHostname(this[classConfig].url);
+
+    if (this[extendConfig].url) return getHostname(this[extendConfig].url);
+
+    return super.host;
   }
 
   get installMethod() {
-    return this[classConfig].installMethod || super.installMethod;
+    if (this[classConfig].installMethod) return this[classConfig].installMethod;
+
+    if (this[extendConfig].installMethod)
+      return this[extendConfig].installMethod;
+
+    return super.installMethod;
   }
 
   get networkTimeout() {
-    return this[classConfig].networkTimeout &&
-    Number.isInteger(this[classConfig].networkTimeout)
-      ? this[classConfig].networkTimeout
-      : super.networkTimeout;
+    if (
+      this[classConfig].networkTimeout &&
+      Number.isInteger(this[classConfig].networkTimeout)
+    )
+      return this[classConfig].networkTimeout;
+
+    if (
+      this[extendConfig].networkTimeout &&
+      Number.isInteger(this[extendConfig].networkTimeout)
+    )
+      return this[extendConfig].networkTimeout;
+
+    return super.networkTimeout;
   }
 
   get path() {
-    return this[classConfig].url
-      ? getCollectorPath(this[classConfig].url)
-      : super.path;
+    if (this[classConfig].url) return getCollectorPath(this[classConfig].url);
+
+    if (this[extendConfig].url) return getCollectorPath(this[extendConfig].url);
+
+    return super.path;
   }
 
   get plugins() {
-    return getPlugins(this[classConfig].plugins) || super.plugins;
+    if (this[classConfig].plugins) return getPlugins(this[classConfig].plugins);
+
+    if (this[extendConfig].plugins)
+      return getPlugins(this[extendConfig].plugins);
+
+    return super.plugins;
   }
 
   get timeoutWindow() {
-    return this[classConfig].timeoutWindow &&
-    Number.isInteger(this[classConfig].timeoutWindow)
-      ? this[classConfig].timeoutWindow
-      : super.timeoutWindow;
+    if (
+      this[classConfig].timeoutWindow &&
+      Number.isInteger(this[classConfig].timeoutWindow)
+    )
+      return this[classConfig].timeoutWindow;
+
+    if (
+      this[extendConfig].timeoutWindow &&
+      Number.isInteger(this[extendConfig].timeoutWindow)
+    )
+      return this[extendConfig].timeoutWindow;
+
+    return super.timeoutWindow;
   }
 }

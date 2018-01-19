@@ -1,7 +1,7 @@
 import collector from './../collector';
 
 import DefaultConfig from './default';
-import { getPlugins, requireFromString } from './util';
+import { getPlugins } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -16,8 +16,6 @@ export default class ExtendConfig extends DefaultConfig {
 
   constructor() {
     super();
-
-    this[classConfig] = requireFromString(this.extends) || {};
   }
 
   get host() {
@@ -44,7 +42,9 @@ export default class ExtendConfig extends DefaultConfig {
   }
 
   get plugins() {
-    return getPlugins(this[classConfig].plugins) || super.plugins;
+    return this[classConfig] && this[classConfig].plugins
+      ? getPlugins(this[classConfig].plugins)
+      : super.plugins;
   }
 
   get timeoutWindow() {
