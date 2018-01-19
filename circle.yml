@@ -18,9 +18,8 @@ deployment:
     owner: iopipe
     commands:
       - npm run build
-      # login using environment variables
-      - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
-      - npm publish
+      - cp .npmrc-sample .npmrc
+      - npm publish --access public
 
   acceptanceTests:
     branch: master
