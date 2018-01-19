@@ -6,7 +6,6 @@ import { getCosmiConfig, getPlugins, requireFromString } from './util';
 const { getHostname, getCollectorPath } = collector;
 
 const classConfig = Symbol('cosmi');
-const extendConfig = Symbol('extend');
 
 export default class CosmiConfig extends DefaultConfig {
   /**
@@ -20,10 +19,10 @@ export default class CosmiConfig extends DefaultConfig {
   constructor() {
     super();
 
-    this[classConfig] = getCosmiConfig();
-
-    // This is used by the parent class
-    this[extendConfig] = requireFromString(this.extends) || {};
+    this[classConfig] = Object.assign(
+      requireFromString(this.extends) || {},
+      getCosmiConfig()
+    );
   }
 
   get clientId() {
@@ -48,16 +47,11 @@ export default class CosmiConfig extends DefaultConfig {
   get host() {
     if (this[classConfig].url) return getHostname(this[classConfig].url);
 
-    if (this[extendConfig].url) return getHostname(this[extendConfig].url);
-
     return super.host;
   }
 
   get installMethod() {
     if (this[classConfig].installMethod) return this[classConfig].installMethod;
-
-    if (this[extendConfig].installMethod)
-      return this[extendConfig].installMethod;
 
     return super.installMethod;
   }
@@ -69,28 +63,17 @@ export default class CosmiConfig extends DefaultConfig {
     )
       return this[classConfig].networkTimeout;
 
-    if (
-      this[extendConfig].networkTimeout &&
-      Number.isInteger(this[extendConfig].networkTimeout)
-    )
-      return this[extendConfig].networkTimeout;
-
     return super.networkTimeout;
   }
 
   get path() {
     if (this[classConfig].url) return getCollectorPath(this[classConfig].url);
 
-    if (this[extendConfig].url) return getCollectorPath(this[extendConfig].url);
-
     return super.path;
   }
 
   get plugins() {
     if (this[classConfig].plugins) return getPlugins(this[classConfig].plugins);
-
-    if (this[extendConfig].plugins)
-      return getPlugins(this[extendConfig].plugins);
 
     return super.plugins;
   }
@@ -101,12 +84,6 @@ export default class CosmiConfig extends DefaultConfig {
       Number.isInteger(this[classConfig].timeoutWindow)
     )
       return this[classConfig].timeoutWindow;
-
-    if (
-      this[extendConfig].timeoutWindow &&
-      Number.isInteger(this[extendConfig].timeoutWindow)
-    )
-      return this[extendConfig].timeoutWindow;
 
     return super.timeoutWindow;
   }

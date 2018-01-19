@@ -36,9 +36,10 @@ function requireFromString(src, args) {
     const mod = __non_webpack_require__(src);
     /*eslint-enable camelcase, no-undef*/
 
-    if (args && args.constructor === Array) return mod.apply(null, args);
+    if (args && Array.isArray(args)) return mod.apply(null, args);
 
-    return mod();
+    if (typeof mod === 'function') return mod();
+    return mod;
   } catch (err) {
     void 0; // noop
   }
