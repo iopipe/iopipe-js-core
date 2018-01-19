@@ -1,0 +1,17 @@
+{
+  "name": "extendConfigTest",
+  "version": "0.0.0",
+  "description": "",
+  "main": "handler.test.js",
+  "scripts": {
+    "build": "cp ../../dist/iopipe.js ./iopipe.js",
+    "test": "npm run build && jest"
+  },
+  "dependencies": {
+    "@iopipe/config": "^0.1.0",
+    "@iopipe/trace": "^0.3.0"
+  },
+  "iopipe": {
+    "extends": "@iopipe/config"
+  }
+}

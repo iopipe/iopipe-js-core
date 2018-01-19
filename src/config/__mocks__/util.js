@@ -28,8 +28,26 @@ function requireFromString(src, args) {
   return undefined;
 }
 
+function getPlugins(plugins) {
+  if (typeof plugins !== 'object' || !Array.isArray(plugins)) return undefined;
+
+  return plugins
+    .map(plugin => {
+      if (Array.isArray(plugin)) {
+        // The array should have at least one item, which should be the
+        // plugin package name.
+        if (!plugin[0]) return undefined;
+
+        return requireFromString(plugin[0], plugin.slice(1));
+      }
+
+      return requireFromString(plugin);
+    })
+    .filter(plugin => typeof plugin !== 'undefined');
+}
+
 function setConfigPath(path) {
   configPath = path;
 }
 
-export { getCosmiConfig, requireFromString, setConfigPath };
+export { getCosmiConfig, getPlugins, requireFromString, setConfigPath };

@@ -1,7 +1,7 @@
 import collector from './../collector';
 
 import DefaultConfig from './default';
-import { getCosmiConfig, requireFromString } from './util';
+import { getCosmiConfig, getPlugins, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -18,7 +18,11 @@ export default class CosmiConfig extends DefaultConfig {
 
   constructor() {
     super();
-    this[classConfig] = getCosmiConfig();
+
+    this[classConfig] = Object.assign(
+      requireFromString(this.extends) || {},
+      getCosmiConfig()
+    );
   }
 
   get clientId() {
@@ -34,6 +38,12 @@ export default class CosmiConfig extends DefaultConfig {
       : super.debug;
   }
 
+  get extends() {
+    return this[classConfig] && this[classConfig].extends
+      ? this[classConfig].extends
+      : super.extends;
+  }
+
   get host() {
     return this[classConfig].url
       ? getHostname(this[classConfig].url)
@@ -41,7 +51,9 @@ export default class CosmiConfig extends DefaultConfig {
   }
 
   get installMethod() {
-    return this[classConfig].installMethod || super.installMethod;
+    return this[classConfig].installMethod
+      ? this[classConfig].installMethod
+      : super.installMethod;
   }
 
   get networkTimeout() {
@@ -58,25 +70,9 @@ export default class CosmiConfig extends DefaultConfig {
   }
 
   get plugins() {
-    if (
-      typeof this[classConfig].plugins !== 'object' ||
-      this[classConfig].plugins.constructor !== Array
-    )
-      return super.plugins;
-
     return this[classConfig].plugins
-      .map(plugin => {
-        if (Array.isArray(plugin)) {
-          // The array should have at least one item, which should be the
-          // plugin package name.
-          if (!plugin[0]) return undefined;
-
-          return requireFromString(plugin[0], plugin.slice(1));
-        }
-
-        return requireFromString(plugin);
-      })
-      .filter(plugin => typeof plugin !== 'undefined');
+      ? getPlugins(this[classConfig].plugins)
+      : super.plugins;
   }
 
   get timeoutWindow() {

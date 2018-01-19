@@ -36,9 +36,10 @@ function requireFromString(src, args) {
     const mod = __non_webpack_require__(src);
     /*eslint-enable camelcase, no-undef*/
 
-    if (args && args.constructor === Array) return mod.apply(null, args);
+    if (args && Array.isArray(args)) return mod.apply(null, args);
 
-    return mod();
+    if (typeof mod === 'function') return mod();
+    return mod;
   } catch (err) {
     void 0; // noop
   }
@@ -46,4 +47,25 @@ function requireFromString(src, args) {
   return undefined;
 }
 
-export { getCosmiConfig, requireFromString };
+/*
+ * Returns plugins, instantiating with arguments if provided.
+ */
+function getPlugins(plugins) {
+  if (typeof plugins !== 'object' || !Array.isArray(plugins)) return undefined;
+
+  return plugins
+    .map(plugin => {
+      if (Array.isArray(plugin)) {
+        // The array should have at least one item, which should be the
+        // plugin package name.
+        if (!plugin[0]) return undefined;
+
+        return requireFromString(plugin[0], plugin.slice(1));
+      }
+
+      return requireFromString(plugin);
+    })
+    .filter(plugin => typeof plugin !== 'undefined');
+}
+
+export { getCosmiConfig, getPlugins, requireFromString };

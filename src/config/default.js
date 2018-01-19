@@ -18,6 +18,10 @@ export default class DefaultConfig {
     return false;
   }
 
+  get extends() {
+    return '@iopipe/config';
+  }
+
   get host() {
     return getHostname();
   }
