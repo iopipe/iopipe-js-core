@@ -45,46 +45,40 @@ export default class CosmiConfig extends DefaultConfig {
   }
 
   get host() {
-    if (this[classConfig].url) return getHostname(this[classConfig].url);
-
-    return super.host;
+    return this[classConfig].url
+      ? getHostname(this[classConfig].url)
+      : super.host;
   }
 
   get installMethod() {
-    if (this[classConfig].installMethod) return this[classConfig].installMethod;
-
-    return super.installMethod;
+    return this[classConfig].installMethod
+      ? this[classConfig].installMethod
+      : super.installMethod;
   }
 
   get networkTimeout() {
-    if (
-      this[classConfig].networkTimeout &&
-      Number.isInteger(this[classConfig].networkTimeout)
-    )
-      return this[classConfig].networkTimeout;
-
-    return super.networkTimeout;
+    return this[classConfig].networkTimeout &&
+    Number.isInteger(this[classConfig].networkTimeout)
+      ? this[classConfig].networkTimeout
+      : super.networkTimeout;
   }
 
   get path() {
-    if (this[classConfig].url) return getCollectorPath(this[classConfig].url);
-
-    return super.path;
+    return this[classConfig].url
+      ? getCollectorPath(this[classConfig].url)
+      : super.path;
   }
 
   get plugins() {
-    if (this[classConfig].plugins) return getPlugins(this[classConfig].plugins);
-
-    return super.plugins;
+    return this[classConfig].plugins
+      ? getPlugins(this[classConfig].plugins)
+      : super.plugins;
   }
 
   get timeoutWindow() {
-    if (
-      this[classConfig].timeoutWindow &&
-      Number.isInteger(this[classConfig].timeoutWindow)
-    )
-      return this[classConfig].timeoutWindow;
-
-    return super.timeoutWindow;
+    return this[classConfig].timeoutWindow &&
+    Number.isInteger(this[classConfig].timeoutWindow)
+      ? this[classConfig].timeoutWindow
+      : super.timeoutWindow;
   }
 }
