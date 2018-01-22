@@ -31,9 +31,11 @@ exports.handler = iopipe((event, context) => {
 You can configure your iopipe setup through one or more different methods - that can be mixed, providing a config chain. The current methods are listed below, in order of precendence. The module instantiation object overrides all other config values (if values are provided).
 
 1. Module instantiation object
-2. IOPIPE_* environment variables
-3. [An iopipe package.json entry](#packagejson-configuration)
-4. Default values
+2. `IOPIPE_*` environment variables
+3. [An `.iopiperc` file](#rc-file-configuration)
+4. [An `iopipe` package.json entry](#packagejson-configuration)
+5. [An `extends` key referencing a config package](#extends-configuration)
+6. Default values
 
 ## Options
 
@@ -85,9 +87,27 @@ exports.handler = iopipe((event, context, callback) => {
 });
 ```
 
+## RC File Configuration
+
+You can configure iopipe via an `.iopiperc` RC file. [An example of that is here](https://github.com/iopipe/iopipe-js-core/blob/master/testProjects/rcFileConfig/.iopiperc). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
+- String that is the name of the plugin
+- Or an array with plugin name first, and plugin options second
+
+```json
+{
+  "token": "wow_token",
+  "plugins": [
+    "@iopipe/trace",
+    ["@iopipe/profiler", {"enabled": true}]
+  ]
+}
+```
+
+**IMPORTANT**: You must install the plugins as dependencies for them to load properly in your environment.
+
 ## package.json Configuration
 
-You can configure iopipe within a package.json entry. [An example of that is here](https://github.com/iopipe/iopipe/blob/master/testProjects/packageJsonConfig/package.json#L10). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
+You can configure iopipe within a `iopipe` package.json entry. [An example of that is here](https://github.com/iopipe/iopipe/blob/master/testProjects/packageJsonConfig/package.json#L10). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
 - String that is the name of the plugin
 - Or an array with plugin name first, and plugin options second
 
@@ -109,6 +129,16 @@ You can configure iopipe within a package.json entry. [An example of that is her
 ```
 
 **IMPORTANT**: You must install the plugins as dependencies for them to load properly in your environment.
+
+## Extends Configuration
+
+You can configure iopipe within a package.json or rc file by referencing a `extends` config package. [An example of that is here](https://github.com/iopipe/iopipe-js-core/blob/master/testProjects/extendConfig/package.json#L15). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
+- String that is the name of the plugin
+- Or an array with plugin name first, and plugin options second
+
+For an example of a config package, check out [@iopipe/config](https://github.com/iopipe/iopipe-js-config).
+
+**IMPORTANT**: You must install the config package and plugins as dependencies for them to load properly in your environment.
 
 # License
 
