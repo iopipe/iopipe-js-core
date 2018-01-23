@@ -39,9 +39,10 @@ function requireFromString(src, args) {
     if (args && Array.isArray(args)) return mod.apply(null, args);
 
     if (typeof mod === 'function') return mod();
+
     return mod;
   } catch (err) {
-    void 0; // noop
+    console.warn('Failed to import ${src}');
   }
 
   return undefined;
