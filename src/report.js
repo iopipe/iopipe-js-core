@@ -26,7 +26,8 @@ class Report {
       metrics = [],
       plugins = [],
       startTime = process.hrtime(),
-      startTimestamp = Date.now()
+      startTimestamp = Date.now(),
+      initialRemainingMillis = 0
     } = wrapperInstance;
 
     this.config = config;
@@ -55,6 +56,7 @@ class Report {
       duration: undefined,
       processId: globals.PROCESS_ID,
       timestamp: startTimestamp,
+      initialRemainingMillis,
       aws: {
         functionName,
         functionVersion,
