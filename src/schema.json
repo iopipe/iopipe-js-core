@@ -28,6 +28,10 @@
       "version": "s",
       "load_time": "n"
     },
+    "runtime": {
+      "name": "s",
+      "version": "s"
+    },
     "nodejs": {
       "version": "s",
       "memoryUsage": {

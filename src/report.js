@@ -74,6 +74,10 @@ class Report {
           version: globals.VERSION,
           load_time: globals.MODULE_LOAD_TIME
         },
+        runtime: {
+          name: process.release.name,
+          version: process.version
+        },
         nodejs: {
           version: process.version,
           memoryUsage: undefined
