@@ -6,6 +6,7 @@
   "processId": "s",
   "timestamp": "n",
   "timestampEnd": "n",
+  "initialRemainingMillis": "n",
   "aws": {
     "functionName": "s",
     "functionVersion": "s",

@@ -30,6 +30,11 @@ function setupTimeoutCapture(wrapperInstance) {
   }, endTime);
 }
 
+function getInitialRemainingMillis(context = {}) {
+  const { getRemainingTimeInMillis = () => 0 } = context;
+  return getRemainingTimeInMillis() || 0;
+}
+
 class IOpipeWrapperClass {
   constructor(
     originalIdentity,
@@ -44,6 +49,7 @@ class IOpipeWrapperClass {
   ) {
     this.startTime = process.hrtime();
     this.startTimestamp = Date.now();
+    this.initialRemainingMillis = getInitialRemainingMillis(originalContext);
     this.config = config;
     this.metrics = [];
     this.originalIdentity = originalIdentity;
