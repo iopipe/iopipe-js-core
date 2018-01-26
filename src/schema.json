@@ -30,7 +30,10 @@
     },
     "runtime": {
       "name": "s",
-      "version": "s"
+      "version": "s",
+      "vendor": "s",
+      "vmVersion": "s",
+      "vmVendor": "s"
     },
     "nodejs": {
       "version": "s",
