@@ -15,7 +15,7 @@ If you are using the Serverless Framework to deploy your lambdas, check out our 
 Example:
 
 ```js
-const iopipeLib = require('iopipe');
+const iopipeLib = require('@iopipe/core');
 
 const iopipe = iopipeLib({ token: 'PROJECT_TOKEN' });
 
@@ -48,7 +48,7 @@ If not supplied, the environment variable `$IOPIPE_TOKEN` will be used if presen
 By default, IOpipe will capture timeouts by exiting your function 150ms early from the AWS configured timeout, to allow time for reporting. You can disable this feature by setting `timeoutWindow` to `0` in your configuration. If not supplied, the environment variable `$IOPIPE_TIMEOUT_WINDOW` will be used if present.
 
 ```js
-const iopipe = require('iopipe')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
+const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
 ```
 
 #### `debug` (bool: optional = false)
@@ -56,7 +56,7 @@ const iopipe = require('iopipe')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
 Debug mode will log all data sent to IOpipe servers to STDOUT. This is also a good way to evaluate the sort of data that IOpipe is receiving from your application. If not supplied, the environment variable `$IOPIPE_DEBUG` will be used if present.
 
 ```js
-const iopipe = require('iopipe')({
+const iopipe = require('@iopipe/core')({
   token: 'PROJECT_TOKEN',
   debug: true
 });
@@ -77,7 +77,7 @@ Example:
 ```js
 const tracePlugin = require('@iopipe/trace');
 
-const iopipe = require('iopipe')({
+const iopipe = require('@iopipe/core')({
   token: 'PROJECT_TOKEN',
   plugins: [tracePlugin()]
 });
