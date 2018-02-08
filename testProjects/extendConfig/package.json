@@ -8,7 +8,7 @@
     "test": "npm run build && jest"
   },
   "dependencies": {
-    "@iopipe/config": "^0.1.0",
+    "@iopipe/config": "^0.3.0",
     "@iopipe/trace": "^0.3.0"
   },
   "iopipe": {
