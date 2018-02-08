@@ -170,6 +170,7 @@ test('Multiple plugins can be loaded and work', async () => {
       plugins: [
         MockPlugin(),
         MockPlugin({
+          name: 'secondMockPlugin',
           functionName: 'secondmock'
         })
       ]

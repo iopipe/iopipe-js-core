@@ -5,7 +5,8 @@ class MockPlugin {
   constructor(pluginConfig = {}, invocationInstance) {
     this.invocationInstance = invocationInstance;
     this.config = _.defaults({}, pluginConfig, {
-      functionName: 'mock'
+      functionName: 'mock',
+      name: 'mock'
     });
     this.hasSetup = false;
     this.hooks = {
@@ -17,7 +18,7 @@ class MockPlugin {
   }
   get meta() {
     return {
-      name: 'mock',
+      name: this.config.name,
       version: '0.0.1',
       homepage: 'https://github.com/not/a/real/plugin',
       enabled: true

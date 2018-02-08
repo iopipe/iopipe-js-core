@@ -1,7 +1,7 @@
 import collector from './../collector';
 
 import DefaultConfig from './default';
-import { getCosmiConfig, getPlugins, requireFromString } from './util';
+import { getCosmiConfig, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -19,10 +19,14 @@ export default class CosmiConfig extends DefaultConfig {
   constructor() {
     super();
 
-    this[classConfig] = Object.assign(
-      requireFromString(this.extends) || {},
-      getCosmiConfig()
-    );
+    const extendedObject = requireFromString(this.extends) || {};
+    const cosmiObject = getCosmiConfig() || {};
+
+    const plugins = []
+      .concat(extendedObject.plugins)
+      .concat(cosmiObject.plugins);
+
+    this[classConfig] = Object.assign(extendedObject, cosmiObject, { plugins });
   }
 
   get clientId() {
@@ -70,9 +74,7 @@ export default class CosmiConfig extends DefaultConfig {
   }
 
   get plugins() {
-    return this[classConfig].plugins
-      ? getPlugins(this[classConfig].plugins)
-      : super.plugins;
+    return this[classConfig].plugins;
   }
 
   get timeoutWindow() {

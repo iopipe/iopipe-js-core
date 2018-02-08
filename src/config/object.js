@@ -4,6 +4,8 @@ import EnvironmentConfig from './environment';
 
 const { getHostname, getCollectorPath } = collector;
 
+import { getPlugins } from './util';
+
 const classConfig = Symbol('object');
 
 export default class ObjectConfig extends EnvironmentConfig {
@@ -57,9 +59,8 @@ export default class ObjectConfig extends EnvironmentConfig {
   }
 
   get plugins() {
-    return Array.isArray(this[classConfig].plugins)
-      ? this[classConfig].plugins
-      : super.plugins;
+    const plugins = [].concat(this[classConfig].plugins).concat(super.plugins);
+    return getPlugins(plugins);
   }
 
   get timeoutWindow() {
