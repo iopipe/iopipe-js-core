@@ -50,19 +50,19 @@
     "aws-lambda-mock-context": "^3.0.0",
     "aws-sdk": "^2.164.0",
     "babel-core": "^6.25.0",
-    "babel-eslint": "^7.2.3",
+    "babel-eslint": "^8.2.1",
     "babel-loader": "^7.1.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "babel-runtime": "^6.26.0",
-    "coveralls": "^2.11.12",
+    "coveralls": "^3.0.0",
     "cross-spawn": "^6.0.4",
     "delay": "^2.0.0",
-    "eslint": "^3.12.2",
+    "eslint": "^4.17.0",
     "eslint-plugin-jasmine": "^2.5.0",
-    "eslint-plugin-jest": "^20.0.3",
+    "eslint-plugin-jest": "^21.7.0",
     "eslint-plugin-prettier": "^2.1.2",
-    "flat": "^2.0.1",
+    "flat": "^4.0.0",
     "is-ip": "^2.0.0",
     "istanbul": "^0.4.4",
     "jest": "^22.2.1",
@@ -87,7 +87,7 @@
     ]
   },
   "dependencies": {
-    "cosmiconfig": "^4",
+    "cosmiconfig": "^4.0.0",
     "lodash.uniqby": "^4.7.0"
   }
 }
