@@ -42,7 +42,9 @@ function requireFromString(src, args) {
 
     return mod;
   } catch (err) {
-    console.warn('Failed to import ${src}');
+    if (!(err.message || '').match(/Cannot find module \'@iopipe\/config\'/)) {
+      console.warn(`Failed to import ${src}`);
+    }
   }
 
   return undefined;
