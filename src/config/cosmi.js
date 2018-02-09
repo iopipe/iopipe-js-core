@@ -21,12 +21,18 @@ export default class CosmiConfig extends DefaultConfig {
 
     const extendedObject = requireFromString(this.extends) || {};
     const cosmiObject = getCosmiConfig() || {};
+    const cosmiExtendsObject = requireFromString(cosmiObject.extends) || {};
 
     const plugins = []
-      .concat(extendedObject.plugins)
-      .concat(cosmiObject.plugins);
+      .concat(cosmiObject.plugins)
+      .concat(cosmiExtendsObject.plugins)
+      .concat(extendedObject.plugins);
 
-    this[classConfig] = Object.assign(extendedObject, cosmiObject, { plugins });
+    this[
+      classConfig
+    ] = Object.assign({}, extendedObject, cosmiExtendsObject, cosmiObject, {
+      plugins
+    });
   }
 
   get clientId() {

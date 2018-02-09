@@ -4,7 +4,7 @@ import EnvironmentConfig from './environment';
 
 const { getHostname, getCollectorPath } = collector;
 
-import { getPlugins } from './util';
+import { getPlugins, requireFromString } from './util';
 
 const classConfig = Symbol('object');
 
@@ -19,7 +19,9 @@ export default class ObjectConfig extends EnvironmentConfig {
   constructor(opts = {}) {
     super();
 
-    this[classConfig] = opts;
+    const extendObject = requireFromString(opts.extends) || {};
+    this[classConfig] = Object.assign({}, extendObject, opts);
+    return this;
   }
 
   get clientId() {

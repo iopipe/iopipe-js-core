@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import tracePlugin from '@iopipe/trace';
-import CJSON from 'circular-json';
 
 const iopipe = require('./iopipe');
 

@@ -4,14 +4,10 @@
   "description": "",
   "main": "handler.test.js",
   "scripts": {
-    "build": "cp ../../dist/iopipe.js ./iopipe.js",
-    "test": "npm run build && jest"
+    "test": "node ../../node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@iopipe/config": "^0.1.0",
     "@iopipe/trace": "^0.3.0"
-  },
-  "iopipe": {
-    "extends": "@iopipe/config"
   }
 }

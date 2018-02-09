@@ -25,6 +25,9 @@ function getCosmiConfig() {
  * Attempts a require and instantiation from a given string.
  */
 function requireFromString(src, args) {
+  if (!src) {
+    return undefined;
+  }
   /*eslint-disable camelcase, no-undef*/
   /* webpack bug: https://github.com/webpack/webpack/issues/5939 */
   /* we should probably use guards like below, but we will skip them now due to the bug above*/
