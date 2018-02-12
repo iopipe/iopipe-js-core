@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import tracePlugin from '@iopipe/trace';
 
 const iopipe = require('./iopipe');
 
@@ -10,6 +9,18 @@ class MockPlugin {
   get meta() {
     return {
       name: 'mock-plugin'
+    };
+  }
+}
+
+class MockTracePlugin {
+  constructor() {
+    return this;
+  }
+  get meta() {
+    return {
+      name: '@iopipe/trace',
+      version: 'mocked-trace'
     };
   }
 }
@@ -54,6 +65,7 @@ describe('Meta with extra plugin, no deduping', () => {
 });
 
 describe('Meta with extra plugin, dedupes trace plugin', () => {
+  /* When a consumer provides their own plugins, the plugins should be deduped via the meta.name string. If a consumer provides a duplicate with the same meta.name, their plugin should be used instead of the default. */
   beforeEach(() => {
     delete process.env.IOPIPE_TOKEN;
   });
@@ -67,7 +79,7 @@ describe('Meta with extra plugin, dedupes trace plugin', () => {
           inspectableInvocation = inv;
           return new MockPlugin(inv);
         },
-        tracePlugin()
+        inv => new MockTracePlugin(inv)
       ]
     })((event, context) => {
       try {
@@ -82,8 +94,7 @@ describe('Meta with extra plugin, dedupes trace plugin', () => {
 
         expect(plugins.length).toBe(2);
         expect(names).toEqual(['mock-plugin', '@iopipe/trace']);
-
-        expect(_.isFunction(context.iopipe.mark.start)).toBe(true);
+        expect(plugins[1].meta.version).toBe('mocked-trace');
 
         done();
       } catch (err) {

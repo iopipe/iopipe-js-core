@@ -19,20 +19,28 @@ export default class CosmiConfig extends DefaultConfig {
   constructor() {
     super();
 
-    const extendedObject = requireFromString(this.extends) || {};
+    /* The extends object from the default of @iopipe/config */
+    const defaultExtendsObject = requireFromString(this.extends) || {};
     const cosmiObject = getCosmiConfig() || {};
+    /* If someone has {extends: "foo"} in their cosmiConfig (package.json, iopipe.rc) */
     const cosmiExtendsObject = requireFromString(cosmiObject.extends) || {};
 
     const plugins = []
       .concat(cosmiObject.plugins)
       .concat(cosmiExtendsObject.plugins)
-      .concat(extendedObject.plugins);
+      .concat(defaultExtendsObject.plugins);
 
     this[
       classConfig
-    ] = Object.assign({}, extendedObject, cosmiExtendsObject, cosmiObject, {
-      plugins
-    });
+    ] = Object.assign(
+      {},
+      defaultExtendsObject,
+      cosmiExtendsObject,
+      cosmiObject,
+      {
+        plugins
+      }
+    );
   }
 
   get clientId() {
