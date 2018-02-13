@@ -1,7 +1,7 @@
 import collector from './../collector';
 
 import DefaultConfig from './default';
-import { getCosmiConfig, getPlugins, requireFromString } from './util';
+import { getCosmiConfig, requireFromString } from './util';
 
 const { getHostname, getCollectorPath } = collector;
 
@@ -19,9 +19,27 @@ export default class CosmiConfig extends DefaultConfig {
   constructor() {
     super();
 
-    this[classConfig] = Object.assign(
-      requireFromString(this.extends) || {},
-      getCosmiConfig()
+    /* The extends object from the default of @iopipe/config */
+    const defaultExtendsObject = requireFromString(this.extends) || {};
+    const cosmiObject = getCosmiConfig() || {};
+    /* If someone has {extends: "foo"} in their cosmiConfig (package.json, iopipe.rc) */
+    const cosmiExtendsObject = requireFromString(cosmiObject.extends) || {};
+
+    const plugins = []
+      .concat(cosmiObject.plugins)
+      .concat(cosmiExtendsObject.plugins)
+      .concat(defaultExtendsObject.plugins);
+
+    this[
+      classConfig
+    ] = Object.assign(
+      {},
+      defaultExtendsObject,
+      cosmiExtendsObject,
+      cosmiObject,
+      {
+        plugins
+      }
     );
   }
 
@@ -70,9 +88,7 @@ export default class CosmiConfig extends DefaultConfig {
   }
 
   get plugins() {
-    return this[classConfig].plugins
-      ? getPlugins(this[classConfig].plugins)
-      : super.plugins;
+    return this[classConfig].plugins;
   }
 
   get timeoutWindow() {

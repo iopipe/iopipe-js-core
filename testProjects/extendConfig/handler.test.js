@@ -2,21 +2,46 @@ import _ from 'lodash';
 
 const iopipe = require('./iopipe');
 
+class MockPlugin {
+  constructor() {
+    return this;
+  }
+  get meta() {
+    return {
+      name: 'mock-plugin'
+    };
+  }
+}
+
 describe('Using extend iopipe configuration', () => {
   beforeEach(() => {
     delete process.env.IOPIPE_TOKEN;
   });
 
   it('Has configuration', done => {
-    iopipe({ clientId: 'foobar' })((event, context) => {
+    let inspectableInvocation;
+    iopipe({
+      extends: '@iopipe/config',
+      clientId: 'foobar',
+      plugins: [
+        inv => {
+          inspectableInvocation = inv;
+          return new MockPlugin(inv);
+        }
+      ]
+    })((event, context) => {
       try {
         const { config } = context.iopipe;
+        const { plugins } = inspectableInvocation;
 
         expect(config.extends).toBe('@iopipe/config');
 
-        expect(config.plugins.length).toBe(1);
+        expect(plugins.length).toBe(2);
 
-        expect(_.isFunction(config.plugins[0])).toBe(true);
+        const names = _.map(plugins, 'meta.name');
+        expect(names).toEqual(['mock-plugin', '@iopipe/trace']);
+
+        expect(_.isFunction(plugins[1].hooks['post:setup'])).toBe(true);
 
         expect(_.isFunction(context.iopipe.mark.start)).toBe(true);
 

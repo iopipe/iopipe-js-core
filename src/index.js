@@ -3,10 +3,7 @@ import Report from './report';
 import globals from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
-
-const defaultPluginFunction = () => {
-  return {};
-};
+import setupPlugins from './util/setupPlugins';
 
 function setupTimeoutCapture(wrapperInstance) {
   const { context, sendReport, config } = wrapperInstance;
@@ -53,13 +50,7 @@ class IOpipeWrapperClass {
     this.userFunc = userFunc;
     this.hasSentReport = false;
 
-    // setup any included plugins
-    this.plugins = plugins.map((pluginFn = defaultPluginFunction) => {
-      if (typeof pluginFn === 'function') {
-        return pluginFn(this);
-      }
-      return {};
-    });
+    this.plugins = setupPlugins(this, plugins);
 
     this.runHook('pre:setup');
 

@@ -5,3 +5,4 @@ coverage
 dist
 iopipe.js
 stats.json
+package-lock.json
