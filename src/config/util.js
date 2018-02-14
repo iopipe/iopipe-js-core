@@ -9,7 +9,7 @@ function getCosmiConfig() {
       cache: false,
       sync: true,
       rcExtensions: true
-    }).load(process.cwd());
+    }).load();
 
     if (config !== null) {
       return config.config;
