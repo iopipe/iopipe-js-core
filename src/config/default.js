@@ -2,6 +2,13 @@ import collector from './../collector';
 
 const { getHostname, getCollectorPath } = collector;
 
+let iopipeConfig;
+try {
+  iopipeConfig = require('@iopipe/config');
+} catch (err) {
+  // noop
+}
+
 export default class DefaultConfig {
   /**
    * Default configuration
@@ -19,11 +26,7 @@ export default class DefaultConfig {
   }
 
   get extends() {
-    try {
-      return require('@iopipe/config');
-    } catch (err) {
-      return undefined;
-    }
+    return iopipeConfig;
   }
 
   get host() {
