@@ -19,7 +19,11 @@ export default class DefaultConfig {
   }
 
   get extends() {
-    return '@iopipe/config';
+    try {
+      return require('@iopipe/config');
+    } catch (err) {
+      return undefined;
+    }
   }
 
   get host() {

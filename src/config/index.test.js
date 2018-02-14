@@ -1,6 +1,11 @@
 import setConfig from './index';
 
 jest.mock('./util');
+jest.mock('@iopipe/config', () => {
+  return {
+    plugins: []
+  };
+});
 
 import { setConfigPath } from './util';
 

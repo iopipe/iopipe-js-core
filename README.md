@@ -88,6 +88,7 @@ exports.handler = iopipe((event, context, callback) => {
 ```
 
 ## RC File Configuration
+Not recommended for webpack/bundlers due to dynamic require.
 
 You can configure iopipe via an `.iopiperc` RC file. [An example of that is here](https://github.com/iopipe/iopipe-js-core/blob/master/testProjects/rcFileConfig/.iopiperc). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
 - String that is the name of the plugin
@@ -106,6 +107,7 @@ You can configure iopipe via an `.iopiperc` RC file. [An example of that is here
 **IMPORTANT**: You must install the plugins as dependencies for them to load properly in your environment.
 
 ## package.json Configuration
+Not recommended for webpack/bundlers due to dynamic require.
 
 You can configure iopipe within a `iopipe` package.json entry. [An example of that is here](https://github.com/iopipe/iopipe/blob/master/testProjects/packageJsonConfig/package.json#L10). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
 - String that is the name of the plugin
@@ -131,6 +133,7 @@ You can configure iopipe within a `iopipe` package.json entry. [An example of th
 **IMPORTANT**: You must install the plugins as dependencies for them to load properly in your environment.
 
 ## Extends Configuration
+Not recommended for webpack/bundlers due to dynamic require.
 
 You can configure iopipe within a package.json or rc file by referencing a `extends` config package. [An example of that is here](https://github.com/iopipe/iopipe-js-core/blob/master/testProjects/extendConfig/package.json#L15). Config options are the same as the module instantiation object, except for plugins. Plugins should be an array containing mixed-type values. A plugin value can be a:
 - String that is the name of the plugin
