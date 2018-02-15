@@ -39,11 +39,17 @@ class Report {
       functionName,
       functionVersion,
       awsRequestId,
-      invokedFunctionArn,
       logGroupName,
       logStreamName,
       memoryLimitInMB
     } = this.context;
+
+    let { invokedFunctionArn } = this.context;
+
+    // Patch invokedFunctionArn in cases of SAM local invocations
+    if (process.env.AWS_SAM_LOCAL) {
+      invokedFunctionArn = `arn:aws:lambda:local:0:function:${functionName}`;
+    }
 
     const pluginMetas = plugins
       .filter(plugin => typeof plugin !== 'undefined')
