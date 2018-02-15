@@ -11,7 +11,7 @@
     "acceptanceLocalContextDone": "sls invoke local -f contextDone",
     "acceptanceLocal": "npm run acceptanceLocalCallback && npm run acceptanceLocalContextSuccess && npm run acceptanceLocalContextDone",
     "build": "npm run webpack",
-    "eslint": "eslint src spec acceptance",
+    "eslint": "eslint src spec acceptance testProjects",
     "jest": "jest",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
@@ -72,7 +72,8 @@
     "serverless": "^1.24.1",
     "webpack": "^3.2.0",
     "webpack-bundle-analyzer": "^2.9.1",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-node-externals": "^1.6.0",
+    "yargs": "^11.0.0"
   },
   "pre-commit": [
     "test"

@@ -1,29 +1,8 @@
 import _ from 'lodash';
 
+import { MockPlugin, MockTracePlugin } from '../util/plugins';
+
 const iopipe = require('./iopipe');
-
-class MockPlugin {
-  constructor() {
-    return this;
-  }
-  get meta() {
-    return {
-      name: 'mock-plugin'
-    };
-  }
-}
-
-class MockTracePlugin {
-  constructor() {
-    return this;
-  }
-  get meta() {
-    return {
-      name: '@iopipe/trace',
-      version: 'mocked-trace'
-    };
-  }
-}
 
 describe('Meta with extra plugin, no deduping', () => {
   beforeEach(() => {

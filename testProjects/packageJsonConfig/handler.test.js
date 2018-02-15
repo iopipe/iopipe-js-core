@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import { MockPlugin } from '../util/plugins';
+
 const iopipe = require('./iopipe');
 
 describe('Using package.json iopipe configuration', () => {
@@ -8,13 +10,28 @@ describe('Using package.json iopipe configuration', () => {
   });
 
   it('Has configuration', done => {
-    iopipe({ networkTimeout: 345 })((event, context) => {
+    let inspectableInvocation;
+    iopipe({
+      networkTimeout: 345,
+      plugins: [
+        inv => {
+          inspectableInvocation = inv;
+          return new MockPlugin(inv);
+        }
+      ]
+    })((event, context) => {
       try {
-        const { clientId, networkTimeout, plugins } = context.iopipe.config;
+        const { clientId, networkTimeout } = context.iopipe.config;
+        const { plugins } = inspectableInvocation;
+
         expect(clientId).toBe('package_json_config_token_wow');
         expect(networkTimeout).toBe(345);
-        expect(plugins.length).toBe(1);
-        expect(_.isFunction(plugins[0])).toBe(true);
+
+        expect(_.map(plugins, 'meta.name')).toEqual([
+          'mock-plugin',
+          '@iopipe/trace'
+        ]);
+
         expect(_.isFunction(context.iopipe.mark.start)).toBe(true);
         // the config should be "empty"...
         expect(_.isEmpty(context.iopipe.config)).toBe(true);
