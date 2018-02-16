@@ -87,4 +87,18 @@ describe('Report creation', () => {
       'https://github.com/not/a/real/plugin'
     );
   });
+
+  it('patches the ARN if SAM local is detected', () => {
+    process.env.AWS_SAM_LOCAL = true;
+    const localReport = new Report({ config, context: context() });
+    expect(localReport.report.aws.invokedFunctionArn).toBe(
+      'arn:aws:lambda:local:0:function:aws-lambda-mock-context'
+    );
+
+    delete process.env.AWS_SAM_LOCAL;
+    const normalReport = new Report({ config, context: context() });
+    expect(normalReport.report.aws.invokedFunctionArn).toBe(
+      'arn:aws:lambda:us-west-1:123456789012:function:aws-lambda-mock-context:$LATEST'
+    );
+  });
 });
