@@ -1,0 +1,9 @@
+{
+  "name": "catchTypeErrorTest",
+  "version": "0.0.0",
+  "description": "",
+  "main": "handler.test.js",
+  "scripts": {
+    "test": "node ../../node_modules/jest/bin/jest.js"
+  }
+}
