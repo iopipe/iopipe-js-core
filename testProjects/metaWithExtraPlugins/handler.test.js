@@ -24,7 +24,7 @@ describe('Meta with extra plugin, no deduping', () => {
         const { config } = context.iopipe;
         const { plugins } = inspectableInvocation;
 
-        expect(config.extends).toBe('@iopipe/config');
+        expect(config.extends).toEqual({ plugins: ['@iopipe/trace'] });
 
         const names = _.chain(plugins)
           .map(p => p.meta.name)
@@ -65,7 +65,7 @@ describe('Meta with extra plugin, dedupes trace plugin', () => {
         const { config } = context.iopipe;
         const { plugins } = inspectableInvocation;
 
-        expect(config.extends).toBe('@iopipe/config');
+        expect(config.extends).toEqual({ plugins: ['@iopipe/trace'] });
 
         const names = _.chain(plugins)
           .map(p => p.meta.name)

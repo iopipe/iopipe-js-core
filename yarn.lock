@@ -10,6 +10,12 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
+"@iopipe/config@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@iopipe/config/-/config-0.3.0.tgz#80e16e26dd51cb3f857a80feba35af3fd4c72601"
+  dependencies:
+    "@iopipe/trace" "^0.3.0"
+
 "@iopipe/trace@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@iopipe/trace/-/trace-0.3.0.tgz#42a558da9c7d310d15f09fddb490fbb7ebbbf399"
