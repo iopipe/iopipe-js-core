@@ -10,15 +10,23 @@ describe('Catch typeError by wrapping require block', () => {
 
   it('Has configuration', async () => {
     let inspectableInvocation;
-    iopipe({
-      token: 'test-token',
-      plugins: [
-        inv => {
-          inspectableInvocation = inv;
-        }
-      ]
-    })((event, context) => require('./handler')(event, context))({}, {});
+    const result = await new Promise(resolve => {
+      return iopipe({
+        token: 'test-token',
+        plugins: [
+          inv => {
+            inspectableInvocation = inv;
+          }
+        ]
+      })((event, context) => require('./handler')(event, context))(
+        {},
+        {},
+        resolve
+      );
+    });
     await delay(100);
+    expect(_.isError(result)).toBe(true);
+    expect(result.message).toMatch('wow-great-type-error');
     const {
       report: { report: { errors: { message } } }
     } = inspectableInvocation;
