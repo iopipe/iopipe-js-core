@@ -17,14 +17,25 @@ const folders = _.chain(testDirFiles)
   })
   .value();
 
+const results = [];
+function resultPush({ status }) {
+  results.push(status);
+}
+
 folders.forEach(folder => {
-  spawn.sync('yarn', ['install', '--cwd', `testProjects/${folder}`], {
-    stdio: 'inherit'
-  });
+  resultPush(
+    spawn.sync('yarn', ['install', '--cwd', `testProjects/${folder}`], {
+      stdio: 'inherit'
+    })
+  );
 
   fs.copyFileSync('dist/iopipe.js', `testProjects/${folder}/iopipe.js`);
 
-  spawn.sync('yarn', ['--cwd', `testProjects/${folder}`, 'test'], {
-    stdio: 'inherit'
-  });
+  resultPush(
+    spawn.sync('yarn', ['--cwd', `testProjects/${folder}`, 'test'], {
+      stdio: 'inherit'
+    })
+  );
 });
+
+process.exit(_.max(results));
