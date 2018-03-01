@@ -29,11 +29,11 @@ describe('Report creation', () => {
     expect(typeof new Report()).toBe('object');
   });
 
-  test('creates a report that matches the schema', done => {
+  test('creates a report that matches the schema', async (done) => {
     const r = new Report({
       metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
     });
-    r.prepare(new Error('Holy smokes!'));
+    await r.prepare(new Error('Holy smokes!'));
     r.send(() => {
       const flatReport = _.chain(r.report)
         .thru(flatten)
@@ -67,6 +67,7 @@ describe('Report creation', () => {
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
+
       done();
     });
   });
