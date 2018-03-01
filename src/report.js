@@ -16,6 +16,9 @@ class Report {
       bootIdPromise: system.readbootid()
     };
 
+    // flag on report preparation status, reports are prepared once
+    this.prepared = false;
+
     // flag on report sending status, reports are sent once
     this.sent = false;
 
@@ -103,13 +106,14 @@ class Report {
     globals.COLDSTART = false;
   }
 
-  send(err, callback) {
-    // Send report only once
-    if (this.sent) {
+  prepare(err) {
+    // Prepare report only once
+    if (this.prepared) {
       return;
     }
-    this.sent = true;
-    const self = this;
+
+    this.prepared = true;
+
     const config = this.config;
     const context = this.context;
 
@@ -177,6 +181,7 @@ class Report {
       this.report.timestampEnd = Date.now();
 
       const durationHrTime = process.hrtime(this.startTime);
+
       this.report.duration = Math.ceil(
         durationHrTime[0] * 1e9 + durationHrTime[1]
       );
@@ -184,35 +189,50 @@ class Report {
       if (config.debug) {
         log('IOPIPE-DEBUG: ', JSON.stringify(this.report));
       }
-
-      this.dnsPromise
-        .then(ipAddress => {
-          sendReport(self.report, config, ipAddress)
-            .then(function afterRequest(res) {
-              if (config.debug) {
-                log(`API STATUS FROM ${config.host}: ${res.status}`);
-                log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
-              }
-              callback(err);
-            })
-            .catch(function handleErr(collectorErr) {
-              // Log errors, don't block on failed requests
-              if (config.debug) {
-                log('Write to IOpipe failed');
-                log(collectorErr);
-              }
-              callback(err);
-            });
-        })
-        .catch(dnsErr => {
-          // Log errors, don't block on failed requests
-          if (config.debug) {
-            log('Write to IOpipe failed. DNS resolution error.');
-            log(dnsErr);
-          }
-          callback(err);
-        });
     });
+  }
+
+  send(callback) {
+    // Send report only once
+    if (this.sent) {
+      return;
+    }
+
+    this.sent = true;
+
+    const self = this;
+    const config = this.config;
+
+    this.dnsPromise
+      .then(ipAddress => {
+        sendReport(self.report, config, ipAddress)
+          .then(function afterRequest(res) {
+            if (config.debug) {
+              log(`API STATUS FROM ${config.host}: ${res.status}`);
+              log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
+            }
+
+            callback(null, res);
+          })
+          .catch(function handleErr(err) {
+            // Log errors, don't block on failed requests
+            if (config.debug) {
+              log('Write to IOpipe failed');
+              log(err);
+            }
+
+            callback(err);
+          });
+      })
+      .catch(err => {
+        // Log errors, don't block on failed requests
+        if (config.debug) {
+          log('Write to IOpipe failed. DNS resolution error.');
+          log(err);
+        }
+
+        callback(err);
+      });
   }
 }
 

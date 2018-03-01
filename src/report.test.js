@@ -33,7 +33,8 @@ describe('Report creation', () => {
     const r = new Report({
       metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
     });
-    r.send(new Error('Holy smokes!'), () => {
+    r.prepare(new Error('Holy smokes!'));
+    r.send(() => {
       const flatReport = _.chain(r.report)
         .thru(flatten)
         .keys()
