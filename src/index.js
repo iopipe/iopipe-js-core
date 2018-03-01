@@ -133,7 +133,7 @@ class IOpipeWrapperClass {
     if (!this.hasSentReport) {
       this.hasSentReport = true;
       await this.runHook('post:invoke');
-      this.report.prepare(err);
+      await this.report.prepare(err);
       await this.runHook('pre:report');
       if (this.timeout) {
         clearTimeout(this.timeout);

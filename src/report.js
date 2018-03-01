@@ -106,7 +106,7 @@ class Report {
     globals.COLDSTART = false;
   }
 
-  prepare(err) {
+  async prepare(err) {
     // Prepare report only once
     if (this.prepared) {
       return;
@@ -140,56 +140,53 @@ class Report {
     }
 
     // Resolve system promises/report data
-    Promise.all([
+    const results = await Promise.all([
       this.initalPromises.statPromise,
       system.readstat('self'),
       system.readstatus('self'),
       this.initalPromises.bootIdPromise
-    ]).then(results => {
-      const preProcSelfStat = results[0];
-      const procSelfStat = results[1];
-      const procSelfStatus = results[2];
-      const bootId = results[3];
+    ]);
 
-      const osStats = {
-        hostname: os.hostname(),
-        uptime: os.uptime(),
-        totalmem: os.totalmem(),
-        freemem: os.freemem(),
-        usedmem: os.totalmem() - os.freemem(),
-        cpus: os.cpus(),
-        arch: os.arch(),
-        linux: {
-          pid: {
-            self: {
-              stat_start: preProcSelfStat,
-              stat: procSelfStat,
-              status: procSelfStatus
-            }
+    const [preProcSelfStat, procSelfStat, procSelfStatus, bootId] = results;
+
+    const osStats = {
+      hostname: os.hostname(),
+      uptime: os.uptime(),
+      totalmem: os.totalmem(),
+      freemem: os.freemem(),
+      usedmem: os.totalmem() - os.freemem(),
+      cpus: os.cpus(),
+      arch: os.arch(),
+      linux: {
+        pid: {
+          self: {
+            stat_start: preProcSelfStat,
+            stat: procSelfStat,
+            status: procSelfStatus
           }
         }
-      };
-
-      this.report.environment.os = osStats;
-      this.report.environment.host.boot_id = bootId;
-      this.report.environment.nodejs.memoryUsage = process.memoryUsage();
-
-      if (context.getRemainingTimeInMillis) {
-        this.report.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis();
       }
+    };
 
-      this.report.timestampEnd = Date.now();
+    this.report.environment.os = osStats;
+    this.report.environment.host.boot_id = bootId;
+    this.report.environment.nodejs.memoryUsage = process.memoryUsage();
 
-      const durationHrTime = process.hrtime(this.startTime);
+    if (context.getRemainingTimeInMillis) {
+      this.report.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis();
+    }
 
-      this.report.duration = Math.ceil(
-        durationHrTime[0] * 1e9 + durationHrTime[1]
-      );
+    this.report.timestampEnd = Date.now();
 
-      if (config.debug) {
-        log('IOPIPE-DEBUG: ', JSON.stringify(this.report));
-      }
-    });
+    const durationHrTime = process.hrtime(this.startTime);
+
+    this.report.duration = Math.ceil(
+      durationHrTime[0] * 1e9 + durationHrTime[1]
+    );
+
+    if (config.debug) {
+      log('IOPIPE-DEBUG: ', JSON.stringify(this.report));
+    }
   }
 
   send(callback) {
