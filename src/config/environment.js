@@ -16,14 +16,15 @@ export default class EnvironmentConfig extends CosmiConfig {
 
   get debug() {
     return process.env.IOPIPE_DEBUG
-      ? process.env.IOPIPE_DEBUG === '1' || process.env.IOPIPE_DEBUG === 'true'
+      ? process.env.IOPIPE_DEBUG === '1' ||
+        process.env.IOPIPE_DEBUG.toLowerCase() === 'true'
       : super.debug;
   }
 
   get enabled() {
     return process.env.IOPIPE_ENABLED
       ? process.env.IOPIPE_ENABLED === '1' ||
-        process.env.IOPIPE_ENABLED === 'true'
+        process.env.IOPIPE_ENABLED.toLowerCase() === 'true'
       : super.enabled;
   }
 
