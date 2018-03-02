@@ -34,6 +34,12 @@ export default class ObjectConfig extends EnvironmentConfig {
     return this[classConfig].debug || super.debug;
   }
 
+  get enabled() {
+    return typeof this[classConfig].enabled === 'boolean'
+      ? this[classConfig].enabled
+      : super.enabled;
+  }
+
   get extends() {
     return this[classConfig] && this[classConfig].extends
       ? this[classConfig].extends

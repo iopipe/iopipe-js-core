@@ -20,6 +20,13 @@ export default class EnvironmentConfig extends CosmiConfig {
       : super.debug;
   }
 
+  get enabled() {
+    return process.env.IOPIPE_ENABLED
+      ? process.env.IOPIPE_ENABLED === '1' ||
+        process.env.IOPIPE_ENABLED === 'true'
+      : super.enabled;
+  }
+
   get installMethod() {
     return process.env.IOPIPE_INSTALL_METHOD || super.installMethod;
   }

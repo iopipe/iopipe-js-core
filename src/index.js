@@ -217,6 +217,12 @@ module.exports = options => {
       return userFunc;
     }
 
+    if (!config.enabled) {
+      console.debug('IOpipe agent disabled, skipping reporting');
+      // No-op if agent is disabled
+      return userFunc;
+    }
+
     // Assign .log (deprecated) here to avoid type errors
     if (typeof libFn.log !== 'function') {
       libFn.log = () => {};

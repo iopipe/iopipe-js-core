@@ -25,6 +25,10 @@ export default class DefaultConfig {
     return false;
   }
 
+  get enabled() {
+    return true;
+  }
+
   get extends() {
     return iopipeConfig;
   }
