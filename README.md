@@ -95,7 +95,7 @@ exports.handler = iopipe((event, context, callback) => {
 });
 ```
 
-#### `enabled` (bool: optional = True)
+#### `enabled` (boolean: optional = True)
 
 Conditionally enable/disable the agent. The environment variable `$IOPIPE_ENABLED` will also be checked.
 
