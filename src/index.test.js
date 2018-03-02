@@ -238,7 +238,7 @@ describe('metrics agent', () => {
       context.succeed('Success');
     };
 
-    const agent = createAgent({ token: '' });
+    const agent = createAgent({ enabled: false });
 
     expect(agent(fn)).toBe(fn);
   });
