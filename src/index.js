@@ -1,9 +1,13 @@
+import util from 'util';
+
 import setConfig from './config';
 import Report from './report';
 import globals from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
 import setupPlugins from './util/setupPlugins';
+
+const debuglog = util.debuglog('iopipe');
 
 function setupTimeoutCapture(wrapperInstance) {
   const { context, sendReport, config } = wrapperInstance;
@@ -209,17 +213,18 @@ module.exports = options => {
 
   const dnsPromise = getDnsPromise(config.host);
   const libFn = userFunc => {
+    if (!config.enabled) {
+      debuglog('IOpipe agent disabled, skipping reporting');
+
+      // No-op if agent is disabled
+      return userFunc;
+    }
+
     if (!config.clientId) {
       console.warn(
         'Your function is wrapped with iopipe, but a valid token was not found. Methods such as iopipe.context.log will fail.'
       );
       // No-op if user doesn't set an IOpipe token.
-      return userFunc;
-    }
-
-    if (!config.enabled) {
-      console.debug('IOpipe agent disabled, skipping reporting');
-      // No-op if agent is disabled
       return userFunc;
     }
 
