@@ -111,4 +111,14 @@ describe('setting up config object', () => {
 
     expect(setConfig().enabled).toBe(false);
   });
+
+  it('should only be disabled explicitly', () => {
+    process.env.IOPIPE_ENABLED = 'xyz';
+
+    expect(setConfig().enabled).toBe(true);
+
+    process.env.IOPIPE_ENABLED = 'f';
+
+    expect(setConfig().enabled).toBe(false);
+  });
 });
