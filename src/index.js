@@ -1,13 +1,9 @@
-import util from 'util';
-
 import setConfig from './config';
 import Report from './report';
 import globals from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
 import setupPlugins from './util/setupPlugins';
-
-const debuglog = util.debuglog('iopipe');
 
 function setupTimeoutCapture(wrapperInstance) {
   const { context, sendReport, config } = wrapperInstance;
@@ -214,8 +210,6 @@ module.exports = options => {
   const dnsPromise = getDnsPromise(config.host);
   const libFn = userFunc => {
     if (!config.enabled) {
-      debuglog('IOpipe agent disabled, skipping reporting');
-
       // No-op if agent is disabled
       return userFunc;
     }
