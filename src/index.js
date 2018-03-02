@@ -125,7 +125,7 @@ class IOpipeWrapperClass {
         this.callback
       );
     } catch (err) {
-      this.sendReport(err);
+      this.sendReport(err, () => this.originalCallback(err));
       return err;
     }
   }
