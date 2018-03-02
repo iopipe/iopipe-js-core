@@ -43,14 +43,6 @@ You can configure your iopipe setup through one or more different methods - that
 
 If not supplied, the environment variable `$IOPIPE_TOKEN` will be used if present. [Find your project token](https://dashboard.iopipe.com/install)
 
-#### `timeoutWindow` (int: optional = 150)
-
-By default, IOpipe will capture timeouts by exiting your function 150ms early from the AWS configured timeout, to allow time for reporting. You can disable this feature by setting `timeoutWindow` to `0` in your configuration. If not supplied, the environment variable `$IOPIPE_TIMEOUT_WINDOW` will be used if present.
-
-```js
-const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
-```
-
 #### `debug` (bool: optional = false)
 
 Debug mode will log all data sent to IOpipe servers to STDOUT. This is also a good way to evaluate the sort of data that IOpipe is receiving from your application. If not supplied, the environment variable `$IOPIPE_DEBUG` will be used if present.
@@ -65,6 +57,23 @@ exports.handler = iopipe((event, context, callback) => {
   // Do things here. We'll log info to STDOUT.
 });
 ```
+
+#### `networkTimeout` (int: optional = 5000)
+
+The number of milliseconds IOpipe will wait while sending a report before timing out. If not supplied, the environment variable `$IOPIPE_NETWORK_TIMEOUT` will be used if present.
+
+```js
+const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', networkTimeout: 30000})
+```
+
+#### `timeoutWindow` (int: optional = 150)
+
+By default, IOpipe will capture timeouts by exiting your function 150ms early from the AWS configured timeout, to allow time for reporting. You can disable this feature by setting `timeoutWindow` to `0` in your configuration. If not supplied, the environment variable `$IOPIPE_TIMEOUT_WINDOW` will be used if present.
+
+```js
+const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
+```
+
 
 #### `plugins` (array: optional)
 

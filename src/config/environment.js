@@ -24,6 +24,12 @@ export default class EnvironmentConfig extends CosmiConfig {
     return process.env.IOPIPE_INSTALL_METHOD || super.installMethod;
   }
 
+  get networkTimeout() {
+    return Number.isInteger(parseInt(process.env.IOPIPE_NETWORK_TIMEOUT, 10))
+      ? parseInt(process.env.IOPIPE_NETWORK_TIMEOUT, 10)
+      : super.networkTimeout;
+  }
+
   get timeoutWindow() {
     return Number.isInteger(parseInt(process.env.IOPIPE_TIMEOUT_WINDOW, 10))
       ? parseInt(process.env.IOPIPE_TIMEOUT_WINDOW, 10)
