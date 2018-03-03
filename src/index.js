@@ -209,6 +209,11 @@ module.exports = options => {
 
   const dnsPromise = getDnsPromise(config.host);
   const libFn = userFunc => {
+    if (!config.enabled) {
+      // No-op if agent is disabled
+      return userFunc;
+    }
+
     if (!config.clientId) {
       console.warn(
         'Your function is wrapped with iopipe, but a valid token was not found. Methods such as iopipe.context.log will fail.'

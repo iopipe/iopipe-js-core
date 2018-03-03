@@ -74,7 +74,6 @@ By default, IOpipe will capture timeouts by exiting your function 150ms early fr
 const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', timeoutWindow: 0})
 ```
 
-
 #### `plugins` (array: optional)
 
 Plugins can extend the functionality of IOpipe in ways that best work for you. Just follow the guides for the plugins listed below for proper usage:
@@ -95,6 +94,10 @@ exports.handler = iopipe((event, context, callback) => {
   // Run your fn here
 });
 ```
+
+#### `enabled` (boolean: optional = True)
+
+Conditionally enable/disable the agent. The environment variable `$IOPIPE_ENABLED` will also be checked.
 
 ## RC File Configuration
 Not recommended for webpack/bundlers due to dynamic require.

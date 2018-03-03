@@ -222,6 +222,26 @@ describe('metrics agent', () => {
       })
       .catch(defaultCatch);
   });
+
+  it('will return unwrapped function if token unset', () => {
+    const fn = (event, context) => {
+      context.succeed('Success');
+    };
+
+    const agent = createAgent({ token: '' });
+
+    expect(agent(fn)).toBe(fn);
+  });
+
+  it('will return unwrapped function if agent disabled', () => {
+    const fn = (event, context) => {
+      context.succeed('Success');
+    };
+
+    const agent = createAgent({ enabled: false });
+
+    expect(agent(fn)).toBe(fn);
+  });
 });
 
 describe('smoke test', () => {

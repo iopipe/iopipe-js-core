@@ -11,10 +11,11 @@ import { setConfigPath } from './util';
 
 describe('setting up config object', () => {
   beforeEach(() => {
-    delete process.env.IOPIPE_TOKEN;
-    delete process.env.IOPIPE_CLIENTID;
-    delete process.env.IOPIPE_TIMEOUT_WINDOW;
     delete process.env.AWS_REGION;
+    delete process.env.IOPIPE_CLIENTID;
+    delete process.env.IOPIPE_ENABLED;
+    delete process.env.IOPIPE_TIMEOUT_WINDOW;
+    delete process.env.IOPIPE_TOKEN;
   });
 
   it('can accept 0 arguments and returns default config', () => {
@@ -23,6 +24,8 @@ describe('setting up config object', () => {
     expect(config.clientId).toEqual('');
 
     expect(config.debug).toEqual(false);
+
+    expect(config.enabled).toEqual(true);
 
     expect(config.host).toEqual('metrics-api.iopipe.com');
 
@@ -93,5 +96,29 @@ describe('setting up config object', () => {
 
     // Environment variables override package config
     expect(setConfig().clientId).toBe('barbaz');
+  });
+
+  it('can disable agent', () => {
+    expect(setConfig({ enabled: false }).enabled).toBe(false);
+  });
+
+  it('can disable agent via environment variable', () => {
+    process.env.IOPIPE_ENABLED = '0';
+
+    expect(setConfig().enabled).toBe(false);
+
+    process.env.IOPIPE_ENABLED = 'false';
+
+    expect(setConfig().enabled).toBe(false);
+  });
+
+  it('should only be disabled explicitly', () => {
+    process.env.IOPIPE_ENABLED = 'xyz';
+
+    expect(setConfig().enabled).toBe(true);
+
+    process.env.IOPIPE_ENABLED = 'f';
+
+    expect(setConfig().enabled).toBe(false);
   });
 });
