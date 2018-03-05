@@ -1,15 +1,16 @@
 import _ from 'lodash';
 
 import { MockPlugin, MockTracePlugin } from '../util/plugins';
+import { resetEnv } from '../../util/testUtils';
 
 const iopipe = require('./iopipe');
 
-describe('Meta with extra plugin, no deduping', () => {
-  beforeEach(() => {
-    delete process.env.IOPIPE_TOKEN;
-  });
+beforeEach(() => {
+  resetEnv();
+});
 
-  it('Has configuration', done => {
+describe('Meta with extra plugin, no deduping', () => {
+  test('Has configuration', done => {
     let inspectableInvocation;
     iopipe({
       clientId: 'foobar',
@@ -45,11 +46,8 @@ describe('Meta with extra plugin, no deduping', () => {
 
 describe('Meta with extra plugin, dedupes trace plugin', () => {
   /* When a consumer provides their own plugins, the plugins should be deduped via the meta.name string. If a consumer provides a duplicate with the same meta.name, their plugin should be used instead of the default. */
-  beforeEach(() => {
-    delete process.env.IOPIPE_TOKEN;
-  });
 
-  it('Has configuration', done => {
+  test('Has configuration', done => {
     let inspectableInvocation;
     iopipe({
       clientId: 'foobar',

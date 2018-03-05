@@ -1,4 +1,5 @@
 import setConfig from './index';
+import { resetEnv } from '../../util/testUtils';
 
 jest.mock('./util');
 jest.mock('@iopipe/config', () => {
@@ -9,16 +10,12 @@ jest.mock('@iopipe/config', () => {
 
 import { setConfigPath } from './util';
 
-describe('setting up config object', () => {
-  beforeEach(() => {
-    delete process.env.AWS_REGION;
-    delete process.env.IOPIPE_CLIENTID;
-    delete process.env.IOPIPE_ENABLED;
-    delete process.env.IOPIPE_TIMEOUT_WINDOW;
-    delete process.env.IOPIPE_TOKEN;
-  });
+beforeEach(() => {
+  resetEnv();
+});
 
-  it('can accept 0 arguments and returns default config', () => {
+describe('setting up config object', () => {
+  test('can accept 0 arguments and returns default config', () => {
     const config = setConfig();
 
     expect(config.clientId).toEqual('');
@@ -40,13 +37,13 @@ describe('setting up config object', () => {
     expect(config.timeoutWindow).toEqual(150);
   });
 
-  it('configures a client id', () => {
+  test('configures a client id', () => {
     expect(setConfig({ token: 'foo' }).clientId).toEqual('foo');
 
     expect(setConfig({ clientId: 'bar' }).clientId).toEqual('bar');
   });
 
-  it('sets preferences for order of client id config', () => {
+  test('sets preferences for order of client id config', () => {
     // takes token over clientId
     expect(setConfig({ clientId: 'bar', token: 'foo' }).clientId).toEqual(
       'foo'
@@ -62,7 +59,7 @@ describe('setting up config object', () => {
     expect(setConfig().clientId).toEqual('baz');
   });
 
-  it('sets timeout windows', () => {
+  test('sets timeout windows', () => {
     expect(setConfig({ timeoutWindow: 0 }).timeoutWindow).toEqual(0);
 
     process.env.IOPIPE_TIMEOUT_WINDOW = 100;
@@ -72,7 +69,7 @@ describe('setting up config object', () => {
     expect(setConfig({ timeoutWindow: 0 }).timeoutWindow).toEqual(0);
   });
 
-  it('can be configured via config file', () => {
+  test('can be configured via config file', () => {
     setConfigPath('./package');
 
     const config = setConfig();
@@ -98,11 +95,11 @@ describe('setting up config object', () => {
     expect(setConfig().clientId).toBe('barbaz');
   });
 
-  it('can disable agent', () => {
+  test('can disable agent', () => {
     expect(setConfig({ enabled: false }).enabled).toBe(false);
   });
 
-  it('can disable agent via environment variable', () => {
+  test('can disable agent via environment variable', () => {
     process.env.IOPIPE_ENABLED = '0';
 
     expect(setConfig().enabled).toBe(false);
@@ -112,7 +109,7 @@ describe('setting up config object', () => {
     expect(setConfig().enabled).toBe(false);
   });
 
-  it('should only be disabled explicitly', () => {
+  test('should only be disabled explicitly', () => {
     process.env.IOPIPE_ENABLED = 'xyz';
 
     expect(setConfig().enabled).toBe(true);

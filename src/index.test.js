@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import IOpipe from '../dist/iopipe.js';
 import mockContext from 'aws-lambda-mock-context';
-// default region for testing
-process.env.AWS_REGION = 'us-east-1';
+
+import { resetEnv } from '../util/testUtils';
 
 function defaultCatch(err) {
   console.error(err);
@@ -64,19 +64,23 @@ function sendToRegionTest(region = 'us-east-1', done) {
   });
 }
 
+beforeEach(() => {
+  resetEnv();
+});
+
 describe('metrics agent', () => {
-  it('should return a function', () => {
+  test('should return a function', () => {
     const agent = createAgent();
     expect(typeof agent).toEqual('function');
   });
 
-  it('should successfully getRemainingTimeInMillis from aws context', () => {
+  test('should successfully getRemainingTimeInMillis from aws context', () => {
     runWrappedFunction().then(obj => {
       expect(typeof obj.ctx.getRemainingTimeInMillis).toBe('function');
     });
   });
 
-  it('runs the user function and returns the original value', done => {
+  test('runs the user function and returns the original value', done => {
     const iopipe = createAgent();
     const wrappedFunction = iopipe((event, ctx) => {
       ctx.succeed('Decorate');
@@ -91,7 +95,7 @@ describe('metrics agent', () => {
       .catch(defaultCatch);
   });
 
-  it('allows per-setup configuration', done => {
+  test('allows per-setup configuration', done => {
     const completed = {
       f1: false,
       f2: false
@@ -131,7 +135,7 @@ describe('metrics agent', () => {
       .catch(defaultCatch);
   });
 
-  it('allows .decorate API', done => {
+  test('allows .decorate API', done => {
     const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
       ctx.succeed('Decorate');
@@ -145,7 +149,7 @@ describe('metrics agent', () => {
       .catch(defaultCatch);
   });
 
-  it('Returns a value from context.succeed', done => {
+  test('Returns a value from context.succeed', done => {
     const iopipe = createAgent({ debug: true });
     const wrappedFunction = iopipe((event, ctx) => {
       ctx.succeed('my-val');
@@ -171,7 +175,7 @@ describe('metrics agent', () => {
     }, 1000);
   });
 
-  it('Returns a value from callback', done => {
+  test('Returns a value from callback', done => {
     const iopipe = createAgent({ debug: true });
     const wrappedFunction = iopipe((event, ctx, cb) => {
       cb(null, 'my-val');
@@ -197,7 +201,7 @@ describe('metrics agent', () => {
     }, 1000);
   });
 
-  it('has a proper context object', done => {
+  test('has a proper context object', done => {
     expect.assertions(6);
     const iopipe = createAgent();
     const wrappedFunction = iopipe.decorate((event, ctx) => {
@@ -223,7 +227,7 @@ describe('metrics agent', () => {
       .catch(defaultCatch);
   });
 
-  it('will return unwrapped function if token unset', () => {
+  test('will return unwrapped function if token unset', () => {
     const fn = (event, context) => {
       context.succeed('Success');
     };
@@ -233,7 +237,7 @@ describe('metrics agent', () => {
     expect(agent(fn)).toBe(fn);
   });
 
-  it('will return unwrapped function if agent disabled', () => {
+  test('will return unwrapped function if agent disabled', () => {
     const fn = (event, context) => {
       context.succeed('Success');
     };
@@ -245,14 +249,14 @@ describe('metrics agent', () => {
 });
 
 describe('smoke test', () => {
-  it('will run when installed on a successful function', done => {
+  test('will run when installed on a successful function', done => {
     runWrappedFunction().then(obj => {
       expect(obj.response).toBeTruthy();
       done();
     });
   });
 
-  it('will run when installed on a failing function', done => {
+  test('will run when installed on a failing function', done => {
     const fn = (event, context) => {
       context.fail('Whoops!');
     };
@@ -265,7 +269,7 @@ describe('smoke test', () => {
   });
 
   describe('functions using callbacks', () => {
-    it('will run when installed on a successful function using callbacks', done => {
+    test('will run when installed on a successful function using callbacks', done => {
       const fn = (event, ctx, cb) => {
         cb(null, 'Success!');
       };
@@ -285,12 +289,12 @@ describe('smoke test', () => {
       'us-west-1',
       'us-west-2'
     ].forEach(region => {
-      it(`sends to ${region}`, done => {
+      test(`sends to ${region}`, done => {
         sendToRegionTest(region, done);
       });
     });
 
-    it('sends to custom URLs (staging)', done => {
+    test('sends to custom URLs (staging)', done => {
       runWrappedFunction(
         undefined,
         undefined,

@@ -1,21 +1,22 @@
 import collector from './collector';
 const { getHostname, getCollectorPath } = collector;
 
+import { resetEnv } from '../util/testUtils';
+
 describe('configuring collector hostname', () => {
   beforeEach(() => {
-    // clear region for testing
-    process.env.AWS_REGION = '';
+    resetEnv();
   });
 
-  it('returns a base hostname if nothing else', () => {
+  test('returns a base hostname if nothing else', () => {
     expect(getHostname()).toBe('metrics-api.iopipe.com');
   });
 
-  it('returns a configured url if provided in config object', () => {
+  test('returns a configured url if provided in config object', () => {
     expect(getHostname('http://myurl')).toBe('myurl');
   });
 
-  it('switches based on the region set in env vars', () => {
+  test('switches based on the region set in env vars', () => {
     process.env.AWS_REGION = 'ap-southeast-2';
     let apSoutheast2Collector = getHostname('', {});
     process.env.AWS_REGION = 'eu-west-1';
@@ -34,7 +35,7 @@ describe('configuring collector hostname', () => {
     expect(west2Collector).toBe('metrics-api.us-west-2.iopipe.com');
   });
 
-  it('defaults if an uncovered region or malformed', () => {
+  test('defaults if an uncovered region or malformed', () => {
     process.env.AWS_REGION = 'eu-west-2';
     let euWest2Collector = getHostname('', {});
 
@@ -51,7 +52,7 @@ describe('configuring collector hostname', () => {
 });
 
 describe('configuring path', () => {
-  it('adds query strings to the path', () => {
+  test('adds query strings to the path', () => {
     expect(getCollectorPath('http://myurl?foo')).toBe('/v0/event?foo');
   });
 });

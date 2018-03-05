@@ -23,6 +23,7 @@ function resultPush({ status }) {
 }
 
 folders.forEach(folder => {
+  console.log(`Running tests for ${folder}...`);
   resultPush(
     spawn.sync('yarn', ['install', '--cwd', `testProjects/${folder}`], {
       stdio: 'inherit'
@@ -36,6 +37,7 @@ folders.forEach(folder => {
       stdio: 'inherit'
     })
   );
+  console.log(`Finished tests for ${folder}.`);
 });
 
 process.exit(_.max(results));

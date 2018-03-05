@@ -1,15 +1,16 @@
 import _ from 'lodash';
 
 import { MockPlugin } from '../util/plugins';
+import { resetEnv } from '../../util/testUtils';
 
 const iopipe = require('./iopipe');
 
-describe('Using extend iopipe configuration', () => {
-  beforeEach(() => {
-    delete process.env.IOPIPE_TOKEN;
-  });
+beforeEach(() => {
+  resetEnv();
+});
 
-  it('Has configuration', done => {
+describe('Using extend iopipe configuration', () => {
+  test('Has configuration', done => {
     let inspectableInvocation;
     iopipe({
       extends: '@iopipe/config',
