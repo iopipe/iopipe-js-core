@@ -3,14 +3,20 @@ import flatten from 'flat';
 import Report from './report';
 import context from 'aws-lambda-mock-context';
 import MockPlugin from './plugins/mock';
+import { resetEnv } from '../util/testUtils';
+
 const schema = require('./schema.json');
 
 const config = {
   clientId: 'foo'
 };
 
+beforeEach(() => {
+  resetEnv();
+});
+
 describe('Report creation', () => {
-  it('creates a new report object', () => {
+  test('creates a new report object', () => {
     expect(
       typeof new Report({
         config,
@@ -19,11 +25,11 @@ describe('Report creation', () => {
     ).toBe('object');
   });
 
-  it('can take no arguments', () => {
+  test('can take no arguments', () => {
     expect(typeof new Report()).toBe('object');
   });
 
-  it('creates a report that matches the schema', done => {
+  test('creates a report that matches the schema', done => {
     const r = new Report({
       metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
     });
@@ -64,7 +70,7 @@ describe('Report creation', () => {
     });
   });
 
-  it('keeps custom metrics references', () => {
+  test('keeps custom metrics references', () => {
     let myMetrics = [];
     const r = new Report({ config, context: context(), metrics: myMetrics });
     myMetrics.push({ n: 1, name: 'a_value' });
@@ -72,7 +78,7 @@ describe('Report creation', () => {
     expect(r.report.custom_metrics.length).toBe(1);
   });
 
-  it('tracks plugins in use', () => {
+  test('tracks plugins in use', () => {
     const plugin = MockPlugin();
 
     const r = new Report({ plugins: [plugin()] });
@@ -88,7 +94,7 @@ describe('Report creation', () => {
     );
   });
 
-  it('patches the ARN if SAM local is detected', () => {
+  test('patches the ARN if SAM local is detected', () => {
     process.env.AWS_SAM_LOCAL = true;
     const localReport = new Report({ config, context: context() });
     expect(localReport.report.aws.invokedFunctionArn).toBe(

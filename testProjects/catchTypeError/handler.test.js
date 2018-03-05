@@ -1,14 +1,16 @@
 import _ from 'lodash';
 import delay from 'delay';
 
+import { resetEnv } from '../../util/testUtils';
+
 const iopipe = require('./iopipe');
 
-describe('Catch typeError by wrapping require block', () => {
-  beforeEach(() => {
-    delete process.env.IOPIPE_TOKEN;
-  });
+beforeEach(() => {
+  resetEnv();
+});
 
-  it('Has configuration', async () => {
+describe('Catch typeError by wrapping require block', () => {
+  test('Has configuration', async () => {
     let inspectableInvocation;
     const result = await new Promise(resolve => {
       return iopipe({
