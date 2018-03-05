@@ -29,7 +29,7 @@ describe('Report creation', () => {
     expect(typeof new Report()).toBe('object');
   });
 
-  test('creates a report that matches the schema', async (done) => {
+  test('creates a report that matches the schema', async done => {
     const r = new Report({
       metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
     });
