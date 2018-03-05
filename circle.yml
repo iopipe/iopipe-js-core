@@ -11,6 +11,7 @@ machine:
 test:
   override:
     - yarn test
+    - yarn run greenkeeper
 deployment:
   release:
     # release on tagged versions
