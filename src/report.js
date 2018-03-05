@@ -16,6 +16,9 @@ class Report {
       bootIdPromise: system.readbootid()
     };
 
+    // flag on report preparation status, reports are prepared once
+    this.prepared = false;
+
     // flag on report sending status, reports are sent once
     this.sent = false;
 
@@ -103,13 +106,14 @@ class Report {
     globals.COLDSTART = false;
   }
 
-  send(err, callback) {
-    // Send report only once
-    if (this.sent) {
+  async prepare(err) {
+    // Prepare report only once
+    if (this.prepared) {
       return;
     }
-    this.sent = true;
-    const self = this;
+
+    this.prepared = true;
+
     const config = this.config;
     const context = this.context;
 
@@ -136,83 +140,96 @@ class Report {
     }
 
     // Resolve system promises/report data
-    Promise.all([
+    const results = await Promise.all([
       this.initalPromises.statPromise,
       system.readstat('self'),
       system.readstatus('self'),
       this.initalPromises.bootIdPromise
-    ]).then(results => {
-      const preProcSelfStat = results[0];
-      const procSelfStat = results[1];
-      const procSelfStatus = results[2];
-      const bootId = results[3];
+    ]);
 
-      const osStats = {
-        hostname: os.hostname(),
-        uptime: os.uptime(),
-        totalmem: os.totalmem(),
-        freemem: os.freemem(),
-        usedmem: os.totalmem() - os.freemem(),
-        cpus: os.cpus(),
-        arch: os.arch(),
-        linux: {
-          pid: {
-            self: {
-              stat_start: preProcSelfStat,
-              stat: procSelfStat,
-              status: procSelfStatus
-            }
+    const [preProcSelfStat, procSelfStat, procSelfStatus, bootId] = results;
+
+    const osStats = {
+      hostname: os.hostname(),
+      uptime: os.uptime(),
+      totalmem: os.totalmem(),
+      freemem: os.freemem(),
+      usedmem: os.totalmem() - os.freemem(),
+      cpus: os.cpus(),
+      arch: os.arch(),
+      linux: {
+        pid: {
+          self: {
+            stat_start: preProcSelfStat,
+            stat: procSelfStat,
+            status: procSelfStatus
           }
         }
-      };
-
-      this.report.environment.os = osStats;
-      this.report.environment.host.boot_id = bootId;
-      this.report.environment.nodejs.memoryUsage = process.memoryUsage();
-
-      if (context.getRemainingTimeInMillis) {
-        this.report.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis();
       }
+    };
 
-      this.report.timestampEnd = Date.now();
+    this.report.environment.os = osStats;
+    this.report.environment.host.boot_id = bootId;
+    this.report.environment.nodejs.memoryUsage = process.memoryUsage();
 
-      const durationHrTime = process.hrtime(this.startTime);
-      this.report.duration = Math.ceil(
-        durationHrTime[0] * 1e9 + durationHrTime[1]
-      );
+    if (context.getRemainingTimeInMillis) {
+      this.report.aws.getRemainingTimeInMillis = context.getRemainingTimeInMillis();
+    }
 
-      if (config.debug) {
-        log('IOPIPE-DEBUG: ', JSON.stringify(this.report));
-      }
+    this.report.timestampEnd = Date.now();
 
-      this.dnsPromise
-        .then(ipAddress => {
-          sendReport(self.report, config, ipAddress)
-            .then(function afterRequest(res) {
-              if (config.debug) {
-                log(`API STATUS FROM ${config.host}: ${res.status}`);
-                log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
-              }
-              callback(err);
-            })
-            .catch(function handleErr(collectorErr) {
-              // Log errors, don't block on failed requests
-              if (config.debug) {
-                log('Write to IOpipe failed');
-                log(collectorErr);
-              }
-              callback(err);
-            });
-        })
-        .catch(dnsErr => {
-          // Log errors, don't block on failed requests
-          if (config.debug) {
-            log('Write to IOpipe failed. DNS resolution error.');
-            log(dnsErr);
-          }
-          callback(err);
-        });
-    });
+    const durationHrTime = process.hrtime(this.startTime);
+
+    this.report.duration = Math.ceil(
+      durationHrTime[0] * 1e9 + durationHrTime[1]
+    );
+
+    if (config.debug) {
+      log('IOPIPE-DEBUG: ', JSON.stringify(this.report));
+    }
+  }
+
+  send(callback) {
+    // Send report only once
+    if (this.sent) {
+      return;
+    }
+
+    this.sent = true;
+
+    const self = this;
+    const config = this.config;
+
+    this.dnsPromise
+      .then(ipAddress => {
+        sendReport(self.report, config, ipAddress)
+          .then(function afterRequest(res) {
+            if (config.debug) {
+              log(`API STATUS FROM ${config.host}: ${res.status}`);
+              log(`API RESPONSE FROM ${config.host}: ${res.apiResponse}`);
+            }
+
+            callback(null, res);
+          })
+          .catch(function handleErr(err) {
+            // Log errors, don't block on failed requests
+            if (config.debug) {
+              log('Write to IOpipe failed');
+              log(err);
+            }
+
+            callback(err);
+          });
+      })
+      .catch(err => {
+        // Log errors, don't block on failed requests
+        if (config.debug) {
+          log('Write to IOpipe failed. DNS resolution error.');
+          log(err);
+        }
+
+        callback(err);
+      });
   }
 }
 
