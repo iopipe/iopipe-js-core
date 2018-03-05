@@ -44,6 +44,7 @@ describe('Report creation', () => {
         .keys()
         .value();
       const diff = _.difference(flatSchema, flatReport);
+
       const allowedMissingFields = [
         'projectId',
         'memory.rssMiB',
@@ -63,7 +64,8 @@ describe('Report creation', () => {
         'plugins.0.name',
         'plugins.0.version',
         'plugins.0.homepage',
-        'plugins.0.enabled'
+        'plugins.0.enabled',
+        'plugins.0.uploads.0'
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
@@ -73,7 +75,7 @@ describe('Report creation', () => {
   });
 
   test('keeps custom metrics references', () => {
-    let myMetrics = [];
+    const myMetrics = [];
     const r = new Report({ config, context: context(), metrics: myMetrics });
     myMetrics.push({ n: 1, name: 'a_value' });
 

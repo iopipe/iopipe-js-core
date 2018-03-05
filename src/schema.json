@@ -117,7 +117,8 @@
       "name": "s",
       "version": "s",
       "homepage": "s",
-      "enabled": "b"
+      "enabled": "b",
+      "uploads": ["s"]
     }
   ]
 }

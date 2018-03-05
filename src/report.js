@@ -56,7 +56,15 @@ class Report {
 
     const pluginMetas = plugins
       .filter(plugin => typeof plugin !== 'undefined')
-      .map(plugin => plugin.meta || {});
+      .map(plugin => {
+        const meta = plugin.meta || {};
+
+        if (meta) {
+          meta.uploads = meta.uploads || [];
+        }
+
+        return meta;
+      });
 
     this.report = {
       client_id: this.config.clientId || undefined,
