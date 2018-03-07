@@ -6,11 +6,29 @@ IOpipe Analytics & Distributed Tracing Agent
 
 This package provides analytics and distributed tracing for event-driven applications running on AWS Lambda.
 
-# Installation & usage
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Custom Metrics](#custom-metrics)
+  - [Labels](#labels)
+- [Configuration](#configuration)
+  - [Methods](#methods)
+  - [Options](#options)
 
-Install by requiring this module, passing it an object with your project token ([register for access](https://www.iopipe.com)), and it will automatically monitor and collect metrics from your applications running on AWS Lambda.
+# Installation
+
+Install using your package manager of choice,
+
+`npm install @iopipe/core`
+
+or
+
+`yarn add @iopipe/core`
 
 If you are using the Serverless Framework to deploy your lambdas, check out our [serverless plugin](https://github.com/iopipe/serverless-plugin-iopipe).
+
+# Usage
+
+Configure the library with your project token ([register for access](https://www.iopipe.com)), and it will automatically monitor and collect metrics from your applications running on AWS Lambda.
 
 Example:
 
@@ -20,6 +38,43 @@ const iopipeLib = require('@iopipe/core');
 const iopipe = iopipeLib({ token: 'PROJECT_TOKEN' });
 
 exports.handler = iopipe((event, context) => {
+  context.succeed('This is my serverless function!');
+});
+```
+
+## Custom metrics
+
+You may add custom metrics to an invocation using `context.iopipe.metric` to add
+either string or numerical values. Keys have a maximum length of 256 characters, and string values are limited
+to 1024.
+
+Example:
+
+```js
+const iopipeLib = require('@iopipe/core');
+
+const iopipe = iopipeLib({ token: 'PROJECT_TOKEN' });
+
+exports.handler = iopipe((event, context) => {
+  context.iopipe.metric('key', 'some-value');
+  context.iopipe.metric('another-key', 42);
+  context.succeed('This is my serverless function!');
+});
+```
+
+## Labels
+
+You can label invocations using `context.iopipe.label` to label an invocation with a string value, with a limit of 128 characters.
+
+Example:
+
+```js
+const iopipeLib = require('@iopipe/core');
+
+const iopipe = iopipeLib({ token: 'PROJECT_TOKEN' });
+
+exports.handler = iopipe((event, context) => {
+  context.iopipe.label('something-important-happened');
   context.succeed('This is my serverless function!');
 });
 ```
@@ -41,7 +96,7 @@ You can configure your iopipe setup through one or more different methods - that
 
 #### `token` (string: required)
 
-If not supplied, the environment variable `$IOPIPE_TOKEN` will be used if present. [Find your project token](https://dashboard.iopipe.com/install)
+If not supplied, the environment variable `$IOPIPE_TOKEN` will be used if present. [Find your project token](https://dashboard.iopipe.com/install).
 
 #### `debug` (bool: optional = false)
 

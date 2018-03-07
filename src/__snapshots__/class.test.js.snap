@@ -30,7 +30,7 @@ Array [
   Object {
     "n": undefined,
     "name": "metric-6",
-    "s": undefined,
+    "s": "undefined",
   },
   Object {
     "n": undefined,
@@ -103,5 +103,52 @@ Array [
       "s": "true",
     },
   ],
+]
+`;
+
+exports[`ctx.iopipe.label adds labels to the labels array 1`] = `
+Array [
+  "label-1",
+  "label-2",
+]
+`;
+
+exports[`ctx.iopipe.metric adds metrics to the custom_metrics array 1`] = `
+Array [
+  Object {
+    "n": undefined,
+    "name": "metric-1",
+    "s": "foo",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-2",
+    "s": "true",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-3",
+    "s": "{\\"ding\\":\\"dong\\"}",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-4",
+    "s": "[\\"whoa\\"]",
+  },
+  Object {
+    "n": 100,
+    "name": "metric-5",
+    "s": undefined,
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-6",
+    "s": "NaN",
+  },
+  Object {
+    "n": undefined,
+    "name": "metric-7",
+    "s": "undefined",
+  },
 ]
 `;

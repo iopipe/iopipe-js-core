@@ -3,6 +3,7 @@ import Report from './report';
 import { COLDSTART, VERSION } from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
+import { convertToString } from './util';
 import setupPlugins from './util/setupPlugins';
 
 /*eslint-disable no-console*/
@@ -48,6 +49,7 @@ class IOpipeWrapperClass {
     this.startTimestamp = Date.now();
     this.config = config;
     this.metrics = [];
+    this.labels = new Set();
     this.originalIdentity = originalIdentity;
     this.event = originalEvent;
     this.originalContext = originalContext;
@@ -62,7 +64,7 @@ class IOpipeWrapperClass {
     // support deprecated iopipe.log
     libFn.log = (...logArgs) => {
       console.warn(
-        'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.log'
+        'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.metric'
       );
       this.log(...logArgs);
     };
@@ -83,7 +85,9 @@ class IOpipeWrapperClass {
       fail: this.fail.bind(this),
       done: this.done.bind(this),
       iopipe: {
+        label: this.label.bind(this),
         log: this.log.bind(this),
+        metric: this.metric.bind(this),
         version: VERSION,
         config: this.config
       }
@@ -119,6 +123,11 @@ class IOpipeWrapperClass {
       }
       delete this.originalContext[reset ? `original_${method}` : method];
     });
+  }
+  debugLog(message, level = 'warn') {
+    if (this.config.debug) {
+      console[level](message);
+    }
   }
   invoke() {
     this.runHook('pre:invoke');
@@ -193,18 +202,45 @@ class IOpipeWrapperClass {
       this.originalContext.done(err, data);
     });
   }
-  log(name, value) {
+  metric(keyInput, valueInput) {
     let numberValue, stringValue;
-    if (typeof value === 'number') {
-      numberValue = value;
+    const key = convertToString(keyInput);
+    if (key.length > 128) {
+      this.debugLog(
+        `Metric with key name ${key} is longer than allowed length of 128, metric will not be saved`
+      );
+      return;
+    }
+    if (Number.isFinite(valueInput)) {
+      numberValue = valueInput;
     } else {
-      stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+      stringValue = convertToString(valueInput);
     }
     this.metrics.push({
-      name,
+      name: key,
       n: numberValue,
       s: stringValue
     });
+  }
+  label(name) {
+    if (typeof name !== 'string') {
+      this.debugLog(`Label ${name} is not a string and will not be saved`);
+      return;
+    }
+    if (name.length > 128) {
+      this.debugLog(
+        `Label with name ${name} is longer than allowed length of 128, label will not be saved`
+      );
+      return;
+    }
+    this.labels.add(name);
+  }
+  // DEPRECATED: This method is deprecated in favor of .metric and .label
+  log(name, value) {
+    this.debugLog(
+      'context.iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.metric'
+    );
+    this.metric(name, value);
   }
 }
 
