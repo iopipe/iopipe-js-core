@@ -3,6 +3,7 @@ import Report from './report';
 import { COLDSTART, VERSION } from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
+import { convertToString } from './util';
 import setupPlugins from './util/setupPlugins';
 
 /*eslint-disable no-console*/
@@ -62,7 +63,7 @@ class IOpipeWrapperClass {
     // support deprecated iopipe.log
     libFn.log = (...logArgs) => {
       console.warn(
-        'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.log'
+        'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.metric'
       );
       this.log(...logArgs);
     };
@@ -84,6 +85,8 @@ class IOpipeWrapperClass {
       done: this.done.bind(this),
       iopipe: {
         log: this.log.bind(this),
+        metric: this.metric.bind(this),
+        tag: this.tag.bind(this),
         version: VERSION,
         config: this.config
       }
@@ -193,18 +196,43 @@ class IOpipeWrapperClass {
       this.originalContext.done(err, data);
     });
   }
-  log(name, value) {
-    let numberValue, stringValue;
-    if (typeof value === 'number') {
-      numberValue = value;
+  metric(keyInput, valueInput) {
+    const key = convertToString(keyInput);
+    var numberValue = undefined;
+    var stringValue = undefined;
+    if (key.length > 256) {
+      console.warn(
+        `Metric with key name ${key} is longer than allowed length of 256, metric will not be saved`
+      );
+      return;
+    }
+    if (typeof valueInput === 'number' && Number.isFinite(valueInput)) {
+      numberValue = valueInput;
     } else {
-      stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+      stringValue = convertToString(valueInput);
     }
     this.metrics.push({
-      name,
+      name: key,
       n: numberValue,
       s: stringValue
     });
+  }
+  tag(nameInput) {
+    const name = convertToString(nameInput);
+    if (name.length > 256) {
+      console.warn(
+        `Tag with name ${name} is longer than allowed length of 256, tag will not be saved`
+      );
+      return;
+    }
+    this.metrics.push({ name });
+  }
+  // DEPRECATED: This method is deprecated in favor of .metric and .tag
+  log(name, value) {
+    console.warn(
+      'context.iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.metric'
+    );
+    this.metric(name, value);
   }
 }
 
