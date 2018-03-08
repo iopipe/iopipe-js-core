@@ -1,12 +1,19 @@
 import os from 'os';
 import { sendReport } from './sendReport';
 
-import globals from './globals';
+import {
+  COLDSTART,
+  MODULE_LOAD_TIME,
+  PROCESS_ID,
+  VERSION,
+  resetColdstart
+} from './globals';
 
 const system =
   process.platform === 'linux'
     ? require('./system.js')
     : require('./mockSystem.js');
+
 const { log } = console;
 
 class Report {
@@ -67,10 +74,11 @@ class Report {
       });
 
     this.report = {
+      /*eslint-disable camelcase*/
       client_id: this.config.clientId || undefined,
       installMethod: this.config.installMethod,
       duration: undefined,
-      processId: globals.PROCESS_ID,
+      processId: PROCESS_ID,
       timestamp: startTimestamp,
       aws: {
         functionName,
@@ -88,8 +96,8 @@ class Report {
       environment: {
         agent: {
           runtime: 'nodejs',
-          version: globals.VERSION,
-          load_time: globals.MODULE_LOAD_TIME
+          version: VERSION,
+          load_time: MODULE_LOAD_TIME
         },
         runtime: {
           name: process.release.name,
@@ -105,13 +113,13 @@ class Report {
         os: {}
       },
       errors: {},
-      coldstart: globals.COLDSTART,
+      coldstart: COLDSTART,
       custom_metrics: metrics,
       plugins: pluginMetas
     };
 
     // Set to false after coldstart
-    globals.COLDSTART = false;
+    resetColdstart();
   }
 
   async prepare(err) {
@@ -198,6 +206,7 @@ class Report {
     if (config.debug) {
       log('IOPIPE-DEBUG: ', JSON.stringify(this.report));
     }
+    /*eslint-enable camelcase*/
   }
 
   send(callback) {
@@ -244,4 +253,4 @@ class Report {
   }
 }
 
-module.exports = Report;
+export default Report;

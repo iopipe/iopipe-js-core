@@ -1,3 +1,4 @@
+/*eslint-disable import/no-extraneous-dependencies*/
 import _ from 'lodash';
 
 import { MockPlugin } from '../util/plugins';
@@ -48,7 +49,7 @@ describe('Using package.json iopipe configuration', () => {
         );
         done();
       } catch (err) {
-        console.log(err);
+        throw err;
       }
     })({}, {});
   });

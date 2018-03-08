@@ -15,7 +15,7 @@ function getCollectorPath(baseUrl) {
 }
 
 function getHostname(configUrl) {
-  var regionString = '';
+  let regionString = '';
   if (configUrl) {
     return url.parse(configUrl).hostname;
   }
@@ -33,7 +33,4 @@ function getHostname(configUrl) {
   return `metrics-api${regionString}.iopipe.com`;
 }
 
-module.exports = {
-  getHostname,
-  getCollectorPath
-};
+export { getHostname, getCollectorPath };

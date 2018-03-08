@@ -2,12 +2,13 @@ import _ from 'lodash';
 import mockContext from 'aws-lambda-mock-context';
 import isIp from 'is-ip';
 
-import IOpipe from './index';
+import * as dns from './dns';
+import { reports } from './sendReport';
 
 jest.mock('./dns');
 jest.mock('./sendReport');
-import * as dns from './dns';
-import { reports } from './sendReport';
+
+const iopipeLib = require('./index');
 
 function createContext(opts = {}) {
   return mockContext(
@@ -18,7 +19,7 @@ function createContext(opts = {}) {
 }
 
 function createAgent(kwargs) {
-  return IOpipe(
+  return iopipeLib(
     _.defaults(kwargs, {
       token: 'testSuite'
     })
@@ -42,7 +43,10 @@ function runWrappedFunction(fnToRun) {
   const ctx = createContext();
   const event = {};
   return new Promise(resolve => {
-    let userFnReturnValue = undefined;
+    // not sure why eslint thinks that userFnReturnValue is not reassigned.
+    /*eslint-disable prefer-const*/
+    let userFnReturnValue;
+    /*eslint-enable prefer-const*/
     function fnResolver(error, response) {
       return resolve({
         ctx,
@@ -70,9 +74,9 @@ function runWrappedFunctionArray(arr) {
 test('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', async done => {
   try {
     const { promiseInstances } = dns;
-    expect(promiseInstances.length).toBe(0);
-    const iopipe = IOpipe({ token: 'testSuite' });
-    expect(promiseInstances.length).toBe(1);
+    expect(promiseInstances).toHaveLength(0);
+    const iopipe = iopipeLib({ token: 'testSuite' });
+    expect(promiseInstances).toHaveLength(1);
 
     const runs = [];
 
@@ -83,17 +87,16 @@ test('DNS promise is instantiated on library import, and reused for the coldstar
 
     const run1 = await runWrappedFunction(wrappedFunction);
     expect(run1.response).toEqual('Decorate');
-    expect(runs.length).toEqual(1);
-    expect(promiseInstances.length).toBe(1);
+    expect(runs).toHaveLength(1);
+    expect(promiseInstances).toHaveLength(1);
 
     const run2 = await runWrappedFunction(wrappedFunction);
     expect(run2.response).toEqual('Decorate');
-    expect(runs.length).toEqual(2);
-    expect(promiseInstances.length).toBe(2);
+    expect(runs).toHaveLength(2);
+    expect(promiseInstances).toHaveLength(2);
 
     done();
   } catch (err) {
-    console.error(err);
     throw err;
   }
 });
@@ -137,7 +140,7 @@ test('Reports use different IP addresses based on config', async () => {
       .map('ipAddress')
       .value();
     expect(_.isArray(ips)).toBe(true);
-    expect(ips.length).toBe(2);
+    expect(ips).toHaveLength(2);
     expect(_.every(ips, isIp)).toBe(true);
     expect(ips[0]).not.toEqual(ips[1]);
   } catch (err) {
@@ -171,7 +174,7 @@ test('Allows ctx.iopipe.log and iopipe.log functionality', async () => {
       .get('custom_metrics')
       .value();
     expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toBe(7);
+    expect(metrics).toHaveLength(7);
     expect(metrics).toMatchSnapshot();
   } catch (err) {
     throw err;
@@ -217,16 +220,16 @@ test('Does not have context.iopipe.log collisions', async () => {
       .map('custom_metrics')
       .value();
     expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toEqual(3);
+    expect(metrics).toHaveLength(3);
     expect(metrics).toMatchSnapshot();
   } catch (err) {
     throw err;
   }
 });
 
-test('Defining original context properties does not error if descriptors are undefined', async done => {
+test('Defining original context properties does not error if descriptors are undefined', done => {
   try {
-    let doneData = undefined;
+    let doneData;
 
     const iopipe = createAgent({
       token: 'context-props'
@@ -236,6 +239,9 @@ test('Defining original context properties does not error if descriptors are und
     });
 
     func({}, { success: () => {} }, (err, data) => {
+      if (err) {
+        throw err;
+      }
       doneData = data;
       expect(doneData).toBe('woot');
       done();
@@ -248,7 +254,7 @@ test('Defining original context properties does not error if descriptors are und
 class TimeoutTestPlugin {
   constructor(state) {
     this.hooks = {
-      ['post:invoke']: () => {
+      'post:invoke': () => {
         state.postInvokeCalls++;
       }
     };
@@ -258,7 +264,7 @@ class TimeoutTestPlugin {
 
 test('When timing out, the lambda reports to iopipe, does not succeed, and reports timeout in aws', async () => {
   expect.assertions(4);
-  let returnValue = undefined;
+  let returnValue;
   const testState = {
     postInvokeCalls: 0
   };
@@ -287,13 +293,12 @@ test('When timing out, the lambda reports to iopipe, does not succeed, and repor
         _.filter(reports, obj => obj.aws.functionName === 'timeout-test')
       ).toHaveLength(1);
       // the lambda did not succeed
-      expect(returnValue).toBe(undefined);
+      expect(returnValue).toBeUndefined();
       // the lambda timed out
       expect(err.message).toMatch('Task timed out');
       expect(testState.postInvokeCalls).toBe(1);
     } catch (err2) {
-      console.error(err2);
-      throw err;
+      throw err2;
     }
   }
 });

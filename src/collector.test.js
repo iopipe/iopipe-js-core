@@ -1,7 +1,5 @@
-import collector from './collector';
-const { getHostname, getCollectorPath } = collector;
-
 import { resetEnv } from '../util/testUtils';
+import { getHostname, getCollectorPath } from './collector';
 
 describe('configuring collector hostname', () => {
   beforeEach(() => {
@@ -18,15 +16,15 @@ describe('configuring collector hostname', () => {
 
   test('switches based on the region set in env vars', () => {
     process.env.AWS_REGION = 'ap-southeast-2';
-    let apSoutheast2Collector = getHostname('', {});
+    const apSoutheast2Collector = getHostname('', {});
     process.env.AWS_REGION = 'eu-west-1';
-    let euWest1Collector = getHostname('', {});
+    const euWest1Collector = getHostname('', {});
     process.env.AWS_REGION = 'us-east-2';
-    let east2Collector = getHostname('', {});
+    const east2Collector = getHostname('', {});
     process.env.AWS_REGION = 'us-west-1';
-    let west1Collector = getHostname('', {});
+    const west1Collector = getHostname('', {});
     process.env.AWS_REGION = 'us-west-2';
-    let west2Collector = getHostname('', {});
+    const west2Collector = getHostname('', {});
 
     expect(apSoutheast2Collector).toBe('metrics-api.ap-southeast-2.iopipe.com');
     expect(euWest1Collector).toBe('metrics-api.eu-west-1.iopipe.com');
@@ -37,13 +35,13 @@ describe('configuring collector hostname', () => {
 
   test('defaults if an uncovered region or malformed', () => {
     process.env.AWS_REGION = 'eu-west-2';
-    let euWest2Collector = getHostname('', {});
+    const euWest2Collector = getHostname('', {});
 
     process.env.AWS_REGION = 'NotARegion';
-    let notRegionCollector = getHostname('', {});
+    const notRegionCollector = getHostname('', {});
 
     process.env.AWS_REGION = '';
-    let emptyRegionCollector = getHostname('', {});
+    const emptyRegionCollector = getHostname('', {});
 
     expect(euWest2Collector).toBe('metrics-api.iopipe.com');
     expect(notRegionCollector).toBe('metrics-api.iopipe.com');

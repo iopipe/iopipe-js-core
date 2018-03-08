@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { hooks } from '../hooks';
 
-export const data = [];
+const data = [];
 
 class AllHooksPlugin {
   constructor(pluginConfig = {}, invocationInstance) {
@@ -33,8 +33,10 @@ class AllHooksPlugin {
   }
 }
 
-export function instantiate(pluginOpts) {
+function instantiate(pluginOpts) {
   return invocationInstance => {
     return new AllHooksPlugin(pluginOpts, invocationInstance);
   };
 }
+
+export { data, instantiate };

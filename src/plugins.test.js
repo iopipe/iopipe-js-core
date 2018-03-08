@@ -1,25 +1,26 @@
 import _ from 'lodash';
 import mockContext from 'aws-lambda-mock-context';
 
-import IOpipe from './index';
-
-jest.mock('./sendReport');
 import { reports } from './sendReport';
 import { hooks } from './hooks';
 
-import MockPlugin from './plugins/mock';
+import mockPlugin from './plugins/mock';
 import {
-  instantiate as AllHooksPlugin,
+  instantiate as allHooksPlugin,
   data as allHooksData
 } from './plugins/allHooks';
 
+jest.mock('./sendReport');
+
+const iopipeLib = require('./index');
+
 test('Hooks have not changed', () => {
-  expect(hooks.length).toEqual(6);
+  expect(hooks).toHaveLength(6);
   expect(hooks).toMatchSnapshot();
 });
 
 test('Can instantiate a test plugin', done => {
-  const plugin = MockPlugin();
+  const plugin = mockPlugin();
 
   const invocationInstance = {};
   const pluginInstance = plugin(invocationInstance);
@@ -30,7 +31,7 @@ test('Can instantiate a test plugin', done => {
 });
 
 test('Can instantiate a test plugin with config', done => {
-  const plugin = MockPlugin({
+  const plugin = mockPlugin({
     foo: 'bar'
   });
 
@@ -43,7 +44,7 @@ test('Can instantiate a test plugin with config', done => {
 });
 
 test('Can call a plugin hook function', done => {
-  const plugin = MockPlugin();
+  const plugin = mockPlugin();
 
   const invocationInstance = {
     context: {
@@ -60,7 +61,7 @@ test('Can call a plugin hook function', done => {
 });
 
 test('Can run a test plugin hook that modifies a invocation instance', done => {
-  const plugin = MockPlugin();
+  const plugin = mockPlugin();
 
   const invocationInstance = { context: { iopipe: { log: _.noop } } };
   const pluginInstance = plugin(invocationInstance);
@@ -74,7 +75,7 @@ test('Can run a test plugin hook that modifies a invocation instance', done => {
 });
 
 test('Can run a test plugin hook directly', async done => {
-  const plugin = MockPlugin();
+  const plugin = mockPlugin();
 
   const invocationInstance = {
     metrics: [
@@ -97,7 +98,7 @@ test('Can run a test plugin hook directly', async done => {
   await pluginInstance.hooks['pre:invoke']();
   await pluginInstance.hooks['post:invoke']();
   const { metrics } = invocationInstance;
-  expect(metrics.length).toBe(2);
+  expect(metrics).toHaveLength(2);
   expect(
     _.find(metrics, m => m.name === 'ding' && m.s === 'dong')
   ).toBeTruthy();
@@ -116,9 +117,9 @@ test('Can run a test plugin hook directly', async done => {
 
 test('A single plugin can be loaded and work', async () => {
   try {
-    const iopipe = IOpipe({
+    const iopipe = iopipeLib({
       token: 'single-plugin',
-      plugins: [MockPlugin()]
+      plugins: [mockPlugin()]
     });
 
     const wrapped = iopipe((event, ctx) => {
@@ -158,18 +159,17 @@ test('A single plugin can be loaded and work', async () => {
 
     expect(_.isObject(plugin)).toBe(true);
   } catch (err) {
-    console.error(err);
     throw err;
   }
 });
 
 test('Multiple plugins can be loaded and work', async () => {
   try {
-    const iopipe = IOpipe({
+    const iopipe = iopipeLib({
       token: 'multiple-plugins',
       plugins: [
-        MockPlugin(),
-        MockPlugin({
+        mockPlugin(),
+        mockPlugin({
           name: 'secondMockPlugin',
           functionName: 'secondmock'
         })
@@ -194,19 +194,18 @@ test('Multiple plugins can be loaded and work', async () => {
       .get('custom_metrics')
       .value();
     expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toBe(2);
+    expect(metrics).toHaveLength(2);
     expect(metrics).toMatchSnapshot();
   } catch (err) {
-    console.error(err);
     throw err;
   }
 });
 
 test('All hooks are called successfully when a plugin uses them all', async () => {
   try {
-    const iopipe = IOpipe({
+    const iopipe = iopipeLib({
       token: 'single-plugin',
-      plugins: [AllHooksPlugin()]
+      plugins: [allHooksPlugin()]
     });
 
     const wrapped = iopipe((event, ctx) => {
@@ -219,11 +218,10 @@ test('All hooks are called successfully when a plugin uses them all', async () =
 
     const val = await context.Promise;
     _.reject(hooks, h => h === 'pre:setup').map(hook => {
-      expect(val[`hasRun:${hook}`]).toBe(true);
+      return expect(val[`hasRun:${hook}`]).toBe(true);
     });
     expect(allHooksData).toMatchSnapshot();
   } catch (err) {
-    console.error(err);
     throw err;
   }
 });

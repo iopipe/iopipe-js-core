@@ -1,11 +1,14 @@
 import _ from 'lodash';
-import IOpipe from '../dist/iopipe.js';
 import mockContext from 'aws-lambda-mock-context';
 
 import { resetEnv } from '../util/testUtils';
 
+const iopipeLib = require('../dist/iopipe.js');
+
 function defaultCatch(err) {
+  /*eslint-disable no-console*/
   console.error(err);
+  /*eslint-enable no-console*/
   throw err;
 }
 
@@ -18,7 +21,7 @@ function createContext(opts = {}) {
 }
 
 function createAgent(kwargs) {
-  return IOpipe(
+  return iopipeLib(
     _.defaults(kwargs, {
       token: 'testSuite'
     })
@@ -36,7 +39,10 @@ function runWrappedFunction(
   };
   const fnToRun = functionArg || iopipe(defaultFn);
   return new Promise(resolve => {
-    let userFnReturnValue = undefined;
+    // not sure why eslint thinks that userFnReturnValue is not reassigned.
+    /*eslint-disable prefer-const*/
+    let userFnReturnValue;
+    /*eslint-enable prefer-const*/
     function fnResolver(error, response) {
       return resolve({
         ctx,
@@ -53,15 +59,13 @@ function runWrappedFunction(
 
 function sendToRegionTest(region = 'us-east-1', done) {
   process.env.AWS_REGION = region;
-  runWrappedFunction(
-    createContext({ region }),
-    undefined,
-    createAgent()
-  ).then(obj => {
-    expect(obj.response).toEqual('Success');
-    expect(obj.error).toEqual(null);
-    done();
-  });
+  runWrappedFunction(createContext({ region }), undefined, createAgent()).then(
+    obj => {
+      expect(obj.response).toEqual('Success');
+      expect(obj.error).toBeNull();
+      done();
+    }
+  );
 }
 
 beforeEach(() => {
@@ -155,12 +159,12 @@ describe('metrics agent', () => {
       ctx.succeed('my-val');
     });
 
-    let val = undefined;
+    let val;
 
     wrappedFunction(
       {},
       {
-        succeed: function funtimes(data) {
+        succeed: data => {
           val = data;
         },
         fail: _.noop,
@@ -181,7 +185,7 @@ describe('metrics agent', () => {
       cb(null, 'my-val');
     });
 
-    let val = undefined;
+    let val;
 
     wrappedFunction(
       {},
@@ -191,6 +195,9 @@ describe('metrics agent', () => {
         done: _.noop
       },
       (err, data) => {
+        if (err) {
+          throw err;
+        }
         val = data;
       }
     );

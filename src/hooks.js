@@ -1,3 +1,5 @@
+/*eslint-disable no-console*/
+
 export const hooks = [
   'pre:setup',
   'post:setup',

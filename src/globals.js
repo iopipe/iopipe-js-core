@@ -1,9 +1,12 @@
-import uuid from './uuidv4';
 import https from 'https';
+import uuid from './uuidv4';
+
+const pkg = require('../package.json');
 
 // Default on module load; changed to false on first handler invocation.
-var COLDSTART = true;
-const pkg = require('../package.json');
+/*eslint-disable import/no-mutable-exports*/
+let COLDSTART = true;
+
 const VERSION = pkg.version;
 const MODULE_LOAD_TIME = Date.now();
 const PROCESS_ID = uuid();
@@ -23,10 +26,15 @@ httpsAgent.createConnection = (port, host, options) => {
   return socket;
 };
 
-module.exports = {
+function resetColdstart(bool = false) {
+  COLDSTART = bool;
+}
+
+export {
   VERSION,
   MODULE_LOAD_TIME,
   PROCESS_ID,
   COLDSTART,
-  httpsAgent
+  httpsAgent,
+  resetColdstart
 };

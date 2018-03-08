@@ -1,6 +1,4 @@
-import collector from './../collector';
-
-const { getHostname, getCollectorPath } = collector;
+import { getHostname, getCollectorPath } from './../collector';
 
 let iopipeConfig;
 try {

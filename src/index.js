@@ -1,9 +1,11 @@
 import setConfig from './config';
 import Report from './report';
-import globals from './globals';
+import { COLDSTART, VERSION } from './globals';
 import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
 import setupPlugins from './util/setupPlugins';
+
+/*eslint-disable no-console*/
 
 function setupTimeoutCapture(wrapperInstance) {
   const { context, sendReport, config } = wrapperInstance;
@@ -26,6 +28,9 @@ function setupTimeoutCapture(wrapperInstance) {
     sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'), () => {});
   }, endTime);
 }
+
+//TODO: refactor to abide by max-params rule*/
+/*eslint-disable max-params*/
 
 class IOpipeWrapperClass {
   constructor(
@@ -59,14 +64,14 @@ class IOpipeWrapperClass {
       console.warn(
         'iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.log'
       );
-      this.log.apply(this, logArgs);
+      this.log(...logArgs);
     };
 
-    // assign a new dnsPromise if it's not a coldstart because dns could have changed
-    if (!globals.COLDSTART) {
-      this.dnsPromise = getDnsPromise(this.config.host);
-    } else {
+    if (COLDSTART) {
       this.dnsPromise = dnsPromise;
+    } else {
+      // assign a new dnsPromise if it's not a coldstart because dns could have changed
+      this.dnsPromise = getDnsPromise(this.config.host);
     }
 
     this.setupContext();
@@ -79,7 +84,7 @@ class IOpipeWrapperClass {
       done: this.done.bind(this),
       iopipe: {
         log: this.log.bind(this),
-        version: globals.VERSION,
+        version: VERSION,
         config: this.config
       }
     });
@@ -189,8 +194,7 @@ class IOpipeWrapperClass {
     });
   }
   log(name, value) {
-    var numberValue = undefined;
-    var stringValue = undefined;
+    let numberValue, stringValue;
     if (typeof value === 'number') {
       numberValue = value;
     } else {

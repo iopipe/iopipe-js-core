@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import flatten from 'flat';
-import Report from './report';
 import context from 'aws-lambda-mock-context';
-import MockPlugin from './plugins/mock';
+
 import { resetEnv } from '../util/testUtils';
+import Report from './report';
+import mockPlugin from './plugins/mock';
 
 const schema = require('./schema.json');
 
@@ -79,15 +80,15 @@ describe('Report creation', () => {
     const r = new Report({ config, context: context(), metrics: myMetrics });
     myMetrics.push({ n: 1, name: 'a_value' });
 
-    expect(r.report.custom_metrics.length).toBe(1);
+    expect(r.report.custom_metrics).toHaveLength(1);
   });
 
   test('tracks plugins in use', () => {
-    const plugin = MockPlugin();
+    const plugin = mockPlugin();
 
     const r = new Report({ plugins: [plugin()] });
 
-    expect(r.report.plugins.length).toBe(1);
+    expect(r.report.plugins).toHaveLength(1);
 
     expect(r.report.plugins[0].name).toBe('mock');
 

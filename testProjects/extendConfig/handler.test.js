@@ -1,3 +1,4 @@
+/*eslint-disable import/no-extraneous-dependencies*/
 import _ from 'lodash';
 
 import { MockPlugin } from '../util/plugins';
@@ -28,7 +29,7 @@ describe('Using extend iopipe configuration', () => {
 
         expect(config.extends).toBe('@iopipe/config');
 
-        expect(plugins.length).toBe(2);
+        expect(plugins).toHaveLength(2);
 
         const names = _.map(plugins, 'meta.name');
         expect(names).toEqual(['mock-plugin', '@iopipe/trace']);
@@ -39,7 +40,7 @@ describe('Using extend iopipe configuration', () => {
 
         done();
       } catch (err) {
-        console.log(err);
+        throw err;
       }
     })({}, {});
   });

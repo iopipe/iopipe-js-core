@@ -1,5 +1,3 @@
-'use strict';
-
 const iopipe = require('../dist/iopipe')({
   debug: true,
   token: process.env.IOPIPE_TOKEN || 'testSuite'

@@ -37,9 +37,9 @@ function readstatus(pid) {
           }
         });
       return resolve({
-        FDSize: procSelfStatusFields['FDSize'],
-        Threads: procSelfStatusFields['Threads'],
-        VmRSS: procSelfStatusFields['VmRSS']
+        FDSize: procSelfStatusFields.FDSize,
+        Threads: procSelfStatusFields.Threads,
+        VmRSS: procSelfStatusFields.VmRSS
       });
     });
   });

@@ -1,3 +1,4 @@
+/*eslint-disable import/no-extraneous-dependencies*/
 import _ from 'lodash';
 
 import { MockPlugin } from '../util/plugins';
@@ -48,7 +49,7 @@ describe('Using rc file iopipe configuration', () => {
         expect(configs['Symbol(cosmi)'].token).toBe('rc_file_config_token_wow');
         done();
       } catch (err) {
-        console.log(err);
+        throw err;
       }
     })({}, {});
   });

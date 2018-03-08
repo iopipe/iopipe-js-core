@@ -1,5 +1,7 @@
 import dns from 'dns';
 
+const promiseInstances = undefined;
+
 function getDnsPromise(host) {
   return new Promise((resolve, reject) => {
     dns.lookup(host, (err, address) => {
@@ -11,4 +13,4 @@ function getDnsPromise(host) {
   });
 }
 
-export { getDnsPromise };
+export { getDnsPromise, promiseInstances };

@@ -1,8 +1,6 @@
 import cosmiconfig from 'cosmiconfig';
 
-/**
- * Returns the `iopipe` object from main's `package.json` if it exists. Or returns values from an rc file if it exists.
- */
+/* Provides the `iopipe` object from main's `package.json` if it exists. Or returns values from an rc file if it exists. */
 function getCosmiConfig() {
   try {
     const config = cosmiconfig('iopipe', {
@@ -15,6 +13,7 @@ function getCosmiConfig() {
       return config.config;
     }
   } catch (err) {
+    /*eslint-disable no-void*/
     void 0; // noop
   }
 
@@ -39,13 +38,19 @@ function requireFromString(src, args) {
     const mod = __non_webpack_require__(src);
     /*eslint-enable camelcase, no-undef*/
 
-    if (args && Array.isArray(args)) return mod.apply(null, args);
+    if (args && Array.isArray(args) && typeof mod === 'function') {
+      return mod(...args);
+    }
 
-    if (typeof mod === 'function') return mod();
+    if (typeof mod === 'function') {
+      return mod();
+    }
 
     return mod;
   } catch (err) {
+    /*eslint-disable no-console*/
     console.warn(`Failed to import ${src}`);
+    /*eslint-enable no-console*/
   }
 
   return undefined;
@@ -74,4 +79,6 @@ function getPlugins(plugins) {
     .filter(plugin => typeof plugin !== 'undefined');
 }
 
-export { getCosmiConfig, getPlugins, requireFromString };
+const setConfigPath = a => a;
+
+export { getCosmiConfig, getPlugins, requireFromString, setConfigPath };
