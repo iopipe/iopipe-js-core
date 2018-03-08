@@ -157,12 +157,15 @@ class Report {
 
     const [preProcSelfStat, procSelfStat, procSelfStatus, bootId] = results;
 
+    const totalmem = os.totalmem();
+    const freemem = os.freemem();
+
     const osStats = {
       hostname: os.hostname(),
       uptime: os.uptime(),
-      totalmem: os.totalmem(),
-      freemem: os.freemem(),
-      usedmem: os.totalmem() - os.freemem(),
+      totalmem,
+      freemem,
+      usedmem: totalmem - freemem,
       cpus: os.cpus(),
       arch: os.arch(),
       linux: {
