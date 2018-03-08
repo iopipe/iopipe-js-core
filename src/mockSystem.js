@@ -1,15 +1,18 @@
 import uuid from './uuidv4';
 
 function readstat() {
-  return Promise.resolve({
-    utime: 0,
-    stime: 0,
-    cutime: 0,
-    cstime: 0,
-    rss: 0
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve({
+        utime: 0,
+        stime: 0,
+        cutime: 0,
+        cstime: 0,
+        rss: 0
+      });
+    }, 2);
   });
 }
-
 function readstatus() {
   const mem = process.memoryUsage();
   return Promise.resolve({
