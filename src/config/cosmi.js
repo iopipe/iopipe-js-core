@@ -30,9 +30,7 @@ export default class CosmiConfig extends DefaultConfig {
       .concat(cosmiExtendsObject.plugins)
       .concat(defaultExtendsObject.plugins);
 
-    this[
-      classConfig
-    ] = Object.assign(
+    this[classConfig] = Object.assign(
       {},
       defaultExtendsObject,
       cosmiExtendsObject,
@@ -51,7 +49,7 @@ export default class CosmiConfig extends DefaultConfig {
 
   get debug() {
     return this[classConfig].debug &&
-    typeof this[classConfig].debug === 'boolean'
+      typeof this[classConfig].debug === 'boolean'
       ? this[classConfig].debug
       : super.debug;
   }
@@ -76,7 +74,7 @@ export default class CosmiConfig extends DefaultConfig {
 
   get networkTimeout() {
     return this[classConfig].networkTimeout &&
-    Number.isInteger(this[classConfig].networkTimeout)
+      Number.isInteger(this[classConfig].networkTimeout)
       ? this[classConfig].networkTimeout
       : super.networkTimeout;
   }
@@ -93,7 +91,7 @@ export default class CosmiConfig extends DefaultConfig {
 
   get timeoutWindow() {
     return this[classConfig].timeoutWindow &&
-    Number.isInteger(this[classConfig].timeoutWindow)
+      Number.isInteger(this[classConfig].timeoutWindow)
       ? this[classConfig].timeoutWindow
       : super.timeoutWindow;
   }

@@ -53,15 +53,13 @@ function runWrappedFunction(
 
 function sendToRegionTest(region = 'us-east-1', done) {
   process.env.AWS_REGION = region;
-  runWrappedFunction(
-    createContext({ region }),
-    undefined,
-    createAgent()
-  ).then(obj => {
-    expect(obj.response).toEqual('Success');
-    expect(obj.error).toEqual(null);
-    done();
-  });
+  runWrappedFunction(createContext({ region }), undefined, createAgent()).then(
+    obj => {
+      expect(obj.response).toEqual('Success');
+      expect(obj.error).toEqual(null);
+      done();
+    }
+  );
 }
 
 beforeEach(() => {
