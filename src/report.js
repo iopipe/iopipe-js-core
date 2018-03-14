@@ -6,7 +6,7 @@ import {
   MODULE_LOAD_TIME,
   PROCESS_ID,
   VERSION,
-  resetColdstart
+  setColdStart
 } from './globals';
 
 const system =
@@ -119,7 +119,7 @@ class Report {
     };
 
     // Set to false after coldstart
-    resetColdstart();
+    setColdStart(false);
   }
 
   async prepare(err) {

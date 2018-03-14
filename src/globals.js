@@ -5,11 +5,17 @@ const pkg = require('../package.json');
 
 // Default on module load; changed to false on first handler invocation.
 /*eslint-disable import/no-mutable-exports*/
+/*eslint-disable prefer-const*/
 let COLDSTART = true;
+/*eslint-enable prefer-const*/
 
 const VERSION = pkg.version;
 const MODULE_LOAD_TIME = Date.now();
 const PROCESS_ID = uuid();
+
+function setColdStart(bool = COLDSTART) {
+  COLDSTART = bool;
+}
 
 const httpsAgent = new https.Agent({
   maxCachedSessions: 1,
@@ -26,15 +32,11 @@ httpsAgent.createConnection = (port, host, options) => {
   return socket;
 };
 
-function resetColdstart(bool = false) {
-  COLDSTART = bool;
-}
-
 export {
   VERSION,
   MODULE_LOAD_TIME,
   PROCESS_ID,
   COLDSTART,
   httpsAgent,
-  resetColdstart
+  setColdStart
 };
