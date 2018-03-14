@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import system from './mockSystem';
+import { readstat, readstatus, readbootid } from './mockSystem';
 
 describe('mock system functions', () => {
   test('promisifies system data', () => {
-    let stat = system.readstat();
-    let status = system.readstatus();
-    let bootId = system.readbootid();
+    const stat = readstat();
+    const status = readstatus();
+    const bootId = readbootid();
     expect(Promise.resolve(stat)).toEqual(stat);
     expect(Promise.resolve(status)).toEqual(stat);
     expect(Promise.resolve(bootId)).toEqual(stat);
@@ -13,7 +13,7 @@ describe('mock system functions', () => {
 
   test('gives simple 0s for readstat', done => {
     expect.assertions(5);
-    system.readstat().then(data => {
+    readstat().then(data => {
       const { utime, stime, cutime, cstime, rss } = data;
       expect(utime).toBe(0);
       expect(stime).toBe(0);

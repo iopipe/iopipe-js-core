@@ -1,6 +1,6 @@
 import dns from 'dns';
 
-let promiseInstances = [];
+const promiseInstances = [];
 
 function getDnsPromise(host) {
   const prom = new Promise((resolve, reject) => {

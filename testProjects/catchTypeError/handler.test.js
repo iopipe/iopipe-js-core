@@ -1,3 +1,4 @@
+/*eslint-disable import/no-extraneous-dependencies*/
 import _ from 'lodash';
 import delay from 'delay';
 

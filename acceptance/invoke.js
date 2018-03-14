@@ -14,6 +14,9 @@ const arns = ['callback', 'contextSuccess', 'contextFail', 'contextDone'].map(
   str => `${base}${str}`
 );
 
+/*eslint-disable no-console*/
+/*eslint-disable no-process-exit*/
+
 function executeUploaded() {
   console.log('Running acceptance test invocations');
   Promise.all(

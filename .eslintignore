@@ -1,6 +1,0 @@
-coverage
-acceptance/node_modules
-acceptance/iopipe.js
-.serverless
-node_modules
-iopipe.js

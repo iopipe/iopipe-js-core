@@ -1,5 +1,6 @@
-import setConfig from './index';
 import { resetEnv } from '../../util/testUtils';
+import setConfig from './index';
+import { setConfigPath } from './util';
 
 jest.mock('./util');
 jest.mock('@iopipe/config', () => {
@@ -7,8 +8,6 @@ jest.mock('@iopipe/config', () => {
     plugins: []
   };
 });
-
-import { setConfigPath } from './util';
 
 beforeEach(() => {
   resetEnv();
@@ -49,12 +48,12 @@ describe('setting up config object', () => {
       'foo'
     );
 
-    process.env['IOPIPE_CLIENTID'] = 'qux';
+    process.env.IOPIPE_CLIENTID = 'qux';
 
     expect(setConfig().clientId).toEqual('qux');
 
     // takes IOPIPE_TOKEN over IOPIPE_CLIENTID
-    process.env['IOPIPE_TOKEN'] = 'baz';
+    process.env.IOPIPE_TOKEN = 'baz';
 
     expect(setConfig().clientId).toEqual('baz');
   });
@@ -80,7 +79,7 @@ describe('setting up config object', () => {
 
     expect(config.host).toBe('foo.bar.baz.iopipe.com');
 
-    expect(config.plugins.length).toBe(1);
+    expect(config.plugins).toHaveLength(1);
 
     expect(config.path).toBe('/foo/bar/v0/event');
 

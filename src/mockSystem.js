@@ -26,8 +26,4 @@ function readbootid() {
   return Promise.resolve(uuid());
 }
 
-module.exports = {
-  readstat,
-  readstatus,
-  readbootid
-};
+export { readstat, readstatus, readbootid };

@@ -1,5 +1,7 @@
-const fs = require('fs-extra');
+/*eslint-disable no-console*/
+/*eslint-disable no-process-exit*/
 const path = require('path');
+const fs = require('fs-extra');
 const _ = require('lodash');
 const spawn = require('cross-spawn');
 const argv = require('yargs').argv;

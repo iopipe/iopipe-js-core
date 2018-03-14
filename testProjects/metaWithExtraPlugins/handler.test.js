@@ -1,3 +1,4 @@
+/*eslint-disable import/no-extraneous-dependencies*/
 import _ from 'lodash';
 
 import { MockPlugin, MockTracePlugin } from '../util/plugins';
@@ -31,14 +32,14 @@ describe('Meta with extra plugin, no deduping', () => {
           .map(p => p.meta.name)
           .value();
 
-        expect(plugins.length).toBe(2);
+        expect(plugins).toHaveLength(2);
         expect(names).toEqual(['mock-plugin', '@iopipe/trace']);
 
         expect(_.isFunction(context.iopipe.mark.start)).toBe(true);
 
         done();
       } catch (err) {
-        console.log(err);
+        throw err;
       }
     })({}, {});
   });
@@ -69,13 +70,13 @@ describe('Meta with extra plugin, dedupes trace plugin', () => {
           .map(p => p.meta.name)
           .value();
 
-        expect(plugins.length).toBe(2);
+        expect(plugins).toHaveLength(2);
         expect(names).toEqual(['mock-plugin', '@iopipe/trace']);
         expect(plugins[1].meta.version).toBe('mocked-trace');
 
         done();
       } catch (err) {
-        console.log(err);
+        throw err;
       }
     })({}, {});
   });

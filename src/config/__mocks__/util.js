@@ -1,4 +1,6 @@
-let configPath = undefined;
+let configPath;
+
+/*eslint-disable import/no-dynamic-require*/
 
 function getCosmiConfig() {
   try {
@@ -18,7 +20,7 @@ function requireFromString(src, args) {
   try {
     const mod = require(src);
 
-    if (args && args.constructor === Array) return mod.apply(null, args);
+    if (args && args.constructor === Array) return mod(...args);
 
     return mod();
   } catch (err) {

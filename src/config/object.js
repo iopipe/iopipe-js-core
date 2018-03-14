@@ -1,8 +1,6 @@
-import collector from '../collector';
+import { getHostname, getCollectorPath } from '../collector';
 
 import EnvironmentConfig from './environment';
-
-const { getHostname, getCollectorPath } = collector;
 
 import { getPlugins, requireFromString } from './util';
 

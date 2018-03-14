@@ -1,8 +1,11 @@
+/*eslint-disable import/prefer-default-export*/
 import https from 'https';
 
-import globals from './globals';
+import { httpsAgent } from './globals';
 
-export function sendReport(requestBody, config, ipAddress) {
+const reports = undefined;
+
+function sendReport(requestBody, config, ipAddress) {
   return new Promise((resolve, reject) => {
     const req = https
       .request(
@@ -13,11 +16,11 @@ export function sendReport(requestBody, config, ipAddress) {
           port: 443,
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          agent: globals.httpsAgent,
+          agent: httpsAgent,
           timeout: config.networkTimeout
         },
         res => {
-          var apiResponse = '';
+          let apiResponse = '';
 
           res.on('data', chunk => {
             apiResponse += chunk;
@@ -36,3 +39,5 @@ export function sendReport(requestBody, config, ipAddress) {
     req.end();
   });
 }
+
+export { reports, sendReport };
