@@ -4,6 +4,7 @@ import isIp from 'is-ip';
 
 import * as dns from './dns';
 import { reports } from './sendReport';
+import { COLDSTART, setColdStart } from './globals';
 
 jest.mock('./dns');
 jest.mock('./sendReport');
@@ -69,6 +70,13 @@ function runWrappedFunctionArray(arr) {
     })
   );
 }
+
+test('Coldstart is true on first invocation, can be set to false', () => {
+  expect(COLDSTART).toBe(true);
+  setColdStart(false);
+  expect(COLDSTART).toBe(false);
+  setColdStart(true);
+});
 
 // this test should run first in this file due to the nature of testing the dns promises
 test('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', async done => {
