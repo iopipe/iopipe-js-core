@@ -204,7 +204,7 @@ test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
       ctx.iopipe.metric('metric-7');
       // This is too long to be added
       ctx.iopipe.metric(
-        new Array(258).join('a'),
+        new Array(130).join('a'),
         'value not saved because key too long'
       );
       ctx.succeed('all done');
@@ -237,7 +237,7 @@ test('ctx.iopipe.tag adds tags to the custom_metrics array', async () => {
       ctx.iopipe.tag(2);
       ctx.iopipe.tag({ foo: 'bar' });
       // This tag is too long to be added
-      ctx.iopipe.tag(new Array(258).join('a'));
+      ctx.iopipe.tag(new Array(130).join('a'));
       ctx.succeed('all done');
     });
 

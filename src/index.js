@@ -199,7 +199,7 @@ class IOpipeWrapperClass {
   metric(keyInput, valueInput) {
     let numberValue, stringValue;
     const key = convertToString(keyInput);
-    if (key.length > 256) {
+    if (key.length > 128) {
       console.warn(
         `Metric with key name ${key} is longer than allowed length of 256, metric will not be saved`
       );
@@ -218,7 +218,7 @@ class IOpipeWrapperClass {
   }
   tag(nameInput) {
     const name = convertToString(nameInput);
-    if (name.length > 256) {
+    if (name.length > 128) {
       console.warn(
         `Tag with name ${name} is longer than allowed length of 256, tag will not be saved`
       );
