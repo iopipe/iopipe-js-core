@@ -197,9 +197,8 @@ class IOpipeWrapperClass {
     });
   }
   metric(keyInput, valueInput) {
+    let numberValue, stringValue;
     const key = convertToString(keyInput);
-    var numberValue = undefined;
-    var stringValue = undefined;
     if (key.length > 256) {
       console.warn(
         `Metric with key name ${key} is longer than allowed length of 256, metric will not be saved`

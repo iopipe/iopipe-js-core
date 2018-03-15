@@ -220,7 +220,7 @@ test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
       .get('custom_metrics')
       .value();
     expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toBe(7);
+    expect(metrics).toHaveLength(7);
     expect(metrics).toMatchSnapshot();
   } catch (err) {
     throw err;
@@ -251,7 +251,7 @@ test('ctx.iopipe.tag adds tags to the custom_metrics array', async () => {
       .get('custom_metrics')
       .value();
     expect(_.isArray(metrics)).toBe(true);
-    expect(metrics.length).toBe(3);
+    expect(metrics).toHaveLength(3);
     expect(metrics).toMatchSnapshot();
   } catch (err) {
     throw err;
