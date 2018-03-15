@@ -123,6 +123,12 @@ class IOpipeWrapperClass {
       delete this.originalContext[reset ? `original_${method}` : method];
     });
   }
+  debugLog(message, level='warn') {
+    console.log(this.config)
+    if (this.config.debug) {
+      console[level](message);
+    }
+  }
   invoke() {
     this.runHook('pre:invoke');
     try {
@@ -200,12 +206,12 @@ class IOpipeWrapperClass {
     let numberValue, stringValue;
     const key = convertToString(keyInput);
     if (key.length > 128) {
-      console.warn(
-        `Metric with key name ${key} is longer than allowed length of 256, metric will not be saved`
+      this.debugLog(
+        `Metric with key name ${key} is longer than allowed length of 128, metric will not be saved`
       );
       return;
     }
-    if (typeof valueInput === 'number' && Number.isFinite(valueInput)) {
+    if (Number.isFinite(valueInput)) {
       numberValue = valueInput;
     } else {
       stringValue = convertToString(valueInput);
@@ -217,10 +223,13 @@ class IOpipeWrapperClass {
     });
   }
   tag(nameInput) {
+    if (typeof name !== 'string') {
+      this.debugLog(`Tag name ${name} is not a string and will not be saved`);
+    }
     const name = convertToString(nameInput);
     if (name.length > 128) {
-      console.warn(
-        `Tag with name ${name} is longer than allowed length of 256, tag will not be saved`
+      this.debugLog(
+        `Tag with name ${name} is longer than allowed length of 128, tag will not be saved`
       );
       return;
     }
@@ -228,7 +237,7 @@ class IOpipeWrapperClass {
   }
   // DEPRECATED: This method is deprecated in favor of .metric and .tag
   log(name, value) {
-    console.warn(
+    this.debugLog(
       'context.iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.metric'
     );
     this.metric(name, value);
