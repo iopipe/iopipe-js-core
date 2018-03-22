@@ -9,7 +9,7 @@ This package provides analytics and distributed tracing for event-driven applica
 - [Installation](#installation)
 - [Usage](#usage)
   - [Custom Metrics](#custom-metrics)
-  - [Tags](#tags)
+  - [Labels](#labels)
 - [Configuration](#configuration)
   - [Methods](#methods)
   - [Options](#options)
@@ -62,9 +62,9 @@ exports.handler = iopipe((event, context) => {
 });
 ```
 
-## Tagging
+## Labels
 
-You can tag invocations using `context.iopipe.tag` to tag an invocation with a string value, with a limit of 256 characters.
+You can label invocations using `context.iopipe.label` to label an invocation with a string value, with a limit of 128 characters.
 
 Example:
 
@@ -74,7 +74,7 @@ const iopipeLib = require('@iopipe/core');
 const iopipe = iopipeLib({ token: 'PROJECT_TOKEN' });
 
 exports.handler = iopipe((event, context) => {
-  context.iopipe.tag('something-important-happened');
+  context.iopipe.label('something-important-happened');
   context.succeed('This is my serverless function!');
 });
 ```
