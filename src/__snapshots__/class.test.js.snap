@@ -106,6 +106,13 @@ Array [
 ]
 `;
 
+exports[`ctx.iopipe.label adds labels to the labels array 1`] = `
+Array [
+  "label-1",
+  "label-2",
+]
+`;
+
 exports[`ctx.iopipe.metric adds metrics to the custom_metrics array 1`] = `
 Array [
   Object {
@@ -142,20 +149,6 @@ Array [
     "n": undefined,
     "name": "metric-7",
     "s": "undefined",
-  },
-]
-`;
-
-exports[`ctx.iopipe.tag adds tags to the custom_metrics array 1`] = `
-Array [
-  Object {
-    "name": "tag-1",
-  },
-  Object {
-    "name": "2",
-  },
-  Object {
-    "name": "{\\"foo\\":\\"bar\\"}",
   },
 ]
 `;

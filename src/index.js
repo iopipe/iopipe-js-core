@@ -49,6 +49,7 @@ class IOpipeWrapperClass {
     this.startTimestamp = Date.now();
     this.config = config;
     this.metrics = [];
+    this.labels = new Set();
     this.originalIdentity = originalIdentity;
     this.event = originalEvent;
     this.originalContext = originalContext;
@@ -84,9 +85,9 @@ class IOpipeWrapperClass {
       fail: this.fail.bind(this),
       done: this.done.bind(this),
       iopipe: {
+        label: this.label.bind(this),
         log: this.log.bind(this),
         metric: this.metric.bind(this),
-        tag: this.tag.bind(this),
         version: VERSION,
         config: this.config
       }
@@ -123,8 +124,7 @@ class IOpipeWrapperClass {
       delete this.originalContext[reset ? `original_${method}` : method];
     });
   }
-  debugLog(message, level='warn') {
-    console.log(this.config)
+  debugLog(message, level = 'warn') {
     if (this.config.debug) {
       console[level](message);
     }
@@ -222,20 +222,21 @@ class IOpipeWrapperClass {
       s: stringValue
     });
   }
-  tag(nameInput) {
+  label(name) {
     if (typeof name !== 'string') {
-      this.debugLog(`Tag name ${name} is not a string and will not be saved`);
+      this.debugLog(`Label ${name} is not a string and will not be saved`);
+      return;
     }
-    const name = convertToString(nameInput);
     if (name.length > 128) {
       this.debugLog(
-        `Tag with name ${name} is longer than allowed length of 128, tag will not be saved`
+        `Label with name ${name} is longer than allowed length of 128, label will not be saved`
       );
       return;
     }
-    this.metrics.push({ name });
+    this.labels.add(name);
+    console.log(this.labels);
   }
-  // DEPRECATED: This method is deprecated in favor of .metric and .tag
+  // DEPRECATED: This method is deprecated in favor of .metric and .label
   log(name, value) {
     this.debugLog(
       'context.iopipe.log is deprecated and will be removed in a future version, please use context.iopipe.metric'

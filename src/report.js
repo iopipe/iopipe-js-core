@@ -34,6 +34,7 @@ class Report {
       context = {},
       dnsPromise = Promise.resolve(),
       metrics = [],
+      labels = new Set(),
       plugins = [],
       startTime = process.hrtime(),
       startTimestamp = Date.now()
@@ -115,6 +116,7 @@ class Report {
       errors: {},
       coldstart: COLDSTART,
       custom_metrics: metrics,
+      labels,
       plugins: pluginMetas
     };
 
@@ -202,6 +204,9 @@ class Report {
     this.report.duration = Math.ceil(
       durationHrTime[0] * 1e9 + durationHrTime[1]
     );
+
+    // Convert labels from set to array
+    this.report.labels = Array.from(this.report.labels);
 
     if (config.debug) {
       log('IOPIPE-DEBUG: ', JSON.stringify(this.report));

@@ -227,32 +227,34 @@ test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
   }
 });
 
-test('ctx.iopipe.tag adds tags to the custom_metrics array', async () => {
+test('ctx.iopipe.label adds labels to the labels array', async () => {
   expect.assertions(4);
   try {
     const iopipe = createAgent({});
     const wrappedFunction = iopipe(function Wrapper(event, ctx) {
-      ctx.iopipe.tag('tag-1');
-      // Tags are stringified
-      ctx.iopipe.tag(2);
-      ctx.iopipe.tag({ foo: 'bar' });
-      // This tag is too long to be added
-      ctx.iopipe.tag(new Array(130).join('a'));
+      ctx.iopipe.label('label-1');
+      ctx.iopipe.label('label-2');
+      // Non-strings are dropped
+      ctx.iopipe.label(2);
+      ctx.iopipe.label({ foo: 'bar' });
+      // This label is too long to be added
+      ctx.iopipe.label(new Array(130).join('a'));
       ctx.succeed('all done');
     });
 
-    const context = mockContext({ functionName: 'tag-test' });
+    const context = mockContext({ functionName: 'label-test' });
     wrappedFunction({}, context);
     const val = await context.Promise;
     expect(val).toEqual('all done');
 
-    const metrics = _.chain(reports)
-      .find(obj => obj.aws.functionName === 'tag-test')
-      .get('custom_metrics')
+    const labels = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'label-test')
+      .get('labels')
       .value();
-    expect(_.isArray(metrics)).toBe(true);
-    expect(metrics).toHaveLength(3);
-    expect(metrics).toMatchSnapshot();
+
+    expect(_.isArray(labels)).toBe(true);
+    expect(labels).toHaveLength(2);
+    expect(labels).toMatchSnapshot();
   } catch (err) {
     throw err;
   }
