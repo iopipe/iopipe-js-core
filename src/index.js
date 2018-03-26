@@ -234,7 +234,6 @@ class IOpipeWrapperClass {
       return;
     }
     this.labels.add(name);
-    console.log(this.labels);
   }
   // DEPRECATED: This method is deprecated in favor of .metric and .label
   log(name, value) {
