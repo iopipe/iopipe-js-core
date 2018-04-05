@@ -189,6 +189,77 @@ test('Allows ctx.iopipe.log and iopipe.log functionality', async () => {
   }
 });
 
+test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
+  expect.assertions(4);
+  try {
+    const iopipe = createAgent({});
+    const wrappedFunction = iopipe(function Wrapper(event, ctx) {
+      ctx.iopipe.metric('metric-1', 'foo');
+      ctx.iopipe.metric('metric-2', true);
+      ctx.iopipe.metric('metric-3', { ding: 'dong' });
+      ctx.iopipe.metric('metric-4', ['whoa']);
+      ctx.iopipe.metric('metric-5', 100);
+      // NaN is saved as string
+      ctx.iopipe.metric('metric-6', Number('foo'));
+      ctx.iopipe.metric('metric-7');
+      // This is too long to be added
+      ctx.iopipe.metric(
+        new Array(130).join('a'),
+        'value not saved because key too long'
+      );
+      ctx.succeed('all done');
+    });
+
+    const context = mockContext({ functionName: 'metric-test' });
+    wrappedFunction({}, context);
+    const val = await context.Promise;
+    expect(val).toEqual('all done');
+
+    const metrics = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'metric-test')
+      .get('custom_metrics')
+      .value();
+    expect(_.isArray(metrics)).toBe(true);
+    expect(metrics).toHaveLength(7);
+    expect(metrics).toMatchSnapshot();
+  } catch (err) {
+    throw err;
+  }
+});
+
+test('ctx.iopipe.label adds labels to the labels array', async () => {
+  expect.assertions(4);
+  try {
+    const iopipe = createAgent({});
+    const wrappedFunction = iopipe(function Wrapper(event, ctx) {
+      ctx.iopipe.label('label-1');
+      ctx.iopipe.label('label-2');
+      // Non-strings are dropped
+      ctx.iopipe.label(2);
+      ctx.iopipe.label({ foo: 'bar' });
+      // This label is too long to be added
+      ctx.iopipe.label(new Array(130).join('a'));
+      ctx.succeed('all done');
+    });
+
+    const context = mockContext({ functionName: 'label-test' });
+    wrappedFunction({}, context);
+    const val = await context.Promise;
+    expect(val).toEqual('all done');
+
+    const labels = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'label-test')
+      .get('labels')
+      .value();
+
+    expect(_.isArray(labels)).toBe(true);
+    expect(labels).toHaveLength(2);
+    expect(labels).toMatchSnapshot();
+  } catch (err) {
+    throw err;
+  }
+});
+
 test('Does not have context.iopipe.log collisions', async () => {
   try {
     const iopipe = createAgent({
