@@ -17,6 +17,11 @@
     "getRemainingTimeInMillis": "n",
     "traceId": "s"
   },
+  "disk": {
+    "totalMiB": "n",
+    "usedMiB": "n",
+    "usedPercentage": "n"
+  },
   "memory": {
     "rssMiB": "n",
     "totalMiB": "n",

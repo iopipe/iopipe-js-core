@@ -49,6 +49,9 @@ describe('Report creation', () => {
 
       const allowedMissingFields = [
         'projectId',
+        'disk.totalMiB',
+        'disk.usedMiB',
+        'disk.usedPercentage',
         'memory.rssMiB',
         'memory.totalMiB',
         'memory.rssTotalPercentage',
