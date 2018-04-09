@@ -108,7 +108,7 @@
       "n": "n"
     }
   ],
-  "labels": "s",
+  "labels": ["s"],
   "performanceEntries": [
     {
       "name": "s",
