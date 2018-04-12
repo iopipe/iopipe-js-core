@@ -116,4 +116,13 @@ describe('Report creation', () => {
       'arn:aws:lambda:us-west-1:123456789012:function:aws-lambda-mock-context:$LATEST'
     );
   });
+
+  test('patches the ARN if no ARN is detected', () => {
+    const newContext = context();
+    delete newContext.invokedFunctionArn;
+    const localReport = new Report({ config, context: newContext });
+    expect(localReport.report.aws.invokedFunctionArn).toBe(
+      'arn:aws:lambda:local:0:function:aws-lambda-mock-context'
+    );
+  });
 });
