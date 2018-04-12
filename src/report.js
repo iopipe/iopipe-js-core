@@ -58,7 +58,8 @@ class Report {
     let { invokedFunctionArn } = this.context;
 
     // Patch invokedFunctionArn in cases of SAM local invocations
-    if (process.env.AWS_SAM_LOCAL) {
+    // or if invokedFunctionArn is missing
+    if (invokedFunctionArn === undefined || process.env.AWS_SAM_LOCAL) {
       invokedFunctionArn = `arn:aws:lambda:local:0:function:${functionName}`;
     }
 
