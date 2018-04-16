@@ -30,6 +30,8 @@ function setupTimeoutCapture(wrapperInstance) {
   }, endTime);
 }
 
+let invocationContext;
+
 //TODO: refactor to abide by max-params rule*/
 /*eslint-disable max-params*/
 
@@ -79,7 +81,7 @@ class IOpipeWrapperClass {
     this.setupContext();
 
     // assign modified methods and objects here
-    this.context = Object.assign(this.originalContext, {
+    this.context = invocationContext = Object.assign(this.originalContext, {
       // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClass
       succeed: this.succeed.bind(this),
       fail: this.fail.bind(this),
@@ -290,4 +292,8 @@ module.exports = options => {
   // Alias decorate to the wrapper function
   libFn.decorate = libFn;
   return libFn;
+};
+
+module.exports.getContext = function getContext() {
+  return invocationContext;
 };

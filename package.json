@@ -11,6 +11,7 @@
     "acceptanceLocalContextDone": "sls invoke local -f contextDone",
     "acceptanceLocal": "npm run acceptanceLocalCallback && npm run acceptanceLocalContextSuccess && npm run acceptanceLocalContextDone",
     "build": "npm run webpack",
+    "commit": "iopipe-scripts commit",
     "lint": "iopipe-scripts lint",
     "jest": "iopipe-scripts test",
     "prepare": "npm run build",
