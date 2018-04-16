@@ -81,7 +81,7 @@ class IOpipeWrapperClass {
     this.setupContext();
 
     // assign modified methods and objects here
-    this.context = invocationContext = Object.assign(this.originalContext, {
+    this.context = Object.assign(this.originalContext, {
       // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClass
       succeed: this.succeed.bind(this),
       fail: this.fail.bind(this),
@@ -94,6 +94,8 @@ class IOpipeWrapperClass {
         config: this.config
       }
     });
+
+    invocationContext = this.context;
 
     this.callback = (err, data) => {
       this.sendReport(err, () => {
