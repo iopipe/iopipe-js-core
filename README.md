@@ -1,10 +1,10 @@
-IOpipe Analytics & Distributed Tracing Agent
+# IOpipe Agent for JavaScript
 --------------------------------------------
 [![Coverage Status](https://coveralls.io/repos/github/iopipe/iopipe/badge.svg?branch=master)](https://coveralls.io/github/iopipe/iopipe?branch=master)
 [![npm version](https://badge.fury.io/js/iopipe.svg)](https://badge.fury.io/js/iopipe)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-This package provides analytics and distributed tracing for event-driven applications running on AWS Lambda.
+[IOpipe](https://iopipe.com) is a serverless DevOps platform for organizations building event-driven architectures in [AWS Lambda](https://aws.amazon.com/lambda/). IOpipe captures crucial, high-fidelity metrics for each Lambda function invocation. This data powers a flexibile and robust development and operations experience with features including tracing, profiling, custom metrics, and low-latency alerts. Get started today to quickly and confidently gain superior observability, identify issues, and discover anomalies in your connected applications.
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -13,6 +13,8 @@ This package provides analytics and distributed tracing for event-driven applica
 - [Configuration](#configuration)
   - [Methods](#methods)
   - [Options](#options)
+
+__Note: this library is a lower-level implementation than the package [you might likely be looking for](https://github.com/iopipe/iopipe-js). Enjoy pre-bundled plugins like tracing and event info with [`@iopipe/iopipe`](https://github.com/iopipe/iopipe-js)__
 
 # Installation
 
