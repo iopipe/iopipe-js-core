@@ -382,11 +382,10 @@ test('When timing out, the lambda reports to iopipe, does not succeed, and repor
   }
 });
 
-test('Exposes getContext function', async () => {
+test('Exposes getContext function which is undefined before + after invocation, populated with current context during invocation', async () => {
   try {
     expect(_.isFunction(iopipeLib.getContext)).toBe(true);
-    // should equal the previous invocation context
-    expect(iopipeLib.getContext().functionName).toEqual('timeout-test');
+    expect(iopipeLib.getContext()).toBeUndefined();
     const iopipe = createAgent({ token: 'getContext' });
     const wrappedFunction = iopipe(function Wrapper(event, ctx) {
       ctx.succeed(200);
@@ -395,9 +394,10 @@ test('Exposes getContext function', async () => {
 
     const context = mockContext({ functionName: 'getContext' });
     wrappedFunction({}, context);
-    const val = await context.Promise;
-    expect(val).toEqual(200);
     expect(iopipeLib.getContext().functionName).toEqual('getContext');
+    const val = await context.Promise;
+    expect(iopipeLib.getContext()).toBeUndefined();
+    expect(val).toEqual(200);
     const metrics = _.chain(reports)
       .filter(r => r.client_id === 'getContext')
       .map('custom_metrics')
