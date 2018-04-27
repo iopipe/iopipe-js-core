@@ -30,6 +30,8 @@ function setupTimeoutCapture(wrapperInstance) {
   }, endTime);
 }
 
+let invocationContext;
+
 //TODO: refactor to abide by max-params rule*/
 /*eslint-disable max-params*/
 
@@ -93,6 +95,8 @@ class IOpipeWrapperClass {
       }
     });
 
+    invocationContext = this.context;
+
     this.callback = (err, data) => {
       this.sendReport(err, () => {
         typeof this.originalCallback === 'function' &&
@@ -154,6 +158,7 @@ class IOpipeWrapperClass {
       }
       this.report.send(async (...args) => {
         await this.runHook('post:report');
+        invocationContext = undefined;
         // reset the context back to its original state, otherwise aws gets unhappy
         this.setupContext(true);
         cb(...args);
@@ -290,4 +295,8 @@ module.exports = options => {
   // Alias decorate to the wrapper function
   libFn.decorate = libFn;
   return libFn;
+};
+
+module.exports.getContext = function getContext() {
+  return invocationContext;
 };
