@@ -32,6 +32,16 @@ function setupTimeoutCapture(wrapperInstance) {
 
 let invocationContext;
 
+// function handlePromiseRejections(error) {
+//   if (invocationContext && typeof invocationContext.fail === 'function') {
+//     // default node behavior is to log these types of errors
+//     console.error(error);
+//     invocationContext.fail(error);
+//   }
+// }
+
+// process.on('unhandledRejection', handlePromiseRejections);
+
 //TODO: refactor to abide by max-params rule*/
 /*eslint-disable max-params*/
 
