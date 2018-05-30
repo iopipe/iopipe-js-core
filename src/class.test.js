@@ -407,3 +407,30 @@ test('Exposes getContext function which is undefined before + after invocation, 
     throw err;
   }
 });
+
+test('Captures errors that are not instanceof Error', async () => {
+  try {
+    const iopipe = createAgent({ token: 'objectErrorHandling' });
+    const wrappedFunction = iopipe(function Wrapper(event, ctx) {
+      ctx.fail({ foo: true });
+    });
+
+    const context = mockContext({ functionName: 'objectErrorHandling' });
+    wrappedFunction({}, context);
+    try {
+      await context.Promise;
+      throw new Error('Test should fail by reaching this point');
+    } catch (err) {
+      const { name, message, stack } = _.chain(reports)
+        .find(r => r.client_id === 'objectErrorHandling')
+        .get('errors')
+        .value();
+      // all values should be truthy strings
+      expect([name, message, stack].map(d => typeof d)).toEqual(
+        _.fill(Array(3), 'string')
+      );
+    }
+  } catch (err) {
+    throw err;
+  }
+});
