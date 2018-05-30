@@ -138,11 +138,10 @@ class Report {
 
     // Add error to report if necessary
     if (err) {
-      const reportError = typeof err === 'string' ? new Error(err) : err;
-      // const reportError =
-      //   err instanceof Error
-      //     ? err
-      //     : new Error(typeof err === 'string' ? err : JSON.stringify(err));
+      const reportError =
+        err instanceof Error
+          ? err
+          : new Error(typeof err === 'string' ? err : JSON.stringify(err));
       const {
         name,
         message,
