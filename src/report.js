@@ -138,6 +138,7 @@ class Report {
 
     // Add error to report if necessary
     if (err) {
+      this.report.labels.add('@iopipe/error');
       const reportError =
         err instanceof Error
           ? err

@@ -460,14 +460,16 @@ test('Captures errors that are not instanceof Error', async () => {
       await context.Promise;
       throw new Error('Test should fail by reaching this point');
     } catch (err) {
-      const { name, message, stack } = _.chain(reports)
-        .find(r => r.client_id === 'objectErrorHandling')
-        .get('errors')
-        .value();
+      const report = _.find(
+        reports,
+        r => r.client_id === 'objectErrorHandling'
+      );
+      const { name, message, stack } = report.errors;
       // all values should be truthy strings
       expect([name, message, stack].map(d => typeof d)).toEqual(
         _.fill(Array(3), 'string')
       );
+      expect(report.labels).toContain('@iopipe/error');
     }
   } catch (err) {
     throw err;
