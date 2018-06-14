@@ -226,6 +226,10 @@ class IOpipeWrapperClass {
       n: numberValue,
       s: stringValue
     });
+    // Automatically label that this invocation contains metrics
+    if (!key.startsWith('@iopipe')) {
+      this.label('@iopipe/metrics');
+    }
   }
   label(name) {
     if (typeof name !== 'string') {

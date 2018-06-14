@@ -190,7 +190,7 @@ test('Allows ctx.iopipe.log and iopipe.log functionality', async () => {
 });
 
 test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
-  expect.assertions(4);
+  expect.assertions(5);
   try {
     const iopipe = createAgent({});
     const wrappedFunction = iopipe(function Wrapper(event, ctx) {
@@ -222,6 +222,39 @@ test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
     expect(_.isArray(metrics)).toBe(true);
     expect(metrics).toHaveLength(7);
     expect(metrics).toMatchSnapshot();
+
+    // Check for autolabel because metrics were added
+    const labels = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'metric-test')
+      .get('labels')
+      .value();
+    expect(labels.includes('@iopipe/metrics')).toBe(true);
+  } catch (err) {
+    throw err;
+  }
+});
+
+test('Autolabels do not cause the @iopipe/metrics label to be added', async () => {
+  expect.assertions(3);
+  try {
+    const iopipe = createAgent({});
+    const wrappedFunction = iopipe(function Wrapper(event, ctx) {
+      ctx.iopipe.metric('@iopipe/foo', 'some-value');
+      ctx.succeed('all done');
+    });
+
+    const context = mockContext({ functionName: 'auto-label-test' });
+    wrappedFunction({}, context);
+    const val = await context.Promise;
+    expect(val).toEqual('all done');
+
+    const labels = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'auto-label-test')
+      .get('labels')
+      .value();
+
+    expect(_.isArray(labels)).toBe(true);
+    expect(labels).toHaveLength(0);
   } catch (err) {
     throw err;
   }
