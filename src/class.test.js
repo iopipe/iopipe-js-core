@@ -11,14 +11,6 @@ jest.mock('./sendReport');
 
 const iopipeLib = require('./index');
 
-function createContext(opts = {}) {
-  return mockContext(
-    _.defaults({}, opts, {
-      functionName: 'iopipe-lib-unit-tests'
-    })
-  );
-}
-
 function createAgent(kwargs) {
   return iopipeLib(
     _.defaults(kwargs, {
@@ -40,8 +32,9 @@ function fnGenerator(token, region, timeout, completedObj) {
   });
 }
 
-function runWrappedFunction(fnToRun) {
-  const ctx = createContext();
+function runWrappedFunction(fnToRun, funcName) {
+  const functionName = funcName || 'iopipe-lib-unit-tests';
+  const ctx = mockContext({ functionName });
   const event = {};
   return new Promise(resolve => {
     // not sure why eslint thinks that userFnReturnValue is not reassigned.
@@ -79,7 +72,8 @@ test('Coldstart is true on first invocation, can be set to false', () => {
 });
 
 // this test should run first in this file due to the nature of testing the dns promises
-test('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', async done => {
+test('coldstarts use dns and label appropriately', async done => {
+  // 'DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations
   try {
     const { promiseInstances } = dns;
     expect(promiseInstances).toHaveLength(0);
@@ -93,12 +87,24 @@ test('DNS promise is instantiated on library import, and reused for the coldstar
       ctx.succeed('Decorate');
     });
 
-    const run1 = await runWrappedFunction(wrappedFunction);
+    const run1 = await runWrappedFunction(wrappedFunction, 'coldstart-test');
+    const coldstartTest = _.find(
+      reports,
+      obj => obj.aws.functionName === 'coldstart-test'
+    );
+    expect(coldstartTest.coldstart).toBe(true);
+    expect(coldstartTest.labels).toContain('@iopipe/coldstart');
     expect(run1.response).toEqual('Decorate');
     expect(runs).toHaveLength(1);
     expect(promiseInstances).toHaveLength(1);
 
-    const run2 = await runWrappedFunction(wrappedFunction);
+    const run2 = await runWrappedFunction(wrappedFunction, 'coldstart-test2');
+    const coldstartTest2 = _.find(
+      reports,
+      obj => obj.aws.functionName === 'coldstart-test2'
+    );
+    expect(coldstartTest2.coldstart).toBe(false);
+    expect(coldstartTest2.labels).not.toContain('@iopipe/coldstart');
     expect(run2.response).toEqual('Decorate');
     expect(runs).toHaveLength(2);
     expect(promiseInstances).toHaveLength(2);

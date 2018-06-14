@@ -209,6 +209,10 @@ class Report {
       durationHrTime[0] * 1e9 + durationHrTime[1]
     );
 
+    if (this.report.coldstart) {
+      this.report.labels.add('@iopipe/coldstart');
+    }
+
     // Convert labels from set to array
     this.report.labels = Array.from(this.report.labels);
 
