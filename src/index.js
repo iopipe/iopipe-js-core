@@ -26,6 +26,7 @@ function setupTimeoutCapture(wrapperInstance) {
   const endTime = Math.min(configEndTime, maxEndTime);
 
   return setTimeout(() => {
+    context.iopipe.label('@iopipe/timeout');
     sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'), () => {});
   }, endTime);
 }

@@ -407,9 +407,11 @@ test('When timing out, the lambda reports to iopipe, does not succeed, and repor
   } catch (err) {
     // the report made it to iopipe
     try {
-      expect(
-        _.filter(reports, obj => obj.aws.functionName === 'timeout-test')
-      ).toHaveLength(1);
+      const report = _.find(
+        reports,
+        obj => obj.aws.functionName === 'timeout-test'
+      );
+      expect(report.labels).toContain('@iopipe/timeout');
       // the lambda did not succeed
       expect(returnValue).toBeUndefined();
       // the lambda timed out
