@@ -138,6 +138,7 @@ class Report {
 
     // Add error to report if necessary
     if (err) {
+      this.report.labels.add('@iopipe/error');
       const reportError =
         err instanceof Error
           ? err
@@ -208,6 +209,10 @@ class Report {
     this.report.duration = Math.ceil(
       durationHrTime[0] * 1e9 + durationHrTime[1]
     );
+
+    if (this.report.coldstart) {
+      this.report.labels.add('@iopipe/coldstart');
+    }
 
     // Convert labels from set to array
     this.report.labels = Array.from(this.report.labels);

@@ -26,6 +26,7 @@ function setupTimeoutCapture(wrapperInstance) {
   const endTime = Math.min(configEndTime, maxEndTime);
 
   return setTimeout(() => {
+    context.iopipe.label('@iopipe/timeout');
     sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'), () => {});
   }, endTime);
 }
@@ -226,6 +227,10 @@ class IOpipeWrapperClass {
       n: numberValue,
       s: stringValue
     });
+    // Automatically label that this invocation contains metrics
+    if (!key.startsWith('@iopipe')) {
+      this.label('@iopipe/metrics');
+    }
   }
   label(name) {
     if (typeof name !== 'string') {

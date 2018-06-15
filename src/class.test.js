@@ -11,14 +11,6 @@ jest.mock('./sendReport');
 
 const iopipeLib = require('./index');
 
-function createContext(opts = {}) {
-  return mockContext(
-    _.defaults({}, opts, {
-      functionName: 'iopipe-lib-unit-tests'
-    })
-  );
-}
-
 function createAgent(kwargs) {
   return iopipeLib(
     _.defaults(kwargs, {
@@ -40,8 +32,9 @@ function fnGenerator(token, region, timeout, completedObj) {
   });
 }
 
-function runWrappedFunction(fnToRun) {
-  const ctx = createContext();
+function runWrappedFunction(fnToRun, funcName) {
+  const functionName = funcName || 'iopipe-lib-unit-tests';
+  const ctx = mockContext({ functionName });
   const event = {};
   return new Promise(resolve => {
     // not sure why eslint thinks that userFnReturnValue is not reassigned.
@@ -79,7 +72,8 @@ test('Coldstart is true on first invocation, can be set to false', () => {
 });
 
 // this test should run first in this file due to the nature of testing the dns promises
-test('DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations', async done => {
+test('coldstarts use dns and label appropriately', async done => {
+  // 'DNS promise is instantiated on library import, and reused for the coldstart invocation. New DNS promises are generated for subsequent invocations
   try {
     const { promiseInstances } = dns;
     expect(promiseInstances).toHaveLength(0);
@@ -93,12 +87,24 @@ test('DNS promise is instantiated on library import, and reused for the coldstar
       ctx.succeed('Decorate');
     });
 
-    const run1 = await runWrappedFunction(wrappedFunction);
+    const run1 = await runWrappedFunction(wrappedFunction, 'coldstart-test');
+    const coldstartTest = _.find(
+      reports,
+      obj => obj.aws.functionName === 'coldstart-test'
+    );
+    expect(coldstartTest.coldstart).toBe(true);
+    expect(coldstartTest.labels).toContain('@iopipe/coldstart');
     expect(run1.response).toEqual('Decorate');
     expect(runs).toHaveLength(1);
     expect(promiseInstances).toHaveLength(1);
 
-    const run2 = await runWrappedFunction(wrappedFunction);
+    const run2 = await runWrappedFunction(wrappedFunction, 'coldstart-test2');
+    const coldstartTest2 = _.find(
+      reports,
+      obj => obj.aws.functionName === 'coldstart-test2'
+    );
+    expect(coldstartTest2.coldstart).toBe(false);
+    expect(coldstartTest2.labels).not.toContain('@iopipe/coldstart');
     expect(run2.response).toEqual('Decorate');
     expect(runs).toHaveLength(2);
     expect(promiseInstances).toHaveLength(2);
@@ -190,7 +196,7 @@ test('Allows ctx.iopipe.log and iopipe.log functionality', async () => {
 });
 
 test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
-  expect.assertions(4);
+  expect.assertions(5);
   try {
     const iopipe = createAgent({});
     const wrappedFunction = iopipe(function Wrapper(event, ctx) {
@@ -222,6 +228,39 @@ test('ctx.iopipe.metric adds metrics to the custom_metrics array', async () => {
     expect(_.isArray(metrics)).toBe(true);
     expect(metrics).toHaveLength(7);
     expect(metrics).toMatchSnapshot();
+
+    // Check for autolabel because metrics were added
+    const labels = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'metric-test')
+      .get('labels')
+      .value();
+    expect(labels.includes('@iopipe/metrics')).toBe(true);
+  } catch (err) {
+    throw err;
+  }
+});
+
+test('Autolabels do not cause the @iopipe/metrics label to be added', async () => {
+  expect.assertions(3);
+  try {
+    const iopipe = createAgent({});
+    const wrappedFunction = iopipe(function Wrapper(event, ctx) {
+      ctx.iopipe.metric('@iopipe/foo', 'some-value');
+      ctx.succeed('all done');
+    });
+
+    const context = mockContext({ functionName: 'auto-label-test' });
+    wrappedFunction({}, context);
+    const val = await context.Promise;
+    expect(val).toEqual('all done');
+
+    const labels = _.chain(reports)
+      .find(obj => obj.aws.functionName === 'auto-label-test')
+      .get('labels')
+      .value();
+
+    expect(_.isArray(labels)).toBe(true);
+    expect(labels).toHaveLength(0);
   } catch (err) {
     throw err;
   }
@@ -368,9 +407,11 @@ test('When timing out, the lambda reports to iopipe, does not succeed, and repor
   } catch (err) {
     // the report made it to iopipe
     try {
-      expect(
-        _.filter(reports, obj => obj.aws.functionName === 'timeout-test')
-      ).toHaveLength(1);
+      const report = _.find(
+        reports,
+        obj => obj.aws.functionName === 'timeout-test'
+      );
+      expect(report.labels).toContain('@iopipe/timeout');
       // the lambda did not succeed
       expect(returnValue).toBeUndefined();
       // the lambda timed out
@@ -421,14 +462,16 @@ test('Captures errors that are not instanceof Error', async () => {
       await context.Promise;
       throw new Error('Test should fail by reaching this point');
     } catch (err) {
-      const { name, message, stack } = _.chain(reports)
-        .find(r => r.client_id === 'objectErrorHandling')
-        .get('errors')
-        .value();
+      const report = _.find(
+        reports,
+        r => r.client_id === 'objectErrorHandling'
+      );
+      const { name, message, stack } = report.errors;
       // all values should be truthy strings
       expect([name, message, stack].map(d => typeof d)).toEqual(
         _.fill(Array(3), 'string')
       );
+      expect(report.labels).toContain('@iopipe/error');
     }
   } catch (err) {
     throw err;

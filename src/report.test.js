@@ -32,7 +32,7 @@ describe('Report creation', () => {
 
   test('creates a report that matches the schema', async done => {
     const r = new Report({
-      labels: ['a-label'],
+      labels: new Set('a-label'),
       metrics: [{ name: 'foo-metric', s: 'wow-string', n: 99 }]
     });
     await r.prepare(new Error('Holy smokes!'));
