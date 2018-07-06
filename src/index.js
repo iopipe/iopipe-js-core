@@ -5,6 +5,7 @@ import { getDnsPromise } from './dns';
 import { getHook } from './hooks';
 import { convertToString } from './util';
 import setupPlugins from './util/setupPlugins';
+import getFileUploadMeta from './fileUploadMeta';
 
 /*eslint-disable no-console*/
 
@@ -304,4 +305,8 @@ module.exports = options => {
 
 module.exports.getContext = function getContext() {
   return invocationContext;
+};
+
+module.exports.util = {
+  getFileUploadMeta
 };
