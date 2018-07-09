@@ -6,6 +6,10 @@ import { getHook } from './hooks';
 import { convertToString } from './util';
 import setupPlugins from './util/setupPlugins';
 import getFileUploadMeta from './fileUploadMeta';
+import {
+  set as setInvocationContext,
+  get as getInvocationContext
+} from './invocationContext';
 
 /*eslint-disable no-console*/
 
@@ -31,8 +35,6 @@ function setupTimeoutCapture(wrapperInstance) {
     sendReport.call(wrapperInstance, new Error('Timeout Exceeded.'), () => {});
   }, endTime);
 }
-
-let invocationContext;
 
 //TODO: refactor to abide by max-params rule*/
 /*eslint-disable max-params*/
@@ -97,7 +99,7 @@ class IOpipeWrapperClass {
       }
     });
 
-    invocationContext = this.context;
+    setInvocationContext(this.context);
 
     this.callback = (err, data) => {
       this.sendReport(err, () => {
@@ -160,7 +162,7 @@ class IOpipeWrapperClass {
       }
       this.report.send(async (...args) => {
         await this.runHook('post:report');
-        invocationContext = undefined;
+        setInvocationContext(undefined);
         // reset the context back to its original state, otherwise aws gets unhappy
         this.setupContext(true);
         cb(...args);
@@ -303,9 +305,7 @@ module.exports = options => {
   return libFn;
 };
 
-module.exports.getContext = function getContext() {
-  return invocationContext;
-};
+module.exports.getContext = getInvocationContext;
 
 module.exports.util = {
   getFileUploadMeta
