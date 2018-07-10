@@ -8,6 +8,7 @@ const SUPPORTED_REGIONS = new Map(
     'us-east-2',
     'us-west-1',
     'us-west-2'
+    // construct the map where each key is a region and the value is true (supported)
   ].map(s => [s, true])
 );
 
