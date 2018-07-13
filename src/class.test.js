@@ -5,6 +5,7 @@ import isIp from 'is-ip';
 import * as dns from './dns';
 import { reports } from './sendReport';
 import { COLDSTART, setColdStart } from './globals';
+import { get as getContext } from './invocationContext';
 
 jest.mock('./dns');
 jest.mock('./sendReport');
@@ -425,11 +426,13 @@ test('When timing out, the lambda reports to iopipe, does not succeed, and repor
 
 test('Exposes getContext function which is undefined before + after invocation, populated with current context during invocation', async () => {
   try {
+    expect(getContext()).toBeUndefined();
     expect(_.isFunction(iopipeLib.getContext)).toBe(true);
     expect(iopipeLib.getContext()).toBeUndefined();
     const iopipe = createAgent({ token: 'getContext' });
     const wrappedFunction = iopipe(function Wrapper(event, ctx) {
       ctx.succeed(200);
+      expect(getContext().functionName).toBe('getContext');
       iopipeLib.getContext().iopipe.log('getContextMetric');
     });
 
@@ -437,6 +440,7 @@ test('Exposes getContext function which is undefined before + after invocation, 
     wrappedFunction({}, context);
     expect(iopipeLib.getContext().functionName).toEqual('getContext');
     const val = await context.Promise;
+    expect(getContext()).toBeUndefined();
     expect(iopipeLib.getContext()).toBeUndefined();
     expect(val).toEqual(200);
     const metrics = _.chain(reports)
