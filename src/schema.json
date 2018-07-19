@@ -129,8 +129,6 @@
   ],
   "httpTraceEntries": [
     {
-      "id": "s",
-      "invocationId": "s",
       "startTime": "n",
       "name": "s",
       "duration": "n",
