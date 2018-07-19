@@ -126,5 +126,51 @@
       "enabled": "b",
       "uploads": ["s"]
     }
+  ],
+  "httpTraceEntries": [
+    {
+      "id": "s",
+      "invocationId": "s",
+      "startTime": "n",
+      "name": "s",
+      "duration": "n",
+      "timestamp": "n",
+      "type": "s",
+      "request": {
+        "hash": "s",
+        "hostname": "s",
+        "method": "s",
+        "path": "s",
+        "pathname": "s",
+        "port": "n",
+        "protocol": "s",
+        "query": "s",
+        "url": "s",
+        "headers": [
+          {
+            "key": "s",
+            "string": "s"
+          },
+          {
+            "key": "s",
+            "string": "s"
+          }
+        ]
+      },
+      "response": {
+        "headers": [
+          {
+            "key": "s",
+            "string": "s"
+          },
+          {
+            "key": "s",
+            "number": "n"
+          }
+        ],
+        "statusCode": "n",
+        "statusMessage": "s"
+      }
+    }
   ]
 }
