@@ -70,7 +70,31 @@ describe('Report creation', () => {
         'plugins.0.version',
         'plugins.0.homepage',
         'plugins.0.enabled',
-        'plugins.0.uploads.0'
+        'plugins.0.uploads.0',
+        'httpTraceEntries.0.startTime',
+        'httpTraceEntries.0.name',
+        'httpTraceEntries.0.duration',
+        'httpTraceEntries.0.timestamp',
+        'httpTraceEntries.0.type',
+        'httpTraceEntries.0.request.hash',
+        'httpTraceEntries.0.request.hostname',
+        'httpTraceEntries.0.request.method',
+        'httpTraceEntries.0.request.path',
+        'httpTraceEntries.0.request.pathname',
+        'httpTraceEntries.0.request.port',
+        'httpTraceEntries.0.request.protocol',
+        'httpTraceEntries.0.request.query',
+        'httpTraceEntries.0.request.url',
+        'httpTraceEntries.0.request.headers.0.key',
+        'httpTraceEntries.0.request.headers.0.string',
+        'httpTraceEntries.0.request.headers.1.key',
+        'httpTraceEntries.0.request.headers.1.string',
+        'httpTraceEntries.0.response.headers.0.key',
+        'httpTraceEntries.0.response.headers.0.string',
+        'httpTraceEntries.0.response.headers.1.key',
+        'httpTraceEntries.0.response.headers.1.number',
+        'httpTraceEntries.0.response.statusCode',
+        'httpTraceEntries.0.response.statusMessage'
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
