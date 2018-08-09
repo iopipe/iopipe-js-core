@@ -36,16 +36,14 @@ function setupTimeoutCapture(wrapperInstance) {
   }, endTime);
 }
 
-function handlePromiseRejections(error) {
+process.on('unhandledRejection', error => {
   const ctx = getInvocationContext();
   if (ctx && ctx.iopipe) {
     // default node behavior is to log these types of errors
     console.error(error);
     ctx.iopipe.label('@iopipe/unhandled-promise-rejection');
   }
-}
-
-process.on('unhandledRejection', handlePromiseRejections);
+});
 
 //TODO: refactor to abide by max-params rule*/
 /*eslint-disable max-params*/
