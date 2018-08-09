@@ -1,5 +1,6 @@
 import url from 'url';
 import { join } from 'path';
+import { SUPPORTED_REGIONS } from './constants';
 
 function getCollectorPath(baseUrl) {
   if (!baseUrl) {
@@ -19,15 +20,7 @@ function getHostname(configUrl) {
   if (configUrl) {
     return url.parse(configUrl).hostname;
   }
-  const supportedRegions = [
-    'ap-northeast-1',
-    'ap-southeast-2',
-    'eu-west-1',
-    'us-east-2',
-    'us-west-1',
-    'us-west-2'
-  ];
-  if (supportedRegions.indexOf(process.env.AWS_REGION) > -1) {
+  if (SUPPORTED_REGIONS.has(process.env.AWS_REGION)) {
     regionString = `.${process.env.AWS_REGION}`;
   }
   return `metrics-api${regionString}.iopipe.com`;

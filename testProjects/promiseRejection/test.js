@@ -25,7 +25,9 @@ handler({}, ctx);
 process.on('unhandledRejection', () => {
   setTimeout(() => {
     if (
-      invocations[0].report.report.errors.message === 'An error from a promise'
+      invocations[0].report.report.labels.has(
+        '@iopipe/unhandled-promise-rejection'
+      )
     ) {
       process.exit(0);
     }

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import mockContext from 'aws-lambda-mock-context';
 
 import { resetEnv } from '../util/testUtils';
+import { SUPPORTED_REGIONS } from './constants';
 
 const iopipeLib = require('../dist/iopipe.js');
 
@@ -288,18 +289,11 @@ describe('smoke test', () => {
   });
 
   describe('sends to specified regions', () => {
-    [
-      'ap-southeast-2',
-      'eu-west-1',
-      'us-east-1',
-      'us-east-2',
-      'us-west-1',
-      'us-west-2'
-    ].forEach(region => {
+    for (const region of SUPPORTED_REGIONS.keys()) {
       test(`sends to ${region}`, done => {
         sendToRegionTest(region, done);
       });
-    });
+    }
 
     test('sends to custom URLs (staging)', done => {
       runWrappedFunction(

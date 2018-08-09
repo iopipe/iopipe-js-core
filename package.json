@@ -1,6 +1,6 @@
 {
   "name": "@iopipe/core",
-  "version": "1.11.0",
+  "version": "1.13.0",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
   "scripts": {
@@ -65,6 +65,7 @@
     "istanbul": "^0.4.4",
     "lodash": "^4.17.4",
     "lodash.every": "^4.6.0",
+    "nock": "^9.4.1",
     "pre-commit": "^1.2.2",
     "serverless": "^1.24.1",
     "webpack": "^3.2.0",
@@ -84,7 +85,8 @@
   },
   "dependencies": {
     "cosmiconfig": "^4",
-    "lodash.uniqby": "^4.7.0"
+    "lodash.uniqby": "^4.7.0",
+    "simple-get": "^3.0.2"
   },
   "eslintConfig": {
     "extends": "./node_modules/@iopipe/scripts/eslint.js",
