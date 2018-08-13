@@ -25,6 +25,7 @@ jobs:
       - restore_cache:
           key: yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - run: yarn test
+      # test also runs the build, so save the dist for later
       - save_cache:
           key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
           paths:
@@ -40,7 +41,6 @@ jobs:
       - restore_cache:
           key:
             - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
-      - run: npm run build
       - run: npm run acceptance
 
   deploy:
@@ -53,7 +53,6 @@ jobs:
       - restore_cache:
           key:
             - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
-      - run: npm run build
       - run: cp .npmrc-ci .npmrc
       - run: npm publish --access public
 
