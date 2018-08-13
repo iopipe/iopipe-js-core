@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-    - image: circleci/node:8.10
+    - image: iopipe/circleci
   working_directory: ~/circleci-deployment
 
 version: 2
