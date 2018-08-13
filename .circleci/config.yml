@@ -36,11 +36,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key:
-            - yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - restore_cache:
-          key:
-            - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: npm run acceptance
 
   deploy:
@@ -48,11 +46,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key:
-            - yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - restore_cache:
-          key:
-            - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: cp .npmrc-ci .npmrc
       - run: npm publish --access public
 
