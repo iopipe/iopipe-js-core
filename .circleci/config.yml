@@ -35,8 +35,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
+          key:
             - yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          key:
             - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: npm run build
       - run: npm run acceptance
@@ -46,8 +48,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
+          key:
             - yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          key:
             - v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: npm run build
       - run: cp .npmrc-ci .npmrc
