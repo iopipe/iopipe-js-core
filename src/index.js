@@ -38,10 +38,11 @@ function setupTimeoutCapture(wrapperInstance) {
 
 process.on('unhandledRejection', error => {
   const ctx = getInvocationContext();
-  if (ctx && ctx.iopipe) {
+  if (ctx && ctx.iopipe && ctx.iopipe.label) {
     // default node behavior is to log these types of errors
     console.error(error);
     ctx.iopipe.label('@iopipe/unhandled-promise-rejection');
+    ctx.iopipe.label('@iopipe/error');
   }
 });
 
