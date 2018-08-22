@@ -1,0 +1,12 @@
+{
+  "name": "promiseRejectionTest",
+  "version": "0.0.0",
+  "description": "",
+  "main": "handler.test.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "aws-lambda-mock-context": "^3.1.1"
+  }
+}
