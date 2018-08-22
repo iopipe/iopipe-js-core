@@ -75,6 +75,7 @@ workflows:
             - test
           filters:
             branches:
-              ignore: /.*/
+              only:
+                - master
             tags:
               only: /^v.*/
