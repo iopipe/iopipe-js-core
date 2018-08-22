@@ -24,6 +24,7 @@ jobs:
       - checkout
       - restore_cache:
           key: yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run: yarn
       - run: yarn test
       # test also runs the build, so save the dist for later
       - save_cache:
