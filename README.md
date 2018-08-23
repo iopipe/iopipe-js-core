@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/iopipe/iopipe/badge.svg?branch=master)](https://coveralls.io/github/iopipe/iopipe?branch=master)
 [![npm version](https://badge.fury.io/js/iopipe.svg)](https://badge.fury.io/js/iopipe)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 [IOpipe](https://iopipe.com) is a serverless DevOps platform for organizations building event-driven architectures in [AWS Lambda](https://aws.amazon.com/lambda/). IOpipe captures crucial, high-fidelity metrics for each Lambda function invocation. This data powers a flexibile and robust development and operations experience with features including tracing, profiling, custom metrics, and low-latency alerts. Get started today to quickly and confidently gain superior observability, identify issues, and discover anomalies in your connected applications.
 

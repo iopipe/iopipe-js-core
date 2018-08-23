@@ -51,7 +51,7 @@ jobs:
       - restore_cache:
           key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: cp .npmrc-ci .npmrc
-      - run: npm publish --access public
+      - run: yarn run release
 
 workflows:
   version: 2
@@ -73,9 +73,8 @@ workflows:
           requires:
             - install
             - test
+            - acceptanceTests
           filters:
             branches:
               only:
                 - master
-            tags:
-              only: /^v.*/
