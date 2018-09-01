@@ -212,6 +212,7 @@ class Report {
 
     if (this.report.coldstart) {
       this.report.labels.add('@iopipe/coldstart');
+      this.report.duration = Math.ceil(process.uptime() * 1e9);
     }
 
     // Convert labels from set to array
