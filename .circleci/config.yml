@@ -68,8 +68,7 @@ workflows:
             - test
           filters:
             branches:
-              only:
-                - master
+              only: master
       - release:
           requires:
             - install
@@ -77,6 +76,6 @@ workflows:
             - acceptanceTests
           filters:
             branches:
-              ignore: /.*/
+              only: master
             tags:
               only: /^v.*/
