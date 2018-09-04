@@ -56,7 +56,7 @@ jobs:
 
 workflows:
   version: 2
-  test_build_deploy:
+  all:
     jobs:
       - install
       - test:
@@ -79,4 +79,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /^v.*/
