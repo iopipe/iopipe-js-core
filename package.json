@@ -1,6 +1,6 @@
 {
   "name": "@iopipe/core",
-  "version": "0.0.0-semantically-released",
+  "version": "1.14.2",
   "description": "IOpipe Lambda Analytics & Tracing Agent",
   "main": "dist/iopipe.js",
   "scripts": {
@@ -16,7 +16,6 @@
     "jest": "iopipe-scripts test",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
-    "release": "iopipe-scripts release",
     "test": "npm run lint && npm run build && npm run jest && npm run testProjects",
     "testProjects": "node util/testProjects",
     "webpack": "webpack --progress --profile --colors"
