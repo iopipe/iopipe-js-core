@@ -42,7 +42,7 @@ jobs:
           key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: npm run acceptance
 
-  deploy:
+  release:
     <<: *defaults
     steps:
       - checkout
@@ -50,8 +50,9 @@ jobs:
           key: yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
       - restore_cache:
           key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+      - run: yarn run build
       - run: cp .npmrc-ci .npmrc
-      - run: yarn run release
+      - run: npm publish --access public
 
 workflows:
   version: 2
@@ -69,12 +70,13 @@ workflows:
             branches:
               only:
                 - master
-      - deploy:
+      - release:
           requires:
             - install
             - test
             - acceptanceTests
           filters:
             branches:
-              only:
-                - master
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
