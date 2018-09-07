@@ -52,7 +52,7 @@ jobs:
           key: v1-dist-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
       - run: yarn run build
       - run: cp .npmrc-ci .npmrc
-      - run: npm publish --access public
+      - run: yarn run release
 
 workflows:
   version: 2
