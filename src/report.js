@@ -1,5 +1,7 @@
 import os from 'os';
+
 import { sendReport } from './sendReport';
+import strToBool from './util/strToBool';
 
 import {
   COLDSTART,
@@ -70,6 +72,13 @@ class Report {
 
         if (meta) {
           meta.uploads = meta.uploads || [];
+          if (meta.enabled && typeof meta.enabled === 'number') {
+            meta.enabled = Boolean(meta.enabled);
+          }
+
+          if (meta.enabled && typeof meta.enabled === 'string') {
+            meta.enabled = strToBool(meta.enabled);
+          }
         }
 
         return meta;
