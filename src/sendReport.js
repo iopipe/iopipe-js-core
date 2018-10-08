@@ -15,7 +15,10 @@ function sendReport(requestBody, config, ipAddress) {
           path: config.path,
           port: 443,
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          headers: {
+            authorization: `Bearer ${config.clientId}`,
+            'content-type': 'application/json'
+          },
           agent: httpsAgent,
           timeout: config.networkTimeout
         },
