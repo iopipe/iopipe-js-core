@@ -61,6 +61,7 @@ describe('Report creation', () => {
         'environment.python.version',
         'errors.stackHash',
         'errors.count',
+        'eventType',
         'performanceEntries.0.name',
         'performanceEntries.0.startTime',
         'performanceEntries.0.duration',
