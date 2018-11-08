@@ -48,6 +48,7 @@ describe('Report creation', () => {
       const diff = _.difference(flatSchema, flatReport);
 
       const allowedMissingFields = [
+        'clientId',
         'projectId',
         'disk.totalMiB',
         'disk.usedMiB',
