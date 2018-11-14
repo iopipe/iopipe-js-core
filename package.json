@@ -85,7 +85,6 @@
     ]
   },
   "dependencies": {
-    "commit": "^0.0.4",
     "cosmiconfig": "^4",
     "lodash.uniqby": "^4.7.0",
     "simple-get": "^3.0.2"
