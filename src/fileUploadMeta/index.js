@@ -14,7 +14,8 @@ export default function getFileUploadMeta(kwargs = {}) {
       timestamp = Date.now(),
       extension = '.zip',
       auth: authorization,
-      method = 'POST'
+      method = 'POST',
+      networkTimeout = 5000
     } = kwargs;
 
     const body = { arn, requestId, timestamp, extension };
@@ -23,7 +24,7 @@ export default function getFileUploadMeta(kwargs = {}) {
       headers = { authorization };
     }
     request.concat(
-      { url, body, headers, method, json: true },
+      { url, body, headers, method, json: true, timeout: networkTimeout },
       (err, res, data) => {
         return err ? reject(err) : resolve(data || {});
       }
