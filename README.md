@@ -118,7 +118,7 @@ exports.handler = iopipe((event, context, callback) => {
 
 #### `networkTimeout` (int: optional = 5000)
 
-The number of milliseconds IOpipe will wait while sending a report before timing out. If not supplied, the environment variable `$IOPIPE_NETWORK_TIMEOUT` will be used if present.
+The number of milliseconds IOpipe will wait while sending a report before timing out. If not supplied, the environment variable `$IOPIPE_NETWORK_TIMEOUT` will be used, if present.
 
 ```js
 const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', networkTimeout: 30000})
