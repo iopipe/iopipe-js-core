@@ -5,7 +5,6 @@ import getSigner from './getSigner';
 
 export default function getFileUploadMeta(kwargs = {}) {
   return new Promise((resolve, reject) => {
-    const url = getSigner();
     const context = get() || {};
     const {
       arn = context.invokedFunctionArn ||
@@ -15,7 +14,8 @@ export default function getFileUploadMeta(kwargs = {}) {
       extension = '.zip',
       auth: authorization,
       method = 'POST',
-      networkTimeout = 5000
+      networkTimeout = 5000,
+      url = getSigner()
     } = kwargs;
 
     const body = { arn, requestId, timestamp, extension };
