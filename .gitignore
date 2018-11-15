@@ -7,3 +7,5 @@ iopipe.js
 stats.json
 package-lock.json
 yarn-error.log
+# ignore vim swap files
+.*.sw* 
