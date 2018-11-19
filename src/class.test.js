@@ -55,16 +55,6 @@ function runWrappedFunction(fnToRun, funcName) {
   });
 }
 
-function runWrappedFunctionArray(arr) {
-  return Promise.all(
-    arr.map(fn => {
-      const ctx = mockContext();
-      fn({}, ctx);
-      return ctx.Promise;
-    })
-  );
-}
-
 test('Coldstart is true on first invocation, can be set to false', () => {
   expect(COLDSTART).toBe(true);
   setColdStart(false);
@@ -295,52 +285,6 @@ test('ctx.iopipe.label adds labels to the labels array', async () => {
     expect(_.isArray(labels)).toBe(true);
     expect(labels).toHaveLength(2);
     expect(labels).toMatchSnapshot();
-  } catch (err) {
-    throw err;
-  }
-});
-
-test('Does not have context.iopipe.log collisions', async () => {
-  try {
-    const iopipe = createAgent({
-      token: 'context-iopipe-log-collisions'
-    });
-    const wrappedFunction1 = iopipe((event, ctx) => {
-      ctx.iopipe.log('func-1-log-1', true);
-      ctx.iopipe.log('func-1-log-2', true);
-      ctx.iopipe.log('func-1-log-3', true);
-      setTimeout(() => {
-        ctx.iopipe.log('func-1-log-4', true);
-        ctx.succeed('wow');
-      }, 6);
-    });
-
-    const wrappedFunction2 = iopipe((event, ctx) => {
-      ctx.iopipe.log('func-2-log-1', true);
-      ctx.iopipe.log('func-2-log-2', true);
-      setTimeout(() => {
-        ctx.iopipe.log('func-2-log-3', true);
-      }, 2);
-      setTimeout(() => {
-        ctx.succeed('neat');
-      }, 20);
-    });
-
-    const [fn1, fn2, fn3] = await runWrappedFunctionArray([
-      wrappedFunction1,
-      wrappedFunction2,
-      wrappedFunction1
-    ]);
-    expect(fn1).toEqual('wow');
-    expect(fn2).toEqual('neat');
-    expect(fn3).toEqual('wow');
-    const metrics = _.chain(reports)
-      .filter(r => r.client_id === 'context-iopipe-log-collisions')
-      .map('custom_metrics')
-      .value();
-    expect(_.isArray(metrics)).toBe(true);
-    expect(metrics).toHaveLength(3);
-    expect(metrics).toMatchSnapshot();
   } catch (err) {
     throw err;
   }
