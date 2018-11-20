@@ -1,7 +1,7 @@
 # IOpipe Agent for JavaScript
 --------------------------------------------
 [![Coverage Status](https://coveralls.io/repos/github/iopipe/iopipe/badge.svg?branch=master)](https://coveralls.io/github/iopipe/iopipe?branch=master)
-[![npm version](https://badge.fury.io/js/iopipe.svg)](https://badge.fury.io/js/iopipe)
+[![npm version](https://badge.fury.io/js/%40iopipe%2Fcore.svg)](https://badge.fury.io/js/%40iopipe%2Fcore)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
@@ -134,9 +134,12 @@ const iopipe = require('@iopipe/core')({ token: 'PROJECT_TOKEN', timeoutWindow: 
 
 #### `plugins` (array: optional)
 
-Plugins can extend the functionality of IOpipe in ways that best work for you. Just follow the guides for the plugins listed below for proper usage:
+_Note that [if you use the `@iopipe/iopipe` package](https://github.com/iopipe/iopipe-js), you get our recommended plugin set-up right away._ Plugins can extend the functionality of IOpipe in ways that best work for you. Follow the guides for the plugins listed below for proper installation and usage on the `@iopipe/core` library:
 
+- [Event Info Plugin](https://github.com/iopipe/iopipe-plugin-event-info)
 - [Trace Plugin](https://github.com/iopipe/iopipe-plugin-trace)
+- [Logger Plugin](https://github.com/iopipe/iopipe-plugin-logger)
+- [Profiler Plugin](https://github.com/iopipe/iopipe-plugin-profiler)
 
 Example:
 
