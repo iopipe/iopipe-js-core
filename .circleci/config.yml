@@ -5,6 +5,32 @@ defaults: &defaults
 
 version: 2
 
+workflows:
+  version: 2
+  all:
+    jobs:
+      - install
+      - test:
+          requires:
+            - install
+      - acceptanceTests:
+          requires:
+            - install
+            - test
+          filters:
+            branches:
+              only: master
+      - release:
+          requires:
+            - install
+            - test
+            - acceptanceTests
+          filters:
+            branches:
+              only: master
+            tags:
+              only: /^v.*/
+
 jobs:
   install:
     <<: *defaults
@@ -53,29 +79,3 @@ jobs:
       - run: yarn run build
       - run: cp .npmrc-ci .npmrc
       - run: yarn run release
-
-workflows:
-  version: 2
-  all:
-    jobs:
-      - install
-      - test:
-          requires:
-            - install
-      - acceptanceTests:
-          requires:
-            - install
-            - test
-          filters:
-            branches:
-              only: master
-      - release:
-          requires:
-            - install
-            - test
-            - acceptanceTests
-          filters:
-            branches:
-              only: master
-            tags:
-              only: /^v.*/
