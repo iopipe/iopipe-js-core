@@ -2,6 +2,7 @@ import os from 'os';
 
 import { sendReport } from './sendReport';
 import strToBool from './util/strToBool';
+import uuid from './uuidv4';
 
 import {
   COLDSTART,
@@ -51,18 +52,25 @@ class Report {
     const {
       functionName,
       functionVersion,
-      awsRequestId,
       logGroupName,
       logStreamName,
       memoryLimitInMB
     } = this.context;
 
-    let { invokedFunctionArn } = this.context;
+    let { invokedFunctionArn, awsRequestId } = this.context;
 
     // Patch invokedFunctionArn in cases of SAM local invocations
     // or if invokedFunctionArn is missing
     if (invokedFunctionArn === undefined || process.env.AWS_SAM_LOCAL) {
       invokedFunctionArn = `arn:aws:lambda:local:0:function:${functionName}`;
+    }
+
+    if (
+      process.env.AWS_SAM_LOCAL ||
+      awsRequestId === undefined ||
+      awsRequestId === 'id'
+    ) {
+      awsRequestId = `local|${uuid()}`;
     }
 
     const pluginMetas = plugins

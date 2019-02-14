@@ -150,4 +150,19 @@ describe('Report creation', () => {
       'arn:aws:lambda:local:0:function:aws-lambda-mock-context'
     );
   });
+
+  test('patches the awsRequestId if SAM local is detected', () => {
+    process.env.AWS_SAM_LOCAL = true;
+    const localReport = new Report({ config, context: context() });
+    const requestId = String(localReport.report.aws.awsRequestId);
+
+    expect(requestId.substring(0, 6)).toBe(`local|`);
+    expect(requestId).toHaveLength(42);
+
+    delete process.env.AWS_SAM_LOCAL;
+    const normalReport = new Report({ config, context: context() });
+    expect(normalReport.report.aws.invokedFunctionArn).toBe(
+      'arn:aws:lambda:us-west-1:123456789012:function:aws-lambda-mock-context:$LATEST'
+    );
+  });
 });
