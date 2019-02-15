@@ -68,7 +68,7 @@
     "lodash.every": "^4.6.0",
     "nock": "^9.4.1",
     "pre-commit": "^1.2.2",
-    "serverless": "1.32.0",
+    "serverless": "^1.37.1",
     "webpack": "^3.2.0",
     "webpack-bundle-analyzer": "^2.9.1",
     "webpack-node-externals": "^1.6.0",
