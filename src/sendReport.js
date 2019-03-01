@@ -35,10 +35,12 @@ function sendReport(requestBody, config, ipAddress) {
       )
       .on('error', err => {
         reject(err);
-      })
-      .setTimeout(config.networkTimeout, () => {
+      });
+    if (Number.isInteger(config.networkTimeout) && config.networkTimeout > 0) {
+      req.setTimeout(config.networkTimeout, () => {
         req.abort();
       });
+    }
 
     req.write(JSON.stringify(requestBody));
     req.end();
