@@ -19,8 +19,7 @@ function sendReport(requestBody, config, ipAddress) {
             authorization: `Bearer ${config.clientId}`,
             'content-type': 'application/json'
           },
-          agent: httpsAgent,
-          timeout: config.networkTimeout
+          agent: httpsAgent
         },
         res => {
           let apiResponse = '';
@@ -37,6 +36,11 @@ function sendReport(requestBody, config, ipAddress) {
       .on('error', err => {
         reject(err);
       });
+    if (Number.isInteger(config.networkTimeout) && config.networkTimeout > 0) {
+      req.setTimeout(config.networkTimeout, () => {
+        req.abort();
+      });
+    }
 
     req.write(JSON.stringify(requestBody));
     req.end();
