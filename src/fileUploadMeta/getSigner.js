@@ -1,6 +1,6 @@
-import { SUPPORTED_REGIONS } from '../constants';
+import { SUPPORTED_SIGNER_REGIONS } from '../constants';
 
-const supported = new Map(SUPPORTED_REGIONS);
+const supported = new Map(SUPPORTED_SIGNER_REGIONS);
 // allow us-east-1 for signer util
 supported.set('us-east-1', true);
 
