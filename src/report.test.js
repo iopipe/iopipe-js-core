@@ -96,7 +96,18 @@ describe('Report creation', () => {
         'httpTraceEntries.0.response.headers.1.key',
         'httpTraceEntries.0.response.headers.1.number',
         'httpTraceEntries.0.response.statusCode',
-        'httpTraceEntries.0.response.statusMessage'
+        'httpTraceEntries.0.response.statusMessage',
+        'dbTraceEntries.0.startTime',
+        'dbTraceEntries.0.hostname',
+        'dbTraceEntries.0.port',
+        'dbTraceEntries.0.duration',
+        'dbTraceEntries.0.timestamp',
+        'dbTraceEntries.0.dbType',
+        'dbTraceEntries.0.request.hash',
+        'dbTraceEntries.0.request.command',
+        'dbTraceEntries.0.request.args.0.arg',
+        'dbTraceEntries.0.response.total',
+        'dbTraceEntries.0.type'
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
