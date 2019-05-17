@@ -106,8 +106,7 @@ describe('Report creation', () => {
         'dbTraceEntries.0.request.hash',
         'dbTraceEntries.0.request.command',
         'dbTraceEntries.0.request.args.0.arg',
-        'dbTraceEntries.0.response.total',
-        'dbTraceEntries.0.type'
+        'dbTraceEntries.0.response.total'
       ];
 
       expect(_.isEqual(allowedMissingFields, diff)).toBe(true);
