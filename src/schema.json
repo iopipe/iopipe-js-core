@@ -176,8 +176,6 @@
   "dbTraceEntries": [
     {
       "startTime": "n",
-      "hostname": "s",
-      "port": "s",
       "duration": "n",
       "timestamp": "n",
       "dbType": "s",
@@ -188,7 +186,10 @@
           {
             "arg": "s"
           }
-        ]
+        ],
+        "hostname": "s",
+        "port": "s",
+        "connectionName": "s"
       },
       "response": {
         "total": "n"
