@@ -172,5 +172,29 @@
         "statusMessage": "s"
       }
     }
+  ],
+  "dbTraceEntries": [
+    {
+      "startTime": "n",
+      "duration": "n",
+      "timestamp": "n",
+      "dbType": "s",
+      "request": {
+        "hash": "s",
+        "command": "s",
+        "args": [
+          {
+            "arg": "s"
+          }
+        ],
+        "hostname": "s",
+        "port": "s",
+        "connectionName": "s"
+      },
+      "response": {
+        "total": "n"
+      },
+      "type": "s"
+    }
   ]
 }
