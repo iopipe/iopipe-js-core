@@ -180,7 +180,6 @@
       "timestamp": "n",
       "dbType": "s",
       "request": {
-        "hash": "s",
         "command": "s",
         "key": "s",
         "hostname": "s",

@@ -101,7 +101,6 @@ describe('Report creation', () => {
         'dbTraceEntries.0.duration',
         'dbTraceEntries.0.timestamp',
         'dbTraceEntries.0.dbType',
-        'dbTraceEntries.0.request.hash',
         'dbTraceEntries.0.request.command',
         'dbTraceEntries.0.request.key',
         'dbTraceEntries.0.request.hostname',
