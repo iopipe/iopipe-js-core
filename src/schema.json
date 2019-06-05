@@ -180,19 +180,11 @@
       "timestamp": "n",
       "dbType": "s",
       "request": {
-        "hash": "s",
         "command": "s",
-        "args": [
-          {
-            "arg": "s"
-          }
-        ],
+        "key": "s",
         "hostname": "s",
         "port": "s",
         "connectionName": "s"
-      },
-      "response": {
-        "total": "n"
       },
       "type": "s"
     }

@@ -101,13 +101,11 @@ describe('Report creation', () => {
         'dbTraceEntries.0.duration',
         'dbTraceEntries.0.timestamp',
         'dbTraceEntries.0.dbType',
-        'dbTraceEntries.0.request.hash',
         'dbTraceEntries.0.request.command',
-        'dbTraceEntries.0.request.args.0.arg',
+        'dbTraceEntries.0.request.key',
         'dbTraceEntries.0.request.hostname',
         'dbTraceEntries.0.request.port',
         'dbTraceEntries.0.request.connectionName',
-        'dbTraceEntries.0.response.total',
         'dbTraceEntries.0.type'
       ];
 
