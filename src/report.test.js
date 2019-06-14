@@ -106,6 +106,8 @@ describe('Report creation', () => {
         'dbTraceEntries.0.request.hostname',
         'dbTraceEntries.0.request.port',
         'dbTraceEntries.0.request.connectionName',
+        'dbTraceEntries.0.request.db',
+        'dbTraceEntries.0.request.table',
         'dbTraceEntries.0.type'
       ];
 

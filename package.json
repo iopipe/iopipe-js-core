@@ -57,7 +57,7 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "babel-runtime": "^6.26.0",
-    "coveralls": "^2.11.12",
+    "coveralls": "^3.0.4",
     "cross-spawn": "^6.0.4",
     "delay": "^2.0.0",
     "flat": "^2.0.1",
@@ -70,7 +70,7 @@
     "pre-commit": "^1.2.2",
     "serverless": "^1.37.1",
     "webpack": "^3.2.0",
-    "webpack-bundle-analyzer": "^2.9.1",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-node-externals": "^1.6.0",
     "yargs": "^11.0.0"
   },
