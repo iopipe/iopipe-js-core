@@ -1,16 +1,18 @@
 import cosmiconfig from 'cosmiconfig';
 
 /* Provides the `iopipe` object from main's `package.json` if it exists. Or returns values from an rc file if it exists. */
-function getCosmiConfig() {
+async function getCosmiConfig() {
   try {
-    const config = cosmiconfig('iopipe', {
+    const config = await cosmiconfig('iopipe', {
       cache: false,
       sync: true,
       rcExtensions: true
-    }).load();
-
-    if (config !== null) {
+    }).search();
+    if (config !== null && config.config) {
       return config.config;
+    } else if (config !== null) {
+      // eslint-disable-next-line no-console
+      console.log('NO config.config', config);
     }
   } catch (err) {
     /*eslint-disable no-void*/
@@ -68,6 +70,8 @@ function getPlugins(plugins) {
       if (Array.isArray(plugin)) {
         // The array should have at least one item, which should be the
         // plugin package name.
+        // eslint-disable-next-line no-console
+        console.log('in getPlugins', plugin);
         if (!plugin[0]) return undefined;
 
         return requireFromString(plugin[0], plugin.slice(1));
@@ -79,6 +83,10 @@ function getPlugins(plugins) {
     .filter(plugin => typeof plugin !== 'undefined');
 }
 
-const setConfigPath = a => a;
+const setConfigPath = a => {
+  // eslint-disable-next-line no-console
+  console.log('setting config path', a);
+  return a;
+};
 
 export { getCosmiConfig, getPlugins, requireFromString, setConfigPath };
