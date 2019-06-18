@@ -160,6 +160,10 @@ exports.handler = iopipe((event, context, callback) => {
 
 Conditionally enable/disable the agent. The environment variable `$IOPIPE_ENABLED` will also be checked.
 
+#### `url` (string: optional)
+
+Sets an alternative URL to use for the IOpipe collector. The environment variable `$IOPIPE_COLLECTOR_URL` will be used if present.
+
 ## RC File Configuration
 Not recommended for webpack/bundlers due to dynamic require.
 
