@@ -184,7 +184,9 @@
         "key": "s",
         "hostname": "s",
         "port": "s",
-        "connectionName": "s"
+        "connectionName": "s",
+        "db": "s",
+        "table": "s"
       },
       "type": "s"
     }
