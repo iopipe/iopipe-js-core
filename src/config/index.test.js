@@ -72,16 +72,19 @@ describe('setting up config object', () => {
     setConfigPath('./package');
 
     const config = setConfig();
-    // eslint-disable-next-line no-console
-    console.log('configuring via config file', config);
+    // // eslint-disable-next-line no-console
+    // console.log(
+    //   'configuring via config file',
+    //   config.plugins,
+    //   config
+    // );
     expect(config.clientId).toBe('foobar123');
 
     expect(config.debug).toBe(true);
 
     expect(config.host).toBe('foo.bar.baz.iopipe.com');
 
-    expect(config[Symbol('cosmi')].plugins).toBeDefined();
-    expect(config[Symbol('cosmi')].plugins).toHaveLength(1);
+    expect(config.plugins).toHaveLength(1); // failing test
 
     expect(config.path).toBe('/foo/bar/v0/event');
 

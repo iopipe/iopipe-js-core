@@ -65,7 +65,15 @@ export default class ObjectConfig extends EnvironmentConfig {
   }
 
   get plugins() {
-    const plugins = [].concat(this[classConfig].plugins).concat(super.plugins);
+    // eslint-disable-next-line no-console
+    // console.log('IN OBJECT plugins, classConfig', classConfig);
+    let plugins = [];
+    if (this[classConfig].plugins) {
+      plugins = [...plugins, ...this[classConfig].plugins];
+    }
+    if (super.plugins) {
+      plugins = [...plugins, ...super.plugins];
+    }
     return getPlugins(plugins);
   }
 

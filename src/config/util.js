@@ -10,9 +10,6 @@ async function getCosmiConfig() {
     }).search();
     if (config !== null && config.config) {
       return config.config;
-    } else if (config !== null) {
-      // eslint-disable-next-line no-console
-      console.log('NO config.config', config);
     }
   } catch (err) {
     /*eslint-disable no-void*/
@@ -62,18 +59,21 @@ function requireFromString(src, args) {
  * Returns plugins, instantiating with arguments if provided.
  */
 function getPlugins(plugins) {
+  // eslint-disable-next-line no-console
+  // console.log('&&&& in getplugins function', typeof plugins, plugins);
+
   if (typeof plugins !== 'object' || !Array.isArray(plugins)) return undefined;
 
   return plugins
     .filter(Boolean)
     .map(plugin => {
+
       if (Array.isArray(plugin)) {
         // The array should have at least one item, which should be the
         // plugin package name.
-        // eslint-disable-next-line no-console
-        console.log('in getPlugins', plugin);
         if (!plugin[0]) return undefined;
-
+        // eslint-disable-next-line no-console
+        // console.log('IN GETPLUGINS', plugins, plugin);
         return requireFromString(plugin[0], plugin.slice(1));
       } else if (typeof plugin === 'string') {
         return requireFromString(plugin);
@@ -83,10 +83,6 @@ function getPlugins(plugins) {
     .filter(plugin => typeof plugin !== 'undefined');
 }
 
-const setConfigPath = a => {
-  // eslint-disable-next-line no-console
-  console.log('setting config path', a);
-  return a;
-};
+const setConfigPath = a => a;
 
 export { getCosmiConfig, getPlugins, requireFromString, setConfigPath };

@@ -23,10 +23,15 @@ export default class CosmiConfig extends DefaultConfig {
     /* If someone has {extends: "foo"} in their cosmiConfig (package.json, iopipe.rc) */
     const cosmiExtendsObject = requireFromString(cosmiObject.extends) || {};
 
-    const plugins = []
-      .concat(cosmiObject.plugins)
-      .concat(cosmiExtendsObject.plugins)
-      .concat(defaultExtendsObject.plugins);
+    const sources = [cosmiObject, cosmiExtendsObject, defaultExtendsObject];
+    let plugins = [];
+
+    // eslint-disable-next-line array-callback-return
+    sources.map(source => {
+      if (source.plugins) {
+        plugins = [...plugins, ...source.plugins];
+      }
+    });
 
     this[classConfig] = Object.assign(
       {},
@@ -84,6 +89,12 @@ export default class CosmiConfig extends DefaultConfig {
   }
 
   get plugins() {
+    // // eslint-disable-next-line no-console
+    // console.log(
+    //   'IN cosmi plugins getter!!!',
+    //   classConfig,
+    //   this[classConfig].plugins
+    // );
     return this[classConfig].plugins;
   }
 

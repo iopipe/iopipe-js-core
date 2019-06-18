@@ -176,7 +176,7 @@ test('Multiple plugins can be loaded and work', async () => {
       ]
     });
 
-    const wrapped = iopipe((event, ctx) => {
+    const wrapped = await iopipe((event, ctx) => {
       ctx.iopipe.mock('ok', 'neat');
       ctx.iopipe.secondmock('foo', 'bar');
       ctx.succeed('indeed');
@@ -215,17 +215,10 @@ test('All hooks are called successfully when a plugin uses them all', async () =
     const context = mockContext();
     wrapped({}, context);
 
-    const val = (await context.Promise.succeed)
-      ? context.Promise.succeed
-      : context.Promise.fail;
     // eslint-disable-next-line no-console
-    console.log('HOOK TEST', hooks, val);
+    // eslint-disable-next-line no-console
     _.reject(hooks, h => h === 'pre:setup').map(hook => {
-      // eslint-disable-next-line no-console
-      if (!val) {
-        return false;
-      }
-      return expect(val[`hasRun:${hook}`]).toBe(true);
+      return expect(context[`hasRun:${hook}`]).toBe(true);
     });
     expect(allHooksData).toMatchSnapshot();
   } catch (err) {
