@@ -7,7 +7,7 @@ function getCosmiConfig() {
       cache: false,
       sync: true,
       rcExtensions: true
-    }).load();
+    }).searchSync();
 
     if (config !== null) {
       return config.config;

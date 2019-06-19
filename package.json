@@ -85,7 +85,7 @@
     ]
   },
   "dependencies": {
-    "cosmiconfig": "^4",
+    "cosmiconfig": "^5.2.1",
     "lodash.uniqby": "^4.7.0",
     "simple-get": "^3.0.2"
   },
