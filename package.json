@@ -47,7 +47,7 @@
     "node": ">=4.3.2"
   },
   "devDependencies": {
-    "@iopipe/config": "^0.3.0",
+    "@iopipe/config": "^1.4.1",
     "@iopipe/scripts": "^1.4.1",
     "@iopipe/trace": "^0.3.0",
     "aws-lambda-mock-context": "^3.0.0",

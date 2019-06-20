@@ -5,6 +5,13 @@ import { getCosmiConfig, requireFromString } from './util';
 
 const classConfig = Symbol('cosmi');
 
+const concatenate = (accumulator, current) => {
+  if (current) {
+    return [...accumulator, ...current];
+  }
+  return accumulator;
+};
+
 export default class CosmiConfig extends DefaultConfig {
   /**
    * CosmiConfig configuration
@@ -23,10 +30,13 @@ export default class CosmiConfig extends DefaultConfig {
     /* If someone has {extends: "foo"} in their cosmiConfig (package.json, iopipe.rc) */
     const cosmiExtendsObject = requireFromString(cosmiObject.extends) || {};
 
-    const plugins = []
-      .concat(cosmiObject.plugins)
-      .concat(cosmiExtendsObject.plugins)
-      .concat(defaultExtendsObject.plugins);
+    const pluginSources = [
+      cosmiObject.plugins,
+      cosmiExtendsObject.plugins,
+      defaultExtendsObject.plugins
+    ];
+
+    const plugins = pluginSources.reduce(concatenate, []);
 
     this[classConfig] = Object.assign(
       {},

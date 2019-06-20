@@ -158,22 +158,19 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@iopipe/config@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@iopipe/config/-/config-0.3.0.tgz#80e16e26dd51cb3f857a80feba35af3fd4c72601"
+"@iopipe/config@^1.0.0", "@iopipe/config@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@iopipe/config/-/config-1.4.1.tgz#0a80dd9fece853768401e646320620a2308a6987"
+  integrity sha512-jV9d1JRGPfZwKg7zg/BvqY9NDLBbw7pVQveCoqBwEFQjL1mG1dfZ8YPMzNJ1C4yRbcupIfF8NxeU/1EeAxMxYQ==
   dependencies:
-    "@iopipe/trace" "^0.3.0"
+    "@iopipe/event-info" "^1.3.1"
+    "@iopipe/profiler" "^2.1.0"
+    "@iopipe/trace" "^1.4.1"
 
-"@iopipe/config@^1.0.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@iopipe/config/-/config-1.2.0.tgz#264bc0b591d90b24b609d0f20965dd96012f2d9e"
-  dependencies:
-    "@iopipe/event-info" "^1.2.1"
-    "@iopipe/trace" "^1.1.1"
-
-"@iopipe/core@^1.6.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@iopipe/core/-/core-1.14.0.tgz#e8c8ea5cb79cb3b4a265eb4ab1b3e8ffc6a0c8c4"
+"@iopipe/core@^1.13", "@iopipe/core@^1.6.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@iopipe/core/-/core-1.18.0.tgz#347faa77b3279fa691ef4db9c9bb123258f7f7d0"
+  integrity sha512-P8fY5fDMlarq/M8Wkeyd/OWzSBn3QExpCi6G4IJbZ+nm8yBYNH2puxmTLUYGkMA7sOCjGjehgbEuxJ8eIsliYg==
   dependencies:
     cosmiconfig "^4"
     lodash.uniqby "^4.7.0"
@@ -194,12 +191,23 @@
     eslint-plugin-react "^7.4.0"
     webpack "^3.7.1"
 
-"@iopipe/event-info@^1.2.1":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@iopipe/event-info/-/event-info-1.3.0.tgz#46159224ee6d43ff2b6d3a0aec5f00940758cf72"
+"@iopipe/event-info@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@iopipe/event-info/-/event-info-1.3.1.tgz#5a7407b3da73a558c7958b780c41d22d45790ae2"
+  integrity sha512-qI7pHnz2aCU4cj87kuWZDGNLgMy7kQPzOfpp0R6WuwvKjOz+M5uwYYTcs2CJyHbBREQH+Q6Xf0osYdEDNUhsug==
   dependencies:
     flat "^4.0.0"
     lodash.get "^4.4.2"
+
+"@iopipe/profiler@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@iopipe/profiler/-/profiler-2.1.0.tgz#54c556ca665d06abc2adcd9676b18e83d1c5e816"
+  integrity sha512-dyCopxnU5xmpJBxqEMtutKOqBgiDA5dhADjXWS13uvJWh4ki9qS6vA7Q8tZ8He3wuEjoGYnFDve4sFf242h9dQ==
+  dependencies:
+    "@iopipe/core" "^1.13"
+    archiver "^2.1.1"
+    lodash.get "^4.4.2"
+    simple-get "^3.0.2"
 
 "@iopipe/scripts@^1.4.1":
   version "1.4.1"
@@ -266,19 +274,23 @@
 "@iopipe/trace@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@iopipe/trace/-/trace-0.3.0.tgz#42a558da9c7d310d15f09fddb490fbb7ebbbf399"
+  integrity sha1-QqVY2px9MQ0V8J/dtJD7t+u785k=
   dependencies:
     iopipe "^1.0.0"
     performance-node "^0.2.0"
 
-"@iopipe/trace@^1.1.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@iopipe/trace/-/trace-1.2.1.tgz#e4f66f17c61f86015f17b4d2e3e627f6364b5050"
+"@iopipe/trace@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@iopipe/trace/-/trace-1.4.1.tgz#dd773b0bf33e563940e13b37d1b6b818e331f001"
+  integrity sha512-9QBkTSfLPDV22dJeCP+pIT8Qg6bLel61nezZyn8lB3wOoktp41FcCK/xrWqwNSWORGYMNwVwKs506cyxK6lrLg==
   dependencies:
     flat "^4.0.0"
+    ioredis "^4.9.0"
     isarray "^2.0.4"
     lodash.pickby "^4.6.0"
     performance-node "^0.2.0"
-    shimmer "^1.2.0"
+    semver "^6.0.0"
+    shimmer "^1.2.1"
     uuid "^3.2.1"
 
 "@ljharb/eslint-config@^12.2.1":
@@ -614,6 +626,20 @@ archiver@^1.1.0:
     tar-stream "^1.5.0"
     walkdir "^0.0.11"
     zip-stream "^1.1.0"
+
+archiver@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/archiver/-/archiver-2.1.1.tgz#ff662b4a78201494a3ee544d3a33fe7496509ebc"
+  integrity sha1-/2YrSnggFJSj7lRNOjP+dJZQnrw=
+  dependencies:
+    archiver-utils "^1.3.0"
+    async "^2.0.0"
+    buffer-crc32 "^0.2.1"
+    glob "^7.0.0"
+    lodash "^4.8.0"
+    readable-stream "^2.0.0"
+    tar-stream "^1.5.0"
+    zip-stream "^1.2.0"
 
 are-we-there-yet@~1.1.2:
   version "1.1.5"
@@ -2138,6 +2164,11 @@ clone@~0.1.9:
   version "0.1.19"
   resolved "https://registry.yarnpkg.com/clone/-/clone-0.1.19.tgz#613fb68639b26a494ac53253e15b1a6bd88ada85"
 
+cluster-key-slot@^1.0.6:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/cluster-key-slot/-/cluster-key-slot-1.0.12.tgz#d5deff2a520717bc98313979b687309b2d368e29"
+  integrity sha512-21O0kGmvED5OJ7ZTdqQ5lQQ+sjuez33R+d35jZKLwqUb5mqcPHUsxOSzj61+LHVtxGZd1kShbQM3MjB/gBJkVg==
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -2769,6 +2800,11 @@ delayed-stream@~1.0.0:
 delegates@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
+
+denque@^1.1.0:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/denque/-/denque-1.4.1.tgz#6744ff7641c148c3f8a69c307e51235c1f4a37cf"
+  integrity sha512-OfzPuSZKGcgr96rf1oODnfjqBFmr1DVoc/TrItj3Ohe0Ah1C5WX5Baquw/9U9KovnQ88EqmJbD66rKYUQYN1tQ==
 
 depd@~1.1.2:
   version "1.1.2"
@@ -4581,9 +4617,25 @@ invert-kv@^1.0.0:
 iopipe@^1.0.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/iopipe/-/iopipe-1.6.0.tgz#094526617f66a7a3bc8620356e47ffccb2362055"
+  integrity sha1-CUUmYX9mp6O8hiA1bkf/zLI2IFU=
   dependencies:
     "@iopipe/config" "^1.0.0"
     "@iopipe/core" "^1.6.0"
+
+ioredis@^4.9.0:
+  version "4.10.0"
+  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-4.10.0.tgz#a212127473d1618af3714bd6c09fb7dcab594250"
+  integrity sha512-bAdt/sKdOvUyKhjLJ8HKFmO6ZQ+OHHmfFgWn9X/ecsp1lJNnOtmh/Xl2+AdKwUdSkl/Rrw1CKOkR8+Kv8tRinQ==
+  dependencies:
+    cluster-key-slot "^1.0.6"
+    debug "^3.1.0"
+    denque "^1.1.0"
+    lodash.defaults "^4.2.0"
+    lodash.flatten "^4.4.0"
+    redis-commands "1.5.0"
+    redis-errors "^1.2.0"
+    redis-parser "^3.0.0"
+    standard-as-callback "^2.0.1"
 
 ip-regex@^2.0.0:
   version "2.1.0"
@@ -5754,6 +5806,11 @@ lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
 
+lodash.defaults@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/lodash.defaults/-/lodash.defaults-4.2.0.tgz#d09178716ffea4dde9e5fb7b37f6f0802274580c"
+  integrity sha1-0JF4cW/+pN3p5ft7N/bwgCJ0WAw=
+
 lodash.difference@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.difference/-/lodash.difference-4.5.0.tgz#9ccb4e505d486b91651345772885a2df27fd017c"
@@ -5761,6 +5818,11 @@ lodash.difference@^4.5.0:
 lodash.every@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.every/-/lodash.every-4.6.0.tgz#eb89984bebc4364279bb3aefbbd1ca19bfa6c6a7"
+
+lodash.flatten@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/lodash.flatten/-/lodash.flatten-4.4.0.tgz#f31c22225a9632d2bbf8e4addbef240aa765a61f"
+  integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
 
 lodash.get@^3.7.0:
   version "3.7.0"
@@ -7227,6 +7289,23 @@ redeyed@~1.0.0:
   dependencies:
     esprima "~3.0.0"
 
+redis-commands@1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.5.0.tgz#80d2e20698fe688f227127ff9e5164a7dd17e785"
+  integrity sha512-6KxamqpZ468MeQC3bkWmCB1fp56XL64D4Kf0zJSwDZbVLLm7KFkoIcHrgRvQ+sk8dnhySs7+yBg94yIkAK7aJg==
+
+redis-errors@^1.0.0, redis-errors@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/redis-errors/-/redis-errors-1.2.0.tgz#eb62d2adb15e4eaf4610c04afe1529384250abad"
+  integrity sha1-62LSrbFeTq9GEMBK/hUpOEJQq60=
+
+redis-parser@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/redis-parser/-/redis-parser-3.0.0.tgz#b66d828cdcafe6b4b8a428a7def4c6bcac31c8b4"
+  integrity sha1-tm2CjNyv5rS4pCin3vTGvKwxyLQ=
+  dependencies:
+    redis-errors "^1.0.0"
+
 regenerate@^1.2.1:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.0.tgz#4a856ec4b56e4077c557589cae85e7a4c8869a11"
@@ -7673,6 +7752,11 @@ semver-regex@^1.0.0:
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.1.tgz#7dfdd8814bdb7cabc7be0fb1d734cfb66c940477"
 
+semver@^6.0.0:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-6.1.1.tgz#53f53da9b30b2103cd4f15eab3a18ecbcb210c9b"
+  integrity sha512-rWYq2e5iYW+fFe/oPPtYJxYgjBm8sC4rmoGdUOgBB7VnwKt6HrL793l2voH1UlsyYZpJ4g0wfjnTEO1s1NP2eQ==
+
 semver@~2.3.1:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-2.3.2.tgz#b9848f25d6cf36333073ec9ef8856d42f1233e52"
@@ -7812,9 +7896,10 @@ shellwords@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
 
-shimmer@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/shimmer/-/shimmer-1.2.0.tgz#f966f7555789763e74d8841193685a5e78736665"
+shimmer@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/shimmer/-/shimmer-1.2.1.tgz#610859f7de327b587efebf501fb43117f9aff337"
+  integrity sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==
 
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
@@ -8021,6 +8106,11 @@ stack-trace@0.0.9:
 staged-git-files@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/staged-git-files/-/staged-git-files-0.0.4.tgz#d797e1b551ca7a639dec0237dc6eb4bb9be17d35"
+
+standard-as-callback@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/standard-as-callback/-/standard-as-callback-2.0.1.tgz#ed8bb25648e15831759b6023bdb87e6b60b38126"
+  integrity sha512-NQOxSeB8gOI5WjSaxjBgog2QFw55FV8TkS6Y07BiB3VJ8xNTvUYm0wl0s8ObgQ5NhdpnNfigMIKjgPESzgr4tg==
 
 static-extend@^0.1.1:
   version "0.1.2"
@@ -9143,9 +9233,10 @@ yauzl@^2.4.2:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
 
-zip-stream@^1.1.0:
+zip-stream@^1.1.0, zip-stream@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/zip-stream/-/zip-stream-1.2.0.tgz#a8bc45f4c1b49699c6b90198baacaacdbcd4ba04"
+  integrity sha1-qLxF9MG0lpnGuQGYuqyqzbzUugQ=
   dependencies:
     archiver-utils "^1.3.0"
     compress-commons "^1.2.0"
