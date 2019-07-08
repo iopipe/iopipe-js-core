@@ -157,8 +157,8 @@ class IOpipeWrapperClass {
         this.callback
       );
       if (result && result.then && result.catch) {
-        return new Promise(() => this.callback(null, () => result))
-          .then(value => value)
+        return new Promise(() => result)
+          .then(value => this.callback(null, () => value))
           .catch(err => {
             this.sendReport(err, () => this.originalCallback(err));
             return err;
