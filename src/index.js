@@ -156,13 +156,19 @@ class IOpipeWrapperClass {
         this.context,
         this.callback
       );
-      if (result && result.then && result.catch) {
-        return new Promise(() => result)
-          .then(value => this.callback(null, () => value))
-          .catch(err => {
-            this.sendReport(err, () => this.originalCallback(err));
-            return err;
-          });
+      if (
+        result &&
+        typeof result.then === 'function' &&
+        typeof result.catch === 'function'
+      ) {
+        return new Promise((resolve, reject) => {
+          return result
+            .then(value => this.callback(null, () => resolve(value)))
+            .catch(err => {
+              this.sendReport(err, () => this.originalCallback(err));
+              return reject(err);
+            });
+        });
       }
       return result;
     } catch (err) {
