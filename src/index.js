@@ -161,7 +161,7 @@ class IOpipeWrapperClass {
         typeof result.then === 'function' &&
         typeof result.catch === 'function'
       ) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
           return result
             .then(value => {
               this.context.succeed(value);
@@ -169,8 +169,7 @@ class IOpipeWrapperClass {
             })
             .catch(err => {
               this.context.fail(err);
-              this.sendReport(err, () => this.originalCallback(err));
-              return reject(err);
+              return this.callback(err);
             });
         });
       }
