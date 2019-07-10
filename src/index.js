@@ -150,30 +150,12 @@ class IOpipeWrapperClass {
   invoke() {
     this.runHook('pre:invoke');
     try {
-      const result = this.userFunc.call(
+      return this.userFunc.call(
         this.originalIdentity,
         this.event,
         this.context,
         this.callback
       );
-      if (
-        result &&
-        typeof result.then === 'function' &&
-        typeof result.catch === 'function'
-      ) {
-        return new Promise(resolve => {
-          return result
-            .then(value => {
-              this.context.succeed(value);
-              return this.callback(null, () => resolve(value));
-            })
-            .catch(err => {
-              this.context.fail(err);
-              return this.callback(err);
-            });
-        });
-      }
-      return result;
     } catch (err) {
       this.sendReport(err, () => this.originalCallback(err));
       return err;
