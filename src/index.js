@@ -165,6 +165,9 @@ class IOpipeWrapperClass {
           return result
             .then(value => {
               this.context.succeed(value);
+              return value;
+            })
+            .then(value => {
               return this.callback(null, () => resolve(value));
             })
             .catch(err => {
