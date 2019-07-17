@@ -161,17 +161,17 @@ class IOpipeWrapperClass {
         typeof result.then === 'function' &&
         typeof result.catch === 'function'
       ) {
-        return new Promise(resolve => {
-          return result
-            .then(value => {
-              this.context.succeed(value);
-              return this.callback(null, () => resolve(value));
-            })
-            .catch(err => {
-              this.context.fail(err);
-              return this.callback(err);
-            });
-        });
+        // return new Promise(resolve => {
+        //   return result
+        //     .then(value => {
+        //       this.context.succeed(value);
+        //       return this.callback(null, () => resolve(value));
+        //     })
+        //     .catch(err => {
+        //       this.context.fail(err);
+        //       return this.callback(err);
+        //     });
+        // });
       }
       return result;
     } catch (err) {
