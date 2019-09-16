@@ -97,6 +97,7 @@ describe('Report creation', () => {
         'httpTraceEntries.0.response.headers.1.number',
         'httpTraceEntries.0.response.statusCode',
         'httpTraceEntries.0.response.statusMessage',
+        'httpTraceEntries.0.hasResponse',
         'dbTraceEntries.0.startTime',
         'dbTraceEntries.0.duration',
         'dbTraceEntries.0.timestamp',
