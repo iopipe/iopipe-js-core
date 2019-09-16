@@ -170,7 +170,8 @@
         ],
         "statusCode": "n",
         "statusMessage": "s"
-      }
+      },
+      "hasResponse": "b"
     }
   ],
   "dbTraceEntries": [
