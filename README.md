@@ -156,6 +156,14 @@ exports.handler = iopipe((event, context, callback) => {
 });
 ```
 
+#### `proxyIntegration` (boolean: optional = False)
+
+Set to true when using API Gateway 'Lambda Proxy Integration'.
+When true IOPipe will inspect the response payload [see: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-output-format] for HTTP Status codes >= 400 and report those as errors.
+
+The environment variable `$IOPIPE_PROXY_INTEGRAION` will also be checked.
+
+
 #### `enabled` (boolean: optional = True)
 
 Conditionally enable/disable the agent. The environment variable `$IOPIPE_ENABLED` will also be checked.

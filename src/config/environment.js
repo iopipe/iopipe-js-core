@@ -54,6 +54,10 @@ export default class EnvironmentConfig extends CosmiConfig {
       : super.path;
   }
 
+  get proxyIntegration() {
+    return process.env.IOPIPE_PROXY_INTEGRATION || false;
+  }
+
   get timeoutWindow() {
     return Number.isInteger(parseInt(process.env.IOPIPE_TIMEOUT_WINDOW, 10))
       ? parseInt(process.env.IOPIPE_TIMEOUT_WINDOW, 10)

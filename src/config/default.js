@@ -51,6 +51,10 @@ export default class DefaultConfig {
     return [];
   }
 
+  get proxyIntegration() {
+    return false;
+  }
+
   get timeoutWindow() {
     return 150;
   }

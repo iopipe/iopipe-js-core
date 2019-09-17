@@ -69,6 +69,10 @@ export default class ObjectConfig extends EnvironmentConfig {
     return getPlugins(plugins);
   }
 
+  get proxyIntegration() {
+    return this[classConfig].proxyIntegration || super.proxyIntegration;
+  }
+
   get timeoutWindow() {
     return Number.isInteger(this[classConfig].timeoutWindow)
       ? this[classConfig].timeoutWindow

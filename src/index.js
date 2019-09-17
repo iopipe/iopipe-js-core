@@ -98,6 +98,7 @@ class IOpipeWrapperClass {
     this.context = Object.assign(this.originalContext, {
       // need to use .bind, otherwise, the this ref inside of each fn is NOT IOpipeWrapperClass
       succeed: this.succeed.bind(this),
+      proxyFail: this.proxyFail.bind(this),
       fail: this.fail.bind(this),
       done: this.done.bind(this),
       iopipe: {
@@ -225,7 +226,25 @@ class IOpipeWrapperClass {
     }
   }
   succeed(data) {
-    this.sendReport(null, () => {
+    if (this.config.proxyIntegration) {
+      // TODO: should probably allow for exclucsions, e.g. 404
+      if (data.statusCode < 400) {
+        this.sendReport(null, () => {
+          this.originalContext.succeed(data);
+        });
+      } else {
+        this.proxyFail(new Error(data.body), data);
+      }
+    } else {
+      this.sendReport(null, () => {
+        this.originalContext.succeed(data);
+      });
+    }
+  }
+  // allow for reporting errors when using
+  // API Gateway Lambda Proxy Integration
+  proxyFail(err, data) {
+    this.sendReport(err, () => {
       this.originalContext.succeed(data);
     });
   }
