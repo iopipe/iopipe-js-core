@@ -182,6 +182,7 @@
       "dbType": "s",
       "request": {
         "command": "s",
+        "bulkCommands": "s",
         "key": "s",
         "hostname": "s",
         "port": "s",
