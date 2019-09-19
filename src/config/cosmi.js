@@ -87,6 +87,10 @@ export default class CosmiConfig extends DefaultConfig {
     return this[classConfig].plugins;
   }
 
+  get proxyIntegration() {
+    return this[classConfig].proxyIntegration || super.proxyIntegration;
+  }
+
   get timeoutWindow() {
     return this[classConfig].timeoutWindow &&
       Number.isInteger(this[classConfig].timeoutWindow)
