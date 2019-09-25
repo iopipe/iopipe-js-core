@@ -224,13 +224,43 @@ class IOpipeWrapperClass {
       }
     }
   }
-  succeed(data) {
-    this.sendReport(null, () => {
+  async succeed(data) {
+    const context = this;
+    if (data && typeof data.resolve === 'function') {
+      await data.resolve();
+    } else if (data && typeof data.then === 'function') {
+      return new Promise(resolve => {
+        return data
+          .then(value => {
+            context.sendReport(null, () => {
+              // eslint-disable-next-line no-undef
+              context.originalContext.succeed(data);
+              resolve(value);
+            });
+          })
+          .catch(err => context.fail(err));
+      });
+    }
+    return this.sendReport(null, () => {
       this.originalContext.succeed(data);
     });
   }
-  fail(err) {
-    this.sendReport(err, () => {
+  async fail(err) {
+    const context = this;
+    const handleErr = payload =>
+      this.sendReport(payload, () => context.originalContext.fail(payload));
+
+    if (err && typeof err.resolve === 'function') {
+      await err.resolve();
+    } else if (typeof err.then === 'function') {
+      return new Promise(() => {
+        return err
+          .then(value => handleErr(value))
+          .catch(errErr => handleErr(errErr));
+      });
+    }
+
+    return this.sendReport(err, () => {
       this.originalContext.fail(err);
     });
   }
