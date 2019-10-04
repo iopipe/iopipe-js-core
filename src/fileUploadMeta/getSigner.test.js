@@ -15,7 +15,7 @@ describe('getSigner', () => {
   });
 
   test('Uses us-west-2 if region is not supported', () => {
-    process.env.AWS_REGION = 'eu-west-2';
+    process.env.AWS_REGION = 'eu-west-3';
     expect(lib()).toEqual('https://signer.us-west-2.iopipe.com/');
   });
 });
