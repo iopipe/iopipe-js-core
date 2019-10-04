@@ -294,18 +294,5 @@ describe('smoke test', () => {
         sendToRegionTest(region, done);
       });
     }
-
-    test('sends to custom URLs (staging)', done => {
-      runWrappedFunction(
-        undefined,
-        undefined,
-        createAgent({
-          url: 'https://metrics-api-staging.iopipe.com'
-        })
-      ).then(obj => {
-        expect(obj.response).toEqual('Success');
-        done();
-      });
-    });
   });
 });
